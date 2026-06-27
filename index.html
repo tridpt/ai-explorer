@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Explorer — Hiểu AI trong 15 phút</title>
+  <meta name="description" content="Hành trình tương tác giúp bạn hiểu AI một cách trực quan: tự tay dạy AI, nhìn vào bên trong mô hình, và khám phá giới hạn của nó." />
+
+  <!-- Favicon (SVG inline) -->
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%A7%A0%3C/text%3E%3C/svg%3E" />
+
+  <!-- Open Graph / chia sẻ mạng xã hội -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="AI Explorer — Hiểu AI trong 15 phút" />
+  <meta property="og:description" content="Tự tay dạy AI, nhìn vào bên trong mô hình, khám phá giới hạn của nó. Một hành trình tương tác, chạy ngay trên trình duyệt." />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="theme-color" content="#07060f" />
+
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- Nền mạng nơ-ron sống động -->
+  <canvas id="bgfx"></canvas>
+
+  <header class="topbar">
+    <div class="brand" id="brandHome">
+      <span class="brand-logo">🧠</span>
+      <span class="brand-name">AI Explorer</span>
+    </div>
+    <nav class="progress" id="progressNav"></nav>
+  </header>
+
+  <main id="app" class="app"></main>
+
+  <footer class="footer">
+    <span>Một hành trình tương tác để hiểu AI · Chạy hoàn toàn trên trình duyệt của bạn</span>
+  </footer>
+
+  <script type="module" src="fx.js"></script>
+  <script type="module" src="app.js"></script>
+  <script type="module" src="pwa.js"></script>
+</body>
+</html>
