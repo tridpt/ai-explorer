@@ -5,12 +5,16 @@ import { roomNeuralNet } from "./rooms/neural-net.js";
 import { roomOverfitting } from "./rooms/overfitting.js";
 import { roomDecisionTree } from "./rooms/decision-tree.js";
 import { roomReinforcement } from "./rooms/reinforcement.js";
+import { roomClustering } from "./rooms/clustering.js";
 import { roomTokenizer } from "./rooms/tokenizer.js";
 import { roomEmbeddings } from "./rooms/embeddings.js";
 import { roomAttention } from "./rooms/attention.js";
 import { roomNextToken } from "./rooms/next-token.js";
 import { roomDiffusion } from "./rooms/diffusion.js";
+import { roomRecommendation } from "./rooms/recommendation.js";
 import { roomBias } from "./rooms/bias.js";
+import { roomAdversarial } from "./rooms/adversarial.js";
+import { roomTuring } from "./rooms/turing.js";
 import { roomChatbot } from "./rooms/chatbot.js";
 import { roomSummary } from "./rooms/summary.js";
 import { sfx, isMuted, setMuted, celebrate } from "./sound.js";
@@ -71,7 +75,17 @@ export const ROOMS = [
     render: roomReinforcement,
   },
   {
-    id: "tokenizer", icon: "✂️", num: "06",
+    id: "clustering", icon: "🧲", num: "06",
+    title: { vi: "Tự phân nhóm", en: "Grouping on its own" },
+    question: { vi: "AI học mà không cần nhãn thì sao?", en: "What if AI learns with no labels?" },
+    blurb: {
+      vi: "Cho AI một đống dữ liệu lộn xộn — nó tự gom thành các nhóm giống nhau mà không ai chỉ. Học không giám sát.",
+      en: "Give the AI a messy pile of data — it groups similar things by itself, unguided. Unsupervised learning.",
+    },
+    render: roomClustering,
+  },
+  {
+    id: "tokenizer", icon: "✂️", num: "07",
     title: { vi: "Token là gì", en: "What is a token" },
     question: { vi: "AI đọc chữ kiểu gì?", en: "How does AI read text?" },
     blurb: {
@@ -81,7 +95,7 @@ export const ROOMS = [
     render: roomTokenizer,
   },
   {
-    id: "embeddings", icon: "🗺️", num: "07",
+    id: "embeddings", icon: "🗺️", num: "08",
     title: { vi: "Bản đồ ý nghĩa", en: "The map of meaning" },
     question: { vi: "AI hiểu nghĩa của từ ra sao?", en: "How does AI grasp word meaning?" },
     blurb: {
@@ -91,7 +105,7 @@ export const ROOMS = [
     render: roomEmbeddings,
   },
   {
-    id: "attention", icon: "👁️", num: "08",
+    id: "attention", icon: "👁️", num: "09",
     title: { vi: "AI đọc câu của bạn", en: "AI reads your sentence" },
     question: { vi: "Nó đọc một câu kiểu gì?", en: "How does it read a sentence?" },
     blurb: {
@@ -101,7 +115,7 @@ export const ROOMS = [
     render: roomAttention,
   },
   {
-    id: "next-token", icon: "🎲", num: "09",
+    id: "next-token", icon: "🎲", num: "10",
     title: { vi: "Máy đoán chữ", en: "The word-guessing machine" },
     question: { vi: "Vì sao AI đôi khi đoán bừa?", en: "Why does AI sometimes make things up?" },
     blurb: {
@@ -111,7 +125,7 @@ export const ROOMS = [
     render: roomNextToken,
   },
   {
-    id: "diffusion", icon: "🎨", num: "10",
+    id: "diffusion", icon: "🎨", num: "11",
     title: { vi: "AI tạo ảnh thế nào", en: "How AI makes images" },
     question: { vi: "Làm sao AI vẽ ra tranh?", en: "How does AI paint a picture?" },
     blurb: {
@@ -121,7 +135,17 @@ export const ROOMS = [
     render: roomDiffusion,
   },
   {
-    id: "bias", icon: "⚖️", num: "11",
+    id: "recommendation", icon: "📺", num: "12",
+    title: { vi: "Vì sao app hiểu bạn", en: "Why apps 'get' you" },
+    question: { vi: "Sao TikTok đoán trúng gu bạn?", en: "How does TikTok nail your taste?" },
+    blurb: {
+      vi: "Bạn thích/bỏ qua vài mục, AI đoán bạn thích gì tiếp theo — cơ chế gợi ý đằng sau TikTok, YouTube, Netflix.",
+      en: "Like/skip a few items and AI predicts what you'll enjoy next — the recommender behind TikTok, YouTube, Netflix.",
+    },
+    render: roomRecommendation,
+  },
+  {
+    id: "bias", icon: "⚖️", num: "13",
     title: { vi: "AI có thiên kiến?", en: "Is AI biased?" },
     question: { vi: "AI có công bằng không?", en: "Is AI fair?" },
     blurb: {
@@ -131,7 +155,27 @@ export const ROOMS = [
     render: roomBias,
   },
   {
-    id: "chatbot", icon: "💬", num: "12",
+    id: "adversarial", icon: "🐺", num: "14",
+    title: { vi: "Đánh lừa AI", en: "Fooling the AI" },
+    question: { vi: "AI có thể bị lừa không?", en: "Can AI be tricked?" },
+    blurb: {
+      vi: "Thêm chút nhiễu mắt thường không thấy, AI nhìn gấu trúc hóa vượn. Điểm yếu bất ngờ và bài học an toàn.",
+      en: "Add noise the eye can't see and AI sees a panda as a gibbon. A surprising weakness and a safety lesson.",
+    },
+    render: roomAdversarial,
+  },
+  {
+    id: "turing", icon: "🕵️", num: "15",
+    title: { vi: "Người hay AI viết?", en: "Human or AI?" },
+    question: { vi: "Bạn phân biệt được không?", en: "Can you tell them apart?" },
+    blurb: {
+      vi: "Đọc từng đoạn và đoán do người hay AI viết. Rèn con mắt tỉnh táo trong thời đại AI.",
+      en: "Read each passage and guess if a human or AI wrote it. Sharpen your eye for the AI era.",
+    },
+    render: roomTuring,
+  },
+  {
+    id: "chatbot", icon: "💬", num: "16",
     title: { vi: "Chatbot mini", en: "Mini chatbot" },
     question: { vi: "Ghép tất cả lại thành gì?", en: "What do all the pieces build?" },
     blurb: {
@@ -141,7 +185,7 @@ export const ROOMS = [
     render: roomChatbot,
   },
   {
-    id: "summary", icon: "🎓", num: "13",
+    id: "summary", icon: "🎓", num: "17",
     title: { vi: "Bạn đã hiểu AI rồi", en: "You get AI now" },
     question: { vi: "Tổng kết hành trình", en: "Journey recap" },
     blurb: {
@@ -170,12 +214,16 @@ const THEME = {
   overfitting: ["#fb7185", "#fb923c", "251,113,133"],
   "decision-tree":["#4ade80", "#a3e635", "74,222,128"],
   reinforcement: ["#f59e0b", "#f43f5e", "245,158,11"],
+  clustering:  ["#14b8a6", "#22d3ee", "20,184,166"],
   tokenizer:   ["#22d3ee", "#6ea8fe", "34,211,238"],
   embeddings:  ["#6ea8fe", "#818cf8", "110,168,254"],
   attention:   ["#b07bff", "#e879f9", "176,123,255"],
   "next-token":["#fbbf24", "#fb923c", "251,191,36"],
   diffusion:   ["#e879f9", "#818cf8", "232,121,249"],
+  recommendation: ["#0ea5e9", "#38bdf8", "14,165,233"],
   bias:        ["#f472b6", "#fb7185", "244,114,182"],
+  adversarial: ["#ef4444", "#f59e0b", "239,68,68"],
+  turing:      ["#8b5cf6", "#a855f7", "139,92,246"],
   chatbot:     ["#38bdf8", "#818cf8", "56,189,248"],
   summary:     ["#34d399", "#6ea8fe", "52,211,153"],
 };
@@ -195,12 +243,16 @@ const HINTS = {
   overfitting: { vi: "👉 Bấm <b>Huấn luyện</b> với ít dữ liệu — xem AI 'học vẹt'. Rồi kéo lượng dữ liệu lên cao.", en: "👉 Click <b>Train</b> with little data — watch it memorize. Then raise the data amount." },
   "decision-tree": { vi: "👉 Bấm các câu trả lời để đi qua cây — đường đi sẽ sáng lên ở sơ đồ dưới.", en: "👉 Click the answers to walk the tree — your path lights up in the diagram below." },
   reinforcement: { vi: "👉 Bấm <b>Học 100 lượt</b> vài lần, rồi bấm <b>Xem robot tự đi</b> để thấy nó tới đích.", en: "👉 Click <b>Train 100 rounds</b> a few times, then <b>Watch the robot go</b> to see it reach the goal." },
+  clustering: { vi: "👉 Bấm <b>Chạy tới khi ổn định</b> để xem AI tự tách dữ liệu thành các nhóm.", en: "👉 Click <b>Run until stable</b> to watch the AI split the data into groups by itself." },
   tokenizer: { vi: "👉 Gõ một câu (cả tiếng Anh, emoji) và xem AI cắt nó thành token thế nào.", en: "👉 Type a sentence (English, emoji too) and see how the AI splits it into tokens." },
   embeddings: { vi: "👉 Bấm một phép tính ở mục <b>Thử nhanh</b> để thấy AI suy ra từ thứ tư.", en: "👉 Click a preset under <b>Quick try</b> to see the AI infer the fourth word." },
   attention: { vi: "👉 Bấm vào từ <b>nó</b> trong câu để xem AI đang chú ý vào đâu.", en: "👉 Click the word <b>it</b> in a sentence to see where the AI pays attention." },
   "next-token": { vi: "👉 Bấm <b>Tự viết cả câu</b>, rồi kéo thanh <b>nhiệt độ</b> lên cao và viết lại.", en: "👉 Click <b>Auto-write</b>, then push the <b>temperature</b> up and write again." },
   diffusion: { vi: "👉 Chọn một prompt rồi bấm <b>Tạo ảnh</b> — xem nhiễu biến thành hình dần dần.", en: "👉 Pick a prompt then click <b>Generate</b> — watch noise turn into an image." },
+  recommendation: { vi: "👉 Bấm 👍 vài mục bạn thích để xem AI gợi ý thứ hợp gu.", en: "👉 Click 👍 on a few things you like to see the AI recommend more." },
   bias: { vi: "👉 Bấm lần lượt các nghề để xem AI 'đoán' giới tính lệch ra sao.", en: "👉 Click through the jobs to see how the AI's gender guesses skew." },
+  adversarial: { vi: "👉 Kéo thanh <b>nhiễu</b> lên từ từ — để ý lúc AI đột nhiên đổi ý.", en: "👉 Slide the <b>noise</b> up slowly — watch the moment the AI suddenly flips." },
+  turing: { vi: "👉 Đọc từng đoạn và đoán do người hay AI viết, rồi xem giải thích.", en: "👉 Read each passage, guess human or AI, then see the explanation." },
   chatbot: { vi: "👉 Bấm một câu hỏi gợi ý để xem chatbot xử lý qua từng bước.", en: "👉 Click a suggested question to watch the chatbot process it step by step." },
   summary: { vi: "👉 Cuộn xuống cuối để làm <b>quiz</b> và nhận huy hiệu nhé!", en: "👉 Scroll down to take the <b>quiz</b> and earn your badge!" },
 };

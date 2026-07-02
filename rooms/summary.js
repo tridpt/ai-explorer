@@ -7,6 +7,7 @@ const POINTS = [
   { icon: "📸", title: { vi: "AI học từ ví dụ", en: "AI learns from examples" }, text: { vi: "Không ai lập trình từng quy tắc. Bạn cho AI xem dữ liệu, nó tự rút ra mẫu hình.", en: "No one codes each rule. You show it data and it extracts patterns." } },
   { icon: "🕸️", title: { vi: "Nó là nhiều nơ-ron đơn giản", en: "It's many simple neurons" }, text: { vi: "Mỗi nơ-ron rất ngốc, nhưng ghép hàng triệu cái lại thì học được những thứ phức tạp.", en: "Each neuron is dumb, but millions combined learn complex things." } },
   { icon: "🤖", title: { vi: "Có khi nó học qua thử–sai", en: "Sometimes it learns by trial" }, text: { vi: "Học tăng cường: AI tự thử, được thưởng khi làm tốt, và dần tìm ra cách tối ưu — không cần đáp án.", en: "Reinforcement learning: it tries, gets rewarded for good moves, and finds the optimal way — no answer key." } },
+  { icon: "🧲", title: { vi: "Có khi nó tự tìm nhóm", en: "Sometimes it groups by itself" }, text: { vi: "Học không giám sát: không cần nhãn, AI tự phát hiện cấu trúc và gom dữ liệu giống nhau lại.", en: "Unsupervised learning: with no labels, AI finds structure and groups similar data itself." } },
   { icon: "🗺️", title: { vi: "Từ ngữ là tọa độ", en: "Words are coordinates" }, text: { vi: "AI biến chữ thành điểm trên bản đồ ý nghĩa, nên nó tính được cả 'vua − đàn ông + đàn bà'.", en: "AI turns words into points on a meaning map, so it can compute 'king − man + woman'." } },
   { icon: "👁️", title: { vi: "Nó chú ý có chọn lọc", en: "It attends selectively" }, text: { vi: "Với mỗi từ, AI cân nhắc cả câu để hiểu ngữ cảnh — đó là cơ chế attention.", en: "For each word, AI weighs the whole sentence to grasp context — that's attention." } },
   { icon: "🎲", title: { vi: "Nó đoán theo xác suất", en: "It guesses by probability" }, text: { vi: "AI không 'biết' sự thật, nó chọn từ nghe hợp lý. Vì thế nó có thể sai mà vẫn rất tự tin.", en: "AI doesn't 'know' the truth, it picks plausible words. So it can be wrong yet confident." } },
@@ -34,6 +35,10 @@ const QUIZ = [
     opts: { vi: ["Luôn chính xác hơn mọi AI khác", "Minh bạch — ta nhìn thấy được từng luật", "Chạy nhanh nhất"], en: ["Always more accurate than any AI", "Transparent — you see every rule", "Runs fastest"] }, correct: 1 },
   { q: { vi: "Học tăng cường (reinforcement learning) khác gì các cách học kia?", en: "How does reinforcement learning differ?" },
     opts: { vi: ["AI học từ thưởng–phạt qua thử–sai, không cần đáp án có sẵn", "AI chép đáp án từ sách", "Không cần dữ liệu gì cả"], en: ["AI learns from reward/penalty by trial, no answer key", "AI copies answers from a book", "It needs no data at all"] }, correct: 0 },
+  { q: { vi: "Học không giám sát (tự phân nhóm) nghĩa là gì?", en: "What does unsupervised learning (clustering) mean?" },
+    opts: { vi: ["AI tự tìm nhóm trong dữ liệu mà không cần nhãn", "AI được dạy từng đáp án", "AI hỏi con người mỗi bước"], en: ["AI finds groups in data with no labels", "AI is taught every answer", "AI asks a human each step"] }, correct: 0 },
+  { q: { vi: "Vì sao AI nhận diện ảnh có thể bị 'đánh lừa'?", en: "Why can image-recognition AI be 'fooled'?" },
+    opts: { vi: ["Vì nó bám vào mẫu pixel nhỏ mà mắt người không để ý", "Vì nó lười", "Không thể đánh lừa AI"], en: ["It latches onto tiny pixel patterns humans ignore", "It's lazy", "AI can't be fooled"] }, correct: 0 },
 ];
 
 export function roomSummary(root) {

@@ -9,14 +9,14 @@
 </p>
 
 <p align="center">
-  <img alt="rooms" src="https://img.shields.io/badge/ph%C3%B2ng-13-6ea8fe" />
+  <img alt="rooms" src="https://img.shields.io/badge/ph%C3%B2ng-17-6ea8fe" />
   <img alt="languages" src="https://img.shields.io/badge/ng%C3%B4n%20ng%E1%BB%AF-VN%20%2F%20EN-b07bff" />
   <img alt="pwa" src="https://img.shields.io/badge/PWA-c%C3%A0i%20%C4%91%C6%B0%E1%BB%A3c-34d399" />
   <img alt="backend" src="https://img.shields.io/badge/backend-kh%C3%B4ng%20c%E1%BA%A7n-f59e0b" />
 </p>
 
 Một "bảo tàng AI tương tác" chạy **hoàn toàn trên trình duyệt** — không cần server backend,
-không cần API key. Bạn đi qua 13 "phòng", mỗi phòng giải thích trực quan một khái niệm cốt lõi
+không cần API key. Bạn đi qua 17 "phòng", mỗi phòng giải thích trực quan một khái niệm cốt lõi
 về AI và cho **tự tay nghịch**: dạy AI qua webcam, huấn luyện mạng nơ-ron, xem AI tạo ảnh,
 trò chuyện với chatbot mini... Song ngữ Việt–Anh, cài được như app, chạy cả khi offline.
 
@@ -30,15 +30,19 @@ trò chuyện với chatbot mini... Song ngữ Việt–Anh, cài được như 
 | 02 | 🕸️ Bên trong mạng nơ-ron | Bên trong AI là gì? (mạng nơ-ron huấn luyện trực tiếp) |
 | 03 | 🎯 Học vẹt hay hiểu thật? | Overfitting — AI nhớ bài cũ nhưng làm sai bài mới |
 | 04 | 🌳 Cây quyết định | Loại AI minh bạch, nhìn thấy được từng luật |
-| 05 | 🤖 Học qua thử và sai | Reinforcement learning — robot học đường tới đích bằng thưởng/phạt |
-| 06 | ✂️ Token là gì | AI đọc chữ kiểu gì? (cắt token + chi phí) |
-| 07 | 🗺️ Bản đồ ý nghĩa | AI hiểu nghĩa từ ra sao? (vua − đàn ông + đàn bà = nữ hoàng) |
-| 08 | 👁️ AI đọc câu của bạn | Cơ chế attention — "nó" trỏ về đâu? |
-| 09 | 🎲 Máy đoán chữ | Vì sao AI đôi khi đoán bừa? (hallucination) |
-| 10 | 🎨 AI tạo ảnh thế nào | Diffusion — từ nhiễu thành ảnh rõ dần |
-| 11 | ⚖️ AI có thiên kiến? | AI học cả định kiến từ dữ liệu |
-| 12 | 💬 Chatbot mini | Ghép tất cả khái niệm lại thành một trợ lý |
-| 13 | 🎓 Tổng kết | Quiz + huy hiệu hoàn thành |
+| 05 | 🤖 Học qua thử và sai | Reinforcement learning — robot học bằng thưởng/phạt |
+| 06 | 🧲 Tự phân nhóm | Unsupervised — AI tự gom nhóm không cần nhãn |
+| 07 | ✂️ Token là gì | AI đọc chữ kiểu gì? (cắt token + chi phí) |
+| 08 | 🗺️ Bản đồ ý nghĩa | AI hiểu nghĩa từ ra sao? (vua − đàn ông + đàn bà = nữ hoàng) |
+| 09 | 👁️ AI đọc câu của bạn | Cơ chế attention — "nó" trỏ về đâu? |
+| 10 | 🎲 Máy đoán chữ | Vì sao AI đôi khi đoán bừa? (hallucination) |
+| 11 | 🎨 AI tạo ảnh thế nào | Diffusion — từ nhiễu thành ảnh rõ dần |
+| 12 | 📺 Vì sao app hiểu bạn | Gợi ý — cơ chế sau TikTok/YouTube/Netflix |
+| 13 | ⚖️ AI có thiên kiến? | AI học cả định kiến từ dữ liệu |
+| 14 | 🐺 Đánh lừa AI | Adversarial — nhiễu vô hình khiến AI nhìn sai |
+| 15 | 🕵️ Người hay AI viết? | Rèn con mắt phân biệt văn người / AI |
+| 16 | 💬 Chatbot mini | Ghép tất cả khái niệm lại thành một trợ lý |
+| 17 | 🎓 Tổng kết | Quiz + huy hiệu hoàn thành |
 
 ## Cách chạy
 
@@ -60,9 +64,10 @@ Rồi mở http://localhost:8000
 ```
 ai-explorer/
 ├── index.html          # Khung trang + meta chia sẻ + favicon
-├── style.css           # Toàn bộ giao diện (font Space Grotesk + Inter, glassmorphism, theming theo phòng)
-├── app.js              # Router + điều hướng + thanh tiến trình + phím mũi tên + toolbar
-├── fx.js               # Nền mạng nơ-ron động (canvas)
+├── style.css           # Toàn bộ giao diện (Neo-brutalism: Archivo + Space Mono, viền dày + bóng cứng)
+├── app.js              # Router + điều hướng + thanh tiến trình + phím mũi tên + toolbar + i18n
+├── i18n.js             # Song ngữ VN/EN
+├── analytics.js        # Thống kê ẩn danh (GoatCounter, tùy chọn)
 ├── sound.js            # Âm thanh Web Audio + hiệu ứng confetti
 ├── store.js            # Lưu tiến trình & điểm quiz vào localStorage
 ├── rooms/              # Mỗi phòng là một module độc lập
@@ -85,10 +90,10 @@ ai-explorer/
 
 ## Tính năng
 
-- 7 phòng tương tác, mỗi phòng một tông màu chủ đề.
-- Nền mạng nơ-ron động, hiệu ứng xuất hiện mượt.
+- 17 phòng tương tác, mỗi phòng một tông màu chủ đề.
+- Giao diện Neo-brutalism (viền đen dày, bóng cứng, khối màu rực).
 - Âm thanh phản hồi (bật/tắt được) + confetti khi hoàn thành quiz.
-- Quiz 6 câu + huy hiệu theo cấp, tải được thành ảnh PNG để khoe.
+- Quiz + huy hiệu theo cấp, tải được thành ảnh PNG để khoe.
 - Chế độ trình chiếu toàn màn hình, điều hướng bằng phím ←/→.
 - Gợi ý onboarding cho từng phòng.
 - Ghi nhớ tiến trình & điểm cao nhất qua localStorage.
