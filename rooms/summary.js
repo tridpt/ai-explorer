@@ -5,6 +5,7 @@ import { setBestScore } from "../store.js";
 const POINTS = [
   { icon: "📸", title: "AI học từ ví dụ", text: "Không ai lập trình từng quy tắc. Bạn cho AI xem dữ liệu, nó tự rút ra mẫu hình." },
   { icon: "🕸️", title: "Nó là nhiều nơ-ron đơn giản", text: "Mỗi nơ-ron rất ngốc, nhưng ghép hàng triệu cái lại thì học được những thứ phức tạp." },
+  { icon: "🤖", title: "Có khi nó học qua thử–sai", text: "Học tăng cường: AI tự thử, được thưởng khi làm tốt, và dần tìm ra cách tối ưu — không cần đáp án." },
   { icon: "🗺️", title: "Từ ngữ là tọa độ", text: "AI biến chữ thành điểm trên bản đồ ý nghĩa, nên nó tính được cả 'vua − đàn ông + đàn bà'." },
   { icon: "👁️", title: "Nó chú ý có chọn lọc", text: "Với mỗi từ, AI cân nhắc cả câu để hiểu ngữ cảnh — đó là cơ chế attention." },
   { icon: "🎲", title: "Nó đoán theo xác suất", text: "AI không 'biết' sự thật, nó chọn từ nghe hợp lý. Vì thế nó có thể sai mà vẫn rất tự tin." },
@@ -56,6 +57,11 @@ const QUIZ = [
     q: "Điểm mạnh đặc biệt của cây quyết định là gì?",
     opts: ["Luôn chính xác hơn mọi AI khác", "Minh bạch — ta nhìn thấy được từng luật", "Chạy nhanh nhất"],
     correct: 1,
+  },
+  {
+    q: "Học tăng cường (reinforcement learning) khác gì các cách học kia?",
+    opts: ["AI học từ thưởng–phạt qua thử–sai, không cần đáp án có sẵn", "AI chép đáp án từ sách", "Không cần dữ liệu gì cả"],
+    correct: 0,
   },
 ];
 

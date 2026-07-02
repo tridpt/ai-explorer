@@ -4,6 +4,7 @@ import { roomTeachable } from "./rooms/teachable.js";
 import { roomNeuralNet } from "./rooms/neural-net.js";
 import { roomOverfitting } from "./rooms/overfitting.js";
 import { roomDecisionTree } from "./rooms/decision-tree.js";
+import { roomReinforcement } from "./rooms/reinforcement.js";
 import { roomTokenizer } from "./rooms/tokenizer.js";
 import { roomEmbeddings } from "./rooms/embeddings.js";
 import { roomAttention } from "./rooms/attention.js";
@@ -54,9 +55,18 @@ export const ROOMS = [
     render: roomDecisionTree,
   },
   {
+    id: "reinforcement",
+    icon: "🤖",
+    num: "05",
+    title: "Học qua thử và sai",
+    question: "AI học không cần đáp án thì sao?",
+    blurb: "Xem chú robot tự học đường tới đích bằng thưởng–phạt, không hề được chỉ trước — học tăng cường.",
+    render: roomReinforcement,
+  },
+  {
     id: "tokenizer",
     icon: "✂️",
-    num: "05",
+    num: "06",
     title: "Token là gì",
     question: "AI đọc chữ kiểu gì?",
     blurb: "AI không thấy 'chữ' như ta — nó cắt câu thành token. Gõ thử và xem số token cùng chi phí.",
@@ -65,7 +75,7 @@ export const ROOMS = [
   {
     id: "embeddings",
     icon: "🗺️",
-    num: "06",
+    num: "07",
     title: "Bản đồ ý nghĩa",
     question: "AI hiểu nghĩa của từ ra sao?",
     blurb: "Khám phá cách AI biến từ ngữ thành các điểm trên bản đồ, nơi 'vua − đàn ông + đàn bà = nữ hoàng'.",
@@ -74,7 +84,7 @@ export const ROOMS = [
   {
     id: "attention",
     icon: "👁️",
-    num: "07",
+    num: "08",
     title: "AI đọc câu của bạn",
     question: "Nó đọc một câu kiểu gì?",
     blurb: "Xem khi AI gặp một từ, nó đang 'nhìn' vào những từ nào khác để hiểu nghĩa — cơ chế attention.",
@@ -83,7 +93,7 @@ export const ROOMS = [
   {
     id: "next-token",
     icon: "🎲",
-    num: "08",
+    num: "09",
     title: "Máy đoán chữ",
     question: "Vì sao AI đôi khi đoán bừa?",
     blurb: "AI viết câu bằng cách liên tục đoán từ tiếp theo theo xác suất. Tự tay chứng kiến vì sao nó 'ảo giác'.",
@@ -92,7 +102,7 @@ export const ROOMS = [
   {
     id: "diffusion",
     icon: "🎨",
-    num: "09",
+    num: "10",
     title: "AI tạo ảnh thế nào",
     question: "Làm sao AI vẽ ra tranh?",
     blurb: "Từ một mớ nhiễu hỗn loạn, AI khử nhiễu từng bước cho tới khi hiện ra hình bạn yêu cầu — diffusion.",
@@ -101,7 +111,7 @@ export const ROOMS = [
   {
     id: "bias",
     icon: "⚖️",
-    num: "10",
+    num: "11",
     title: "AI có thiên kiến?",
     question: "AI có công bằng không?",
     blurb: "Dữ liệu dạy AI đến từ con người, nên AI cũng học cả định kiến của chúng ta. Khám phá điều đó.",
@@ -109,8 +119,8 @@ export const ROOMS = [
   },
   {
     id: "chatbot",
-    icon: "🤖",
-    num: "11",
+    icon: "💬",
+    num: "12",
     title: "Chatbot mini",
     question: "Ghép tất cả lại thành gì?",
     blurb: "Token + ý nghĩa + chú ý + đoán chữ ghép lại thành một trợ lý. Trò chuyện và xem nó xử lý từng bước.",
@@ -119,7 +129,7 @@ export const ROOMS = [
   {
     id: "summary",
     icon: "🎓",
-    num: "12",
+    num: "13",
     title: "Bạn đã hiểu AI rồi",
     question: "Tổng kết hành trình",
     blurb: "Điểm lại những ý tưởng cốt lõi bạn vừa khám phá — và đâu là sự thật quan trọng nhất về AI.",
@@ -134,6 +144,7 @@ const THEME = {
   "neural-net":["#34d399", "#22d3ee", "52,211,153"],
   overfitting: ["#fb7185", "#fb923c", "251,113,133"],
   "decision-tree":["#4ade80", "#a3e635", "74,222,128"],
+  reinforcement: ["#f59e0b", "#f43f5e", "245,158,11"],
   tokenizer:   ["#22d3ee", "#6ea8fe", "34,211,238"],
   embeddings:  ["#6ea8fe", "#818cf8", "110,168,254"],
   attention:   ["#b07bff", "#e879f9", "176,123,255"],
@@ -158,6 +169,7 @@ const HINTS = {
   "neural-net": "👉 Thử để <b>1 nơ-ron</b> rồi bấm Huấn luyện — xem AI 'bó tay'. Sau đó tăng lên 8.",
   overfitting: "👉 Bấm <b>Huấn luyện</b> với ít dữ liệu — xem AI 'học vẹt'. Rồi kéo lượng dữ liệu lên cao.",
   "decision-tree": "👉 Bấm các câu trả lời để đi qua cây — đường đi sẽ sáng lên ở sơ đồ dưới.",
+  reinforcement: "👉 Bấm <b>Học 100 lượt</b> vài lần, rồi bấm <b>Xem robot tự đi</b> để thấy nó tới đích.",
   tokenizer: "👉 Gõ một câu (cả tiếng Anh, emoji) và xem AI cắt nó thành token thế nào.",
   embeddings: "👉 Bấm một phép tính ở mục <b>Thử nhanh</b> để thấy AI suy ra từ thứ tư.",
   attention: "👉 Bấm vào từ <b>nó</b> trong câu để xem AI đang chú ý vào đâu.",

@@ -12,14 +12,15 @@ cốt lõi về AI và cho tự tay nghịch.
 | 02 | 🕸️ Bên trong mạng nơ-ron | Bên trong AI là gì? (mạng nơ-ron huấn luyện trực tiếp) |
 | 03 | 🎯 Học vẹt hay hiểu thật? | Overfitting — AI nhớ bài cũ nhưng làm sai bài mới |
 | 04 | 🌳 Cây quyết định | Loại AI minh bạch, nhìn thấy được từng luật |
-| 05 | ✂️ Token là gì | AI đọc chữ kiểu gì? (cắt token + chi phí) |
-| 06 | 🗺️ Bản đồ ý nghĩa | AI hiểu nghĩa từ ra sao? (vua − đàn ông + đàn bà = nữ hoàng) |
-| 07 | 👁️ AI đọc câu của bạn | Cơ chế attention — "nó" trỏ về đâu? |
-| 08 | 🎲 Máy đoán chữ | Vì sao AI đôi khi đoán bừa? (hallucination) |
-| 09 | 🎨 AI tạo ảnh thế nào | Diffusion — từ nhiễu thành ảnh rõ dần |
-| 10 | ⚖️ AI có thiên kiến? | AI học cả định kiến từ dữ liệu |
-| 11 | 🤖 Chatbot mini | Ghép tất cả khái niệm lại thành một trợ lý |
-| 12 | 🎓 Tổng kết | Quiz + huy hiệu hoàn thành |
+| 05 | 🤖 Học qua thử và sai | Reinforcement learning — robot học đường tới đích bằng thưởng/phạt |
+| 06 | ✂️ Token là gì | AI đọc chữ kiểu gì? (cắt token + chi phí) |
+| 07 | 🗺️ Bản đồ ý nghĩa | AI hiểu nghĩa từ ra sao? (vua − đàn ông + đàn bà = nữ hoàng) |
+| 08 | 👁️ AI đọc câu của bạn | Cơ chế attention — "nó" trỏ về đâu? |
+| 09 | 🎲 Máy đoán chữ | Vì sao AI đôi khi đoán bừa? (hallucination) |
+| 10 | 🎨 AI tạo ảnh thế nào | Diffusion — từ nhiễu thành ảnh rõ dần |
+| 11 | ⚖️ AI có thiên kiến? | AI học cả định kiến từ dữ liệu |
+| 12 | 💬 Chatbot mini | Ghép tất cả khái niệm lại thành một trợ lý |
+| 13 | 🎓 Tổng kết | Quiz + huy hiệu hoàn thành |
 
 ## Cách chạy
 

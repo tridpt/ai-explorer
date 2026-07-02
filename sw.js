@@ -1,5 +1,5 @@
 // Service Worker — cache để AI Explorer chạy được cả khi offline.
-const CACHE = "ai-explorer-v1";
+const CACHE = "ai-explorer-v2";
 const ASSETS = [
   "./",
   "./index.html",
@@ -8,11 +8,13 @@ const ASSETS = [
   "./fx.js",
   "./sound.js",
   "./store.js",
+  "./og.png",
   "./rooms/home.js",
   "./rooms/teachable.js",
   "./rooms/neural-net.js",
   "./rooms/overfitting.js",
   "./rooms/decision-tree.js",
+  "./rooms/reinforcement.js",
   "./rooms/tokenizer.js",
   "./rooms/embeddings.js",
   "./rooms/attention.js",
