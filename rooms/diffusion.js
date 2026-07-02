@@ -130,7 +130,7 @@ export function roomDiffusion(root) {
   root.querySelector("#dfGen").onclick = (e) => { e.target.classList.remove("pulse-hint"); generate(); };
   root.querySelector("#dfNoise").onclick = () => { if (anim) cancelAnimationFrame(anim); renderNoise(); root.querySelector("#dfStep").textContent = 0; };
 
-  window.addEventListener("hashchange", () => { if (anim) cancelAnimationFrame(anim); }, { once: true });
+  window.addEventListener("roomleave", () => { if (anim) cancelAnimationFrame(anim); }, { once: true });
 
   renderNoise();
 }

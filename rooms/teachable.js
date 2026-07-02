@@ -140,7 +140,7 @@ export function roomTeachable(root) {
     predTimer = setInterval(predict, 300);
   }
 
-  window.addEventListener("hashchange", () => {
+  window.addEventListener("roomleave", () => {
     if (predTimer) clearInterval(predTimer);
     if (stream) stream.getTracks().forEach((t) => t.stop());
   }, { once: true });

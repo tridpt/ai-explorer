@@ -180,6 +180,6 @@ export function roomOverfitting(root) {
     }, 40);
   };
 
-  window.addEventListener("hashchange", () => { if (timer) clearInterval(timer); }, { once: true });
+  window.addEventListener("roomleave", () => { if (timer) clearInterval(timer); }, { once: true });
   rebuild();
 }

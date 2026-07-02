@@ -16,6 +16,7 @@ import { roomSummary } from "./rooms/summary.js";
 import { sfx, isMuted, setMuted, celebrate } from "./sound.js";
 import { markVisited, getVisited } from "./store.js";
 import { getLang, setLang, tx } from "./i18n.js";
+import { initAnalytics, trackView } from "./analytics.js";
 
 // Thứ tự các phòng = mạch kể chuyện của hành trình. title/question/blurb song ngữ.
 export const ROOMS = [
@@ -274,9 +275,12 @@ export function navigate(id) {
 
 function route() {
   const id = currentRoute();
+  window.dispatchEvent(new CustomEvent("roomleave")); // dọn dẹp timer phòng cũ
   app.innerHTML = "";
   window.scrollTo({ top: 0, behavior: "smooth" });
   applyTheme(id === "home" ? "home" : id);
+  const room0 = ROOMS.find((r) => r.id === id);
+  trackView(id === "home" ? "/" : "/" + id, room0 ? tx(room0.title) : "AI Explorer");
   app.classList.remove("enter");
   void app.offsetWidth; // restart animation
   app.classList.add("enter");
@@ -362,4 +366,5 @@ document.addEventListener("click", (e) => {
 }, true);
 
 buildToolbar();
+initAnalytics();
 route();

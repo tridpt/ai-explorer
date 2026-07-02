@@ -1,8 +1,26 @@
-# 🧠 AI Explorer — Hiểu AI trong 15 phút
+<p align="center">
+  <img src="og.png" alt="AI Explorer" width="640" />
+</p>
 
-Một "bảo tàng AI tương tác" chạy hoàn toàn trên trình duyệt, không cần server backend,
-không cần API key. Người dùng đi qua 7 "phòng", mỗi phòng giải thích trực quan một khái niệm
-cốt lõi về AI và cho tự tay nghịch.
+<h1 align="center">🧠 AI Explorer — Hiểu AI trong 15 phút</h1>
+
+<p align="center">
+  <b><a href="https://tridpt.github.io/ai-explorer/">🚀 Dùng thử ngay »</a></b>
+</p>
+
+<p align="center">
+  <img alt="rooms" src="https://img.shields.io/badge/ph%C3%B2ng-13-6ea8fe" />
+  <img alt="languages" src="https://img.shields.io/badge/ng%C3%B4n%20ng%E1%BB%AF-VN%20%2F%20EN-b07bff" />
+  <img alt="pwa" src="https://img.shields.io/badge/PWA-c%C3%A0i%20%C4%91%C6%B0%E1%BB%A3c-34d399" />
+  <img alt="backend" src="https://img.shields.io/badge/backend-kh%C3%B4ng%20c%E1%BA%A7n-f59e0b" />
+</p>
+
+Một "bảo tàng AI tương tác" chạy **hoàn toàn trên trình duyệt** — không cần server backend,
+không cần API key. Bạn đi qua 13 "phòng", mỗi phòng giải thích trực quan một khái niệm cốt lõi
+về AI và cho **tự tay nghịch**: dạy AI qua webcam, huấn luyện mạng nơ-ron, xem AI tạo ảnh,
+trò chuyện với chatbot mini... Song ngữ Việt–Anh, cài được như app, chạy cả khi offline.
+
+> 🌐 **Bản song ngữ:** bấm nút **EN/VI** ở góc trên bên phải để đổi ngôn ngữ bất cứ lúc nào.
 
 ## Hành trình
 

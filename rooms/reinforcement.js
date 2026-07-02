@@ -170,7 +170,7 @@ export function roomReinforcement(root) {
       steps++;
       sfx.tick();
     }, 260);
-    window.addEventListener("hashchange", () => clearInterval(timer), { once: true });
+    window.addEventListener("roomleave", () => clearInterval(timer), { once: true });
   };
 
   resetQ();

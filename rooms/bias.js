@@ -25,6 +25,10 @@ export function roomBias(root) {
       <h4>${tx("⚖️ Chọn một nghề nghiệp", "⚖️ Pick a profession")}</h4>
       <div id="jobPicker"></div>
       <div id="biasResult" class="mt"></div>
+      <p class="muted mt">${tx(
+        "* Các con số ở đây là <b>minh họa</b> cho xu hướng thiên kiến thường thấy, không phải số đo từ một mô hình cụ thể.",
+        "* These numbers are <b>illustrative</b> of commonly observed bias, not measurements from a specific model."
+      )}</p>
     </div>
 
     <div class="takeaway">

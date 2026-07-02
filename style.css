@@ -612,9 +612,18 @@ canvas { display: block; max-width: 100%; border-radius: 14px; }
   .hero { padding: 30px 6px 12px; }
   .nav-buttons .btn { padding: 12px 16px; font-size: 14px; }
   .bar-label { width: 88px; }
-}
-@media (max-width: 420px) {
-  .progress-dot:nth-child(n+5) { display: none; } /* gọn thanh tiến trình trên máy rất nhỏ */
+  /* tiến trình cuộn ngang trên màn hình nhỏ, không mất chấm nào */
+  .progress {
+    order: 3;
+    flex: 1 1 100%;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .progress::-webkit-scrollbar { display: none; }
+  .progress-dot { flex: 0 0 auto; }
 }
 
 /* ---------- Tokenizer: ô thống kê ---------- */
