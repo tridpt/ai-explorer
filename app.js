@@ -164,7 +164,7 @@ const UI = {
 };
 
 const THEME = {
-  home:        ["#6ea8fe", "#b07bff", "110,168,254"],
+  home:        ["#ff5c00", "#ffd23f", "255,92,0"],
   teachable:   ["#ff7a59", "#ffb15c", "255,122,89"],
   "neural-net":["#34d399", "#22d3ee", "52,211,153"],
   overfitting: ["#fb7185", "#fb923c", "251,113,133"],
