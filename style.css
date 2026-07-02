@@ -310,8 +310,9 @@ textarea { resize: vertical; min-height: 80px; }
 }
 .tag:hover { transform: translate(-1px, -1px); box-shadow: 4px 4px 0 var(--ink); }
 
-/* canvases stay dark so visualizations pop */
-canvas { display: block; max-width: 100%; background: #14140f; border: 3px solid var(--ink); }
+/* canvas trong phòng: nền tối để hình trực quan nổi bật; height auto để không méo trên mobile */
+canvas { display: block; max-width: 100%; height: auto; }
+.panel canvas { background: #14140f; border: 3px solid var(--ink); }
 
 .muted { color: var(--text-dim); font-size: 13px; font-weight: 500; line-height: 1.5; }
 .center { text-align: center; }

@@ -1,9 +1,15 @@
 // Âm thanh tổng hợp bằng Web Audio (không cần file ngoài) + hiệu ứng confetti ăn mừng.
 let ctx = null;
-let muted = localStorage.getItem("ai-explorer-muted") === "1";
+function safeGet(k) { try { return localStorage.getItem(k); } catch { return null; } }
+function safeSet(k, v) { try { localStorage.setItem(k, v); } catch { /* Safari private mode */ } }
+let muted = safeGet("ai-explorer-muted") === "1";
 
 function ac() {
-  if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)();
+  if (!ctx) {
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) return null; // trình duyệt không hỗ trợ Web Audio
+    ctx = new AC();
+  }
   if (ctx.state === "suspended") ctx.resume();
   return ctx;
 }
@@ -11,6 +17,7 @@ function ac() {
 function tone(freq, dur = 0.08, type = "sine", gain = 0.06, when = 0) {
   if (muted) return;
   const a = ac();
+  if (!a) return;
   const t = a.currentTime + when;
   const osc = a.createOscillator();
   const g = a.createGain();
@@ -38,7 +45,7 @@ export const sfx = {
 export function isMuted() { return muted; }
 export function setMuted(v) {
   muted = v;
-  localStorage.setItem("ai-explorer-muted", v ? "1" : "0");
+  safeSet("ai-explorer-muted", v ? "1" : "0");
 }
 
 // ---------- Confetti ----------
