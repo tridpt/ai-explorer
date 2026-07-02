@@ -1,45 +1,51 @@
-// Phòng — AI tạo ảnh thế nào? Mô phỏng diffusion: từ nhiễu hỗn loạn → ảnh rõ dần.
+// Phòng — AI tạo ảnh thế nào? Mô phỏng diffusion. Song ngữ.
 import { sfx, celebrate } from "../sound.js";
+import { tx } from "../i18n.js";
 
 const SIZE = 220;
 const PROMPTS = [
-  { label: "🐱 con mèo", emoji: "🐱" },
-  { label: "🌸 bông hoa", emoji: "🌸" },
-  { label: "🚀 tên lửa", emoji: "🚀" },
-  { label: "🍕 pizza", emoji: "🍕" },
-  { label: "🏠 ngôi nhà", emoji: "🏠" },
+  { label: { vi: "🐱 con mèo", en: "🐱 a cat" }, emoji: "🐱" },
+  { label: { vi: "🌸 bông hoa", en: "🌸 a flower" }, emoji: "🌸" },
+  { label: { vi: "🚀 tên lửa", en: "🚀 a rocket" }, emoji: "🚀" },
+  { label: { vi: "🍕 pizza", en: "🍕 pizza" }, emoji: "🍕" },
+  { label: { vi: "🏠 ngôi nhà", en: "🏠 a house" }, emoji: "🏠" },
 ];
 
 export function roomDiffusion(root) {
   root.innerHTML = `
     <p class="room-intro">
-      Làm sao AI vẽ ra một bức tranh chưa từng tồn tại? Bí mật nằm ở <strong>diffusion</strong>: AI bắt đầu
-      từ một mớ <em>nhiễu ngẫu nhiên</em> (như màn hình tivi mất sóng), rồi <strong>khử nhiễu từng bước</strong>,
-      mỗi bước "đoán" xem nên gọt bỏ hạt nhiễu nào để dần dần lộ ra hình bạn yêu cầu.
+      ${tx(
+        "Làm sao AI vẽ ra một bức tranh chưa từng tồn tại? Bí mật nằm ở <strong>diffusion</strong>: AI bắt đầu từ một mớ <em>nhiễu ngẫu nhiên</em> (như màn hình tivi mất sóng), rồi <strong>khử nhiễu từng bước</strong>, mỗi bước \"đoán\" xem nên gọt bỏ hạt nhiễu nào để dần dần lộ ra hình bạn yêu cầu.",
+        "How does AI paint a picture that never existed? The secret is <strong>diffusion</strong>: the AI starts from <em>random noise</em> (like TV static), then <strong>denoises step by step</strong>, each step \"guessing\" which noise to shave off until your requested image slowly emerges."
+      )}
     </p>
 
     <div class="row">
       <div class="panel center" style="flex:1.1;">
-        <h4 style="text-align:left">🖼️ Quá trình tạo ảnh</h4>
+        <h4 style="text-align:left">${tx("🖼️ Quá trình tạo ảnh", "🖼️ Image generation process")}</h4>
         <canvas id="dfCanvas" width="${SIZE}" height="${SIZE}" style="background:#000; margin:0 auto;"></canvas>
-        <div class="mt"><span class="muted">Bước khử nhiễu: <b id="dfStep">0</b> / 40</span></div>
+        <div class="mt"><span class="muted">${tx("Bước khử nhiễu:", "Denoising step:")} <b id="dfStep">0</b> / 40</span></div>
       </div>
       <div class="panel">
-        <h4>⌨️ Bạn muốn AI vẽ gì?</h4>
-        <p class="muted">Chọn một "câu lệnh" (prompt):</p>
+        <h4>${tx("⌨️ Bạn muốn AI vẽ gì?", "⌨️ What should the AI draw?")}</h4>
+        <p class="muted">${tx("Chọn một \"câu lệnh\" (prompt):", "Pick a \"prompt\":")}</p>
         <div id="dfPrompts" class="mt"></div>
         <div class="row mt">
-          <button class="btn pulse-hint" id="dfGen">✨ Tạo ảnh</button>
-          <button class="btn ghost" id="dfNoise">🎛️ Chỉ xem nhiễu</button>
+          <button class="btn pulse-hint" id="dfGen">${tx("✨ Tạo ảnh", "✨ Generate")}</button>
+          <button class="btn ghost" id="dfNoise">${tx("🎛️ Chỉ xem nhiễu", "🎛️ Show noise only")}</button>
         </div>
-        <p class="muted mt">Để ý: lúc đầu chỉ là nhiễu vô nghĩa, sau vài bước hình dạng mới hiện ra.</p>
+        <p class="muted mt">${tx(
+          "Để ý: lúc đầu chỉ là nhiễu vô nghĩa, sau vài bước hình dạng mới hiện ra.",
+          "Notice: at first it's meaningless noise, then after a few steps a shape appears."
+        )}</p>
       </div>
     </div>
 
     <div class="takeaway">
-      💡 <strong>Điều cốt lõi:</strong> AI tạo ảnh không "vẽ" như người. Nó học cách <em>biến nhiễu thành ảnh</em>
-      qua hàng loạt bước nhỏ, dựa trên hàng triệu ảnh đã xem. Câu lệnh chữ của bạn chỉ là chiếc la bàn hướng
-      quá trình khử nhiễu về phía bức ảnh bạn mong muốn.
+      ${tx(
+        "💡 <strong>Điều cốt lõi:</strong> AI tạo ảnh không \"vẽ\" như người. Nó học cách <em>biến nhiễu thành ảnh</em> qua hàng loạt bước nhỏ, dựa trên hàng triệu ảnh đã xem. Câu lệnh chữ của bạn chỉ là chiếc la bàn hướng quá trình khử nhiễu về phía bức ảnh bạn mong muốn.",
+        "💡 <strong>Key idea:</strong> Image AI doesn't \"paint\" like a human. It learned to <em>turn noise into images</em> through many small steps, based on millions of images it has seen. Your text prompt is just a compass steering the denoising toward the image you want."
+      )}
     </div>
   `;
 
@@ -49,7 +55,7 @@ export function roomDiffusion(root) {
   off.width = SIZE; off.height = SIZE;
   const octx = off.getContext("2d");
 
-  let target = null; // ImageData mục tiêu
+  let target = null;
   let current = PROMPTS[0];
   let anim = null;
 
@@ -73,7 +79,6 @@ export function roomDiffusion(root) {
     ctx.putImageData(img, 0, 0);
   }
 
-  // trộn: ảnh hiển thị = lerp(noise, target) + nhiễu giảm dần
   function renderStep(t, T) {
     const mix = t / T;
     const img = ctx.createImageData(SIZE, SIZE);
@@ -102,12 +107,7 @@ export function roomDiffusion(root) {
       sfx.tick();
       t++;
       if (t <= T) anim = requestAnimationFrame(() => setTimeout(frame, 55));
-      else {
-        // bước cuối: vẽ ảnh sạch
-        ctx.putImageData(target, 0, 0);
-        sfx.success();
-        celebrate();
-      }
+      else { ctx.putImageData(target, 0, 0); sfx.success(); celebrate(); }
     }
     frame();
   }
@@ -116,7 +116,7 @@ export function roomDiffusion(root) {
   PROMPTS.forEach((p, i) => {
     const tag = document.createElement("span");
     tag.className = "tag";
-    tag.textContent = p.label;
+    tag.textContent = tx(p.label);
     tag.onclick = () => {
       current = p;
       promptsDiv.querySelectorAll(".tag").forEach((t) => (t.style.borderColor = ""));

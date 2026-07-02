@@ -1,10 +1,9 @@
-// Phòng — Overfitting: AI "học vẹt" vs "hiểu thật".
-// Huấn luyện trên ÍT dữ liệu có nhiễu, rồi kiểm tra trên dữ liệu mới để lộ ra sự khác biệt.
+// Phòng — Overfitting: AI "học vẹt" vs "hiểu thật". Song ngữ.
 import { sfx } from "../sound.js";
+import { tx } from "../i18n.js";
 
 function tanh(z) { return Math.tanh(z); }
 function sigmoid(z) { return 1 / (1 + Math.exp(-z)); }
-
 function label(x, y) { return x * x + y * y < 0.45 ? 1 : 0; }
 
 function makeSet(n, noise = 0) {
@@ -12,7 +11,7 @@ function makeSet(n, noise = 0) {
   for (let i = 0; i < n; i++) {
     const x = Math.random() * 2 - 1, y = Math.random() * 2 - 1;
     let l = label(x, y);
-    if (noise && Math.random() < noise) l = 1 - l; // nhãn sai (nhiễu)
+    if (noise && Math.random() < noise) l = 1 - l;
     d.push({ x, y, label: l });
   }
   return d;
@@ -58,36 +57,40 @@ function acc(net, data) {
 export function roomOverfitting(root) {
   root.innerHTML = `
     <p class="room-intro">
-      Một AI giỏi không phải là cái thuộc lòng mọi ví dụ — mà là cái <strong>hiểu được quy luật chung</strong>
-      để làm tốt với dữ liệu chưa từng thấy. Khi AI có quá nhiều "sức nhớ" nhưng quá ít dữ liệu, nó sẽ
-      <em>học vẹt</em>: nhớ vanh vách bài đã học nhưng làm sai bài mới. Đó là <strong>overfitting</strong>.
+      ${tx(
+        "Một AI giỏi không phải là cái thuộc lòng mọi ví dụ — mà là cái <strong>hiểu được quy luật chung</strong> để làm tốt với dữ liệu chưa từng thấy. Khi AI có quá nhiều \"sức nhớ\" nhưng quá ít dữ liệu, nó sẽ <em>học vẹt</em>: nhớ vanh vách bài đã học nhưng làm sai bài mới. Đó là <strong>overfitting</strong>.",
+        "A good AI isn't one that memorizes every example — it's one that <strong>grasps the general rule</strong> to handle unseen data. When an AI has too much \"memory\" but too little data, it <em>memorizes</em>: acing what it studied but failing new cases. That's <strong>overfitting</strong>."
+      )}
     </p>
 
     <div class="row">
       <div class="panel" style="flex:1.2;">
-        <h4>🧠 Ranh giới AI học được</h4>
+        <h4>${tx("🧠 Ranh giới AI học được", "🧠 The boundary the AI learned")}</h4>
         <canvas id="ofCanvas" width="420" height="420"></canvas>
-        <p class="muted mt">⬤ chấm viền trắng = dữ liệu học · ⬤ nhỏ mờ = bài kiểm tra (AI chưa thấy lúc học)</p>
+        <p class="muted mt">${tx(
+          "⬤ chấm viền trắng = dữ liệu học · ⬤ nhỏ mờ = bài kiểm tra (AI chưa thấy lúc học)",
+          "⬤ white-ringed dots = training data · ⬤ small faded = test data (unseen during training)"
+        )}</p>
       </div>
       <div class="panel">
-        <h4>🎛️ Điều khiển</h4>
+        <h4>${tx("🎛️ Điều khiển", "🎛️ Controls")}</h4>
         <label class="field">
-          <span>Sức nhớ (số nơ-ron): <b id="hVal">14</b> — càng cao càng dễ học vẹt</span>
+          <span>${tx("Sức nhớ (số nơ-ron):", "Memory (neurons):")} <b id="hVal">14</b> — ${tx("càng cao càng dễ học vẹt", "higher = easier to overfit")}</span>
           <input type="range" id="hRange" min="1" max="20" step="1" value="14" />
         </label>
         <label class="field">
-          <span>Lượng dữ liệu học: <b id="nVal">18</b> điểm — càng ít càng dễ học vẹt</span>
+          <span>${tx("Lượng dữ liệu học:", "Training data:")} <b id="nVal">18</b> ${tx("điểm", "points")} — ${tx("càng ít càng dễ học vẹt", "less = easier to overfit")}</span>
           <input type="range" id="nRange" min="12" max="200" step="2" value="18" />
         </label>
         <div class="row">
-          <button class="btn pulse-hint" id="trainBtn">▶ Huấn luyện</button>
-          <button class="btn ghost" id="resetBtn">↺ Làm lại</button>
+          <button class="btn pulse-hint" id="trainBtn">${tx("▶ Huấn luyện", "▶ Train")}</button>
+          <button class="btn ghost" id="resetBtn">${tx("↺ Làm lại", "↺ Reset")}</button>
         </div>
 
         <div class="mt">
-          <div class="bar-row"><div class="bar-label">📚 Bài đã học</div>
+          <div class="bar-row"><div class="bar-label">${tx("📚 Bài đã học", "📚 Seen")}</div>
             <div class="bar-track"><div class="bar-fill" id="trainBar" style="width:0%">0%</div></div></div>
-          <div class="bar-row"><div class="bar-label">📝 Bài mới</div>
+          <div class="bar-row"><div class="bar-label">${tx("📝 Bài mới", "📝 New")}</div>
             <div class="bar-track"><div class="bar-fill" id="testBar" style="width:0%; background:linear-gradient(90deg,#fbbf24,#fb923c)">0%</div></div></div>
         </div>
         <div id="verdict" class="mt muted"></div>
@@ -95,9 +98,10 @@ export function roomOverfitting(root) {
     </div>
 
     <div class="takeaway">
-      💡 <strong>Điều cốt lõi:</strong> Điểm "bài đã học" cao chót vót nhưng "bài mới" thấp tè = AI đang
-      học vẹt. Cách chữa: cho nó <em>nhiều dữ liệu hơn</em> hoặc <em>giảm bớt sức nhớ</em>. Hãy thử kéo
-      "lượng dữ liệu" lên cao rồi huấn luyện lại — khoảng cách hai thanh sẽ thu hẹp.
+      ${tx(
+        "💡 <strong>Điều cốt lõi:</strong> Điểm \"bài đã học\" cao chót vót nhưng \"bài mới\" thấp tè = AI đang học vẹt. Cách chữa: cho nó <em>nhiều dữ liệu hơn</em> hoặc <em>giảm bớt sức nhớ</em>. Hãy thử kéo \"lượng dữ liệu\" lên cao rồi huấn luyện lại — khoảng cách hai thanh sẽ thu hẹp.",
+        "💡 <strong>Key idea:</strong> High \"seen\" score but low \"new\" score = overfitting. The fix: give it <em>more data</em> or <em>less memory</em>. Try raising the data amount and retraining — the gap between the two bars shrinks."
+      )}
     </div>
   `;
 
@@ -109,7 +113,7 @@ export function roomOverfitting(root) {
   let train, test, net, timer = null, celebrated = false;
 
   function rebuild() {
-    if (timer) { clearInterval(timer); timer = null; root.querySelector("#trainBtn").textContent = "▶ Huấn luyện"; }
+    if (timer) { clearInterval(timer); timer = null; root.querySelector("#trainBtn").textContent = tx("▶ Huấn luyện", "▶ Train"); }
     const n = parseInt(root.querySelector("#nRange").value);
     train = makeSet(n, 0.12);
     test = makeSet(200, 0);
@@ -131,14 +135,12 @@ export function roomOverfitting(root) {
         ctx.fillRect(px, py, s, s);
       }
     }
-    // bài kiểm tra (mờ, nhỏ)
     for (const p of test) {
       ctx.beginPath();
       ctx.arc(toPx(p.x), toPx(p.y), 2, 0, Math.PI * 2);
       ctx.fillStyle = p.label ? "rgba(251,146,60,0.35)" : "rgba(110,168,254,0.35)";
       ctx.fill();
     }
-    // bài học (to, viền trắng)
     for (const p of train) {
       ctx.beginPath();
       ctx.arc(toPx(p.x), toPx(p.y), 5, 0, Math.PI * 2);
@@ -156,9 +158,9 @@ export function roomOverfitting(root) {
     teBar.style.width = teA + "%"; teBar.textContent = teA + "%";
     const gap = trA - teA;
     const v = root.querySelector("#verdict");
-    if (trA < 70) v.innerHTML = "⏳ Chưa học xong — bấm Huấn luyện thêm.";
-    else if (gap >= 18) v.innerHTML = "⚠️ <b style='color:#fb7185'>Học vẹt!</b> Nhớ bài cũ nhưng làm dở bài mới. Thử thêm dữ liệu.";
-    else v.innerHTML = "✅ <b style='color:#34d399'>Hiểu thật!</b> Làm tốt cả bài mới — cân bằng tốt.";
+    if (trA < 70) v.innerHTML = tx("⏳ Chưa học xong — bấm Huấn luyện thêm.", "⏳ Not trained yet — click Train more.");
+    else if (gap >= 18) v.innerHTML = tx("⚠️ <b style='color:#fb7185'>Học vẹt!</b> Nhớ bài cũ nhưng làm dở bài mới. Thử thêm dữ liệu.", "⚠️ <b style='color:#fb7185'>Overfitting!</b> Great on old, poor on new. Try more data.");
+    else v.innerHTML = tx("✅ <b style='color:#34d399'>Hiểu thật!</b> Làm tốt cả bài mới — cân bằng tốt.", "✅ <b style='color:#34d399'>It understands!</b> Good on new data too — well balanced.");
     if (trA >= 70 && gap < 18 && !celebrated) { celebrated = true; sfx.success(); }
   }
 
@@ -167,14 +169,14 @@ export function roomOverfitting(root) {
   root.querySelector("#resetBtn").onclick = rebuild;
   root.querySelector("#trainBtn").onclick = (e) => {
     e.target.classList.remove("pulse-hint");
-    if (timer) { clearInterval(timer); timer = null; e.target.textContent = "▶ Huấn luyện"; return; }
-    e.target.textContent = "⏸ Dừng";
+    if (timer) { clearInterval(timer); timer = null; e.target.textContent = tx("▶ Huấn luyện", "▶ Train"); return; }
+    e.target.textContent = tx("⏸ Dừng", "⏸ Stop");
     let epochs = 0;
     timer = setInterval(() => {
       for (let i = 0; i < 4; i++) step(net, train, 0.12);
       epochs += 4;
       refresh();
-      if (epochs > 3000) { clearInterval(timer); timer = null; e.target.textContent = "▶ Huấn luyện"; }
+      if (epochs > 3000) { clearInterval(timer); timer = null; e.target.textContent = tx("▶ Huấn luyện", "▶ Train"); }
     }, 40);
   };
 

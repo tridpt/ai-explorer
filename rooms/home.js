@@ -1,5 +1,21 @@
-// Trang chủ — giới thiệu hành trình, tiến trình đã đi, và danh sách các phòng
+// Trang chủ — song ngữ
 import { getVisited, getBestScore } from "../store.js";
+import { getLang, tx } from "../i18n.js";
+
+const S = {
+  eyebrow: { vi: "✦ Hành trình tương tác · %n phòng", en: "✦ Interactive journey · %n rooms" },
+  h1a: { vi: "Hiểu ", en: "Get " },
+  h1b: { vi: " trong 15 phút", en: " in 15 minutes" },
+  intro: {
+    vi: "Không công thức toán, không thuật ngữ rối rắm. Chỉ là một hành trình tương tác: bạn tự tay dạy AI, nhìn vào bên trong nó, và khám phá cả những giới hạn của nó.",
+    en: "No math formulas, no jargon. Just an interactive journey: you teach an AI by hand, look inside it, and discover its limits.",
+  },
+  start: { vi: "Bắt đầu hành trình →", en: "Start the journey →" },
+  cont: { vi: "Tiếp tục hành trình →", en: "Continue the journey →" },
+  restart: { vi: "Đi lại từ đầu", en: "Restart" },
+  progress: { vi: "Đã khám phá %d/%t phòng", en: "Explored %d/%t rooms" },
+  best: { vi: " · Điểm quiz cao nhất: <b>%s</b> 🏅", en: " · Best quiz score: <b>%s</b> 🏅" },
+};
 
 export function renderHome(app, rooms, navigate) {
   const visited = getVisited();
@@ -11,21 +27,20 @@ export function renderHome(app, rooms, navigate) {
 
   const hero = document.createElement("div");
   hero.className = "hero";
+  const progressText = tx(S.progress).replace("%d", doneCount).replace("%t", journeyRooms.length)
+    + (best >= 0 ? tx(S.best).replace("%s", best) : "");
   hero.innerHTML = `
-    <span class="eyebrow">✦ Hành trình tương tác · ${journeyRooms.length} phòng</span>
-    <h1>Hiểu <span class="grad">AI</span><br/>trong 15 phút</h1>
-    <p>
-      Không công thức toán, không thuật ngữ rối rắm. Chỉ là một hành trình tương tác:
-      bạn tự tay dạy AI, nhìn vào bên trong nó, và khám phá cả những giới hạn của nó.
-    </p>
+    <span class="eyebrow">${tx(S.eyebrow).replace("%n", journeyRooms.length)}</span>
+    <h1>${tx(S.h1a)}<span class="grad">AI</span>${tx(S.h1b)}</h1>
+    <p>${tx(S.intro)}</p>
     <div class="hero-cta">
-      <button class="btn" id="startBtn">${started ? "Tiếp tục hành trình →" : "Bắt đầu hành trình →"}</button>
-      ${started ? `<button class="btn ghost" id="restartBtn">Đi lại từ đầu</button>` : ""}
+      <button class="btn" id="startBtn">${started ? tx(S.cont) : tx(S.start)}</button>
+      ${started ? `<button class="btn ghost" id="restartBtn">${tx(S.restart)}</button>` : ""}
     </div>
     ${started ? `
       <div class="home-progress">
         <div class="hp-bar"><div class="hp-fill" style="width:${(doneCount / journeyRooms.length) * 100}%"></div></div>
-        <span class="muted">Đã khám phá ${doneCount}/${journeyRooms.length} phòng${best >= 0 ? ` · Điểm quiz cao nhất: <b>${best}</b> 🏅` : ""}</span>
+        <span class="muted">${progressText}</span>
       </div>` : ""}
   `;
   app.appendChild(hero);
@@ -40,9 +55,9 @@ export function renderHome(app, rooms, navigate) {
       <div class="rc-num">${room.num}</div>
       ${isDone ? `<div class="rc-check">✓</div>` : ""}
       <div class="rc-icon">${room.icon}</div>
-      <h3>${room.title}</h3>
-      <p>${room.blurb}</p>
-      <div class="rc-q">${room.question}</div>
+      <h3>${tx(room.title)}</h3>
+      <p>${tx(room.blurb)}</p>
+      <div class="rc-q">${tx(room.question)}</div>
     `;
     card.addEventListener("click", () => navigate(room.id));
     grid.appendChild(card);

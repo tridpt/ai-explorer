@@ -1,6 +1,6 @@
-// Phòng 02 — Mạng nơ-ron mini huấn luyện trực tiếp trên trình duyệt (thuần JS).
-// Bài toán: phân biệt điểm "bên trong vòng tròn" (cam) vs "bên ngoài" (xanh) — không thể chia bằng 1 đường thẳng.
+// Phòng 02 — Mạng nơ-ron mini huấn luyện trực tiếp trên trình duyệt (thuần JS). Song ngữ.
 import { sfx } from "../sound.js";
+import { tx } from "../i18n.js";
 
 function makeData(n = 120) {
   const data = [];
@@ -16,7 +16,6 @@ function makeData(n = 120) {
 function tanh(z) { return Math.tanh(z); }
 function sigmoid(z) { return 1 / (1 + Math.exp(-z)); }
 
-// Khởi tạo mạng 2 -> H -> 1
 function initNet(H) {
   const rnd = () => Math.random() * 2 - 1;
   return {
@@ -59,40 +58,43 @@ function trainStep(net, data, lr) {
 export function roomNeuralNet(root) {
   root.innerHTML = `
     <p class="room-intro">
-      Bên trong AI là gì? Là rất nhiều "nơ-ron" — mỗi cái chỉ làm một phép tính tí hon. Một mình thì
-      ngốc, nhưng <strong>ghép nhiều lại</strong> chúng học được những hình thù phức tạp. Nhiệm vụ ở đây:
-      tách điểm <span style="color:#fb923c">cam (trong vòng tròn)</span> khỏi
-      <span style="color:#6ea8fe">xanh (ngoài)</span> — bất khả thi với một đường thẳng.
+      ${tx(
+        "Bên trong AI là gì? Là rất nhiều \"nơ-ron\" — mỗi cái chỉ làm một phép tính tí hon. Một mình thì ngốc, nhưng <strong>ghép nhiều lại</strong> chúng học được những hình thù phức tạp. Nhiệm vụ ở đây: tách điểm <span style=\"color:#fb923c\">cam (trong vòng tròn)</span> khỏi <span style=\"color:#6ea8fe\">xanh (ngoài)</span> — bất khả thi với một đường thẳng.",
+        "What's inside an AI? Lots of \"neurons\" — each doing one tiny calculation. Alone they're dumb, but <strong>combined</strong> they learn complex shapes. The task: separate <span style=\"color:#fb923c\">orange (inside the circle)</span> from <span style=\"color:#6ea8fe\">blue (outside)</span> — impossible with a single straight line."
+      )}
     </p>
 
     <div class="row">
       <div class="panel" style="flex:1.2;">
-        <h4>🕸️ AI đang học (vùng màu = dự đoán của AI)</h4>
+        <h4>${tx("🕸️ AI đang học (vùng màu = dự đoán của AI)", "🕸️ The AI is learning (colored area = its prediction)")}</h4>
         <canvas id="nnCanvas" width="420" height="420"></canvas>
       </div>
       <div class="panel">
-        <h4>🎛️ Bảng điều khiển</h4>
+        <h4>${tx("🎛️ Bảng điều khiển", "🎛️ Control panel")}</h4>
         <label class="field">
-          <span>Số nơ-ron: <b id="hVal">6</b> — ít quá thì AI "ngốc", nhiều hơn thì học giỏi hơn</span>
+          <span>${tx("Số nơ-ron:", "Neurons:")} <b id="hVal">6</b> — ${tx("ít quá thì AI \"ngốc\", nhiều hơn thì học giỏi hơn", "too few and it's \"dumb\", more and it learns better")}</span>
           <input type="range" id="hRange" min="1" max="16" step="1" value="6" />
         </label>
         <div class="row">
-          <button class="btn pulse-hint" id="trainBtn">▶ Huấn luyện</button>
-          <button class="btn ghost" id="resetBtn">↺ Làm lại</button>
+          <button class="btn pulse-hint" id="trainBtn">${tx("▶ Huấn luyện", "▶ Train")}</button>
+          <button class="btn ghost" id="resetBtn">${tx("↺ Làm lại", "↺ Reset")}</button>
         </div>
         <div class="mt">
-          <div class="muted">Số vòng học: <b id="epochs">0</b></div>
-          <div class="muted">Độ chính xác: <b id="acc">—</b></div>
+          <div class="muted">${tx("Số vòng học:", "Epochs:")} <b id="epochs">0</b></div>
+          <div class="muted">${tx("Độ chính xác:", "Accuracy:")} <b id="acc">—</b></div>
         </div>
-        <p class="muted mt">Thử để 1 nơ-ron rồi huấn luyện: AI chỉ vẽ được đường thẳng nên "bó tay".
-        Tăng lên 6–10 nơ-ron, ranh giới sẽ uốn thành vòng tròn.</p>
+        <p class="muted mt">${tx(
+          "Thử để 1 nơ-ron rồi huấn luyện: AI chỉ vẽ được đường thẳng nên \"bó tay\". Tăng lên 6–10 nơ-ron, ranh giới sẽ uốn thành vòng tròn.",
+          "Try 1 neuron then train: it can only draw a line, so it's stuck. Raise to 6–10 neurons and the boundary curves into a circle."
+        )}</p>
       </div>
     </div>
 
     <div class="takeaway">
-      💡 <strong>Điều cốt lõi:</strong> AI không được lập trình cứng từng quy tắc. Nó <em>tự điều chỉnh</em>
-      hàng loạt con số bé tí (trọng số) qua từng vòng học để giảm sai sót. Càng nhiều nơ-ron, nó càng
-      nắm được những mẫu hình phức tạp — đó là ý nghĩa của "học sâu" (deep learning).
+      ${tx(
+        "💡 <strong>Điều cốt lõi:</strong> AI không được lập trình cứng từng quy tắc. Nó <em>tự điều chỉnh</em> hàng loạt con số bé tí (trọng số) qua từng vòng học để giảm sai sót. Càng nhiều nơ-ron, nó càng nắm được những mẫu hình phức tạp — đó là ý nghĩa của \"học sâu\" (deep learning).",
+        "💡 <strong>Key idea:</strong> AI isn't hard-coded rule by rule. It <em>tunes</em> many tiny numbers (weights) over training rounds to cut errors. More neurons let it capture more complex patterns — that's what \"deep learning\" means."
+      )}
     </div>
   `;
 
@@ -106,17 +108,15 @@ export function roomNeuralNet(root) {
   let timer = null;
   let celebrated = false;
 
-  const toPx = (v) => ((v + 1) / 2) * W; // [-1,1] -> [0,W]
+  const toPx = (v) => ((v + 1) / 2) * W;
 
   function draw() {
-    // vùng dự đoán (lưới thô để nhanh)
     const step = 7;
     for (let px = 0; px < W; px += step) {
       for (let py = 0; py < Hpx; py += step) {
         const x = (px / W) * 2 - 1;
         const y = (py / Hpx) * 2 - 1;
         const { out } = forward(net, x, y);
-        // out ~1 -> cam, ~0 -> xanh
         const r = Math.round(110 + out * (251 - 110));
         const g = Math.round(168 + out * (146 - 168));
         const b = Math.round(254 + out * (60 - 254));
@@ -124,7 +124,6 @@ export function roomNeuralNet(root) {
         ctx.fillRect(px, py, step, step);
       }
     }
-    // điểm dữ liệu
     for (const p of data) {
       ctx.beginPath();
       ctx.arc(toPx(p.x), toPx(p.y), 4, 0, Math.PI * 2);
@@ -165,7 +164,7 @@ export function roomNeuralNet(root) {
   };
 
   function reset() {
-    if (timer) { clearInterval(timer); timer = null; root.querySelector("#trainBtn").textContent = "▶ Huấn luyện"; }
+    if (timer) { clearInterval(timer); timer = null; root.querySelector("#trainBtn").textContent = tx("▶ Huấn luyện", "▶ Train"); }
     net = initNet(parseInt(hRange.value));
     epochs = 0;
     refresh();
@@ -175,18 +174,17 @@ export function roomNeuralNet(root) {
   root.querySelector("#trainBtn").onclick = (e) => {
     e.target.classList.remove("pulse-hint");
     if (timer) {
-      clearInterval(timer); timer = null; e.target.textContent = "▶ Huấn luyện";
+      clearInterval(timer); timer = null; e.target.textContent = tx("▶ Huấn luyện", "▶ Train");
       return;
     }
-    e.target.textContent = "⏸ Dừng";
+    e.target.textContent = tx("⏸ Dừng", "⏸ Stop");
     timer = setInterval(() => {
       for (let i = 0; i < 3; i++) { trainStep(net, data, 0.1); epochs++; }
       refresh();
-      if (epochs > 1500) { clearInterval(timer); timer = null; e.target.textContent = "▶ Huấn luyện"; }
+      if (epochs > 1500) { clearInterval(timer); timer = null; e.target.textContent = tx("▶ Huấn luyện", "▶ Train"); }
     }, 40);
   };
 
-  // dọn dẹp khi rời phòng
   window.addEventListener("hashchange", () => { if (timer) clearInterval(timer); }, { once: true });
 
   refresh();

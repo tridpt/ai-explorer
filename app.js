@@ -1,4 +1,4 @@
-// AI Explorer — router & điều hướng "hành trình qua các phòng"
+// AI Explorer — router & điều hướng "hành trình qua các phòng" (song ngữ VN/EN)
 import { renderHome } from "./rooms/home.js";
 import { roomTeachable } from "./rooms/teachable.js";
 import { roomNeuralNet } from "./rooms/neural-net.js";
@@ -15,129 +15,153 @@ import { roomChatbot } from "./rooms/chatbot.js";
 import { roomSummary } from "./rooms/summary.js";
 import { sfx, isMuted, setMuted, celebrate } from "./sound.js";
 import { markVisited, getVisited } from "./store.js";
+import { getLang, setLang, tx } from "./i18n.js";
 
-// Thứ tự các phòng = mạch kể chuyện của hành trình
+// Thứ tự các phòng = mạch kể chuyện của hành trình. title/question/blurb song ngữ.
 export const ROOMS = [
   {
-    id: "teachable",
-    icon: "📸",
-    num: "01",
-    title: "Tự tay dạy AI",
-    question: "AI học như thế nào?",
-    blurb: "Bật webcam, dạy AI phân biệt vài tư thế chỉ trong 30 giây. Hiểu 'dữ liệu huấn luyện' bằng chính tay bạn.",
+    id: "teachable", icon: "📸", num: "01",
+    title: { vi: "Tự tay dạy AI", en: "Teach an AI yourself" },
+    question: { vi: "AI học như thế nào?", en: "How does AI learn?" },
+    blurb: {
+      vi: "Bật webcam, dạy AI phân biệt vài tư thế chỉ trong 30 giây. Hiểu 'dữ liệu huấn luyện' bằng chính tay bạn.",
+      en: "Turn on your webcam and teach an AI to tell poses apart in 30 seconds. Grasp 'training data' hands-on.",
+    },
     render: roomTeachable,
   },
   {
-    id: "neural-net",
-    icon: "🕸️",
-    num: "02",
-    title: "Bên trong mạng nơ-ron",
-    question: "Bên trong AI là gì?",
-    blurb: "Kéo thanh trượt thay đổi số nơ-ron và xem AI vẽ ranh giới phân loại thay đổi theo thời gian thực.",
+    id: "neural-net", icon: "🕸️", num: "02",
+    title: { vi: "Bên trong mạng nơ-ron", en: "Inside a neural network" },
+    question: { vi: "Bên trong AI là gì?", en: "What's inside an AI?" },
+    blurb: {
+      vi: "Kéo thanh trượt thay đổi số nơ-ron và xem AI vẽ ranh giới phân loại thay đổi theo thời gian thực.",
+      en: "Drag a slider to change the neuron count and watch the AI's decision boundary reshape in real time.",
+    },
     render: roomNeuralNet,
   },
   {
-    id: "overfitting",
-    icon: "🎯",
-    num: "03",
-    title: "Học vẹt hay hiểu thật?",
-    question: "AI có thực sự 'hiểu'?",
-    blurb: "Khám phá overfitting: khi AI nhớ vanh vách bài cũ nhưng làm sai bài mới — và cách chữa nó.",
+    id: "overfitting", icon: "🎯", num: "03",
+    title: { vi: "Học vẹt hay hiểu thật?", en: "Memorizing or understanding?" },
+    question: { vi: "AI có thực sự 'hiểu'?", en: "Does AI truly 'understand'?" },
+    blurb: {
+      vi: "Khám phá overfitting: khi AI nhớ vanh vách bài cũ nhưng làm sai bài mới — và cách chữa nó.",
+      en: "Explore overfitting: when an AI aces old examples but fails new ones — and how to fix it.",
+    },
     render: roomOverfitting,
   },
   {
-    id: "decision-tree",
-    icon: "🌳",
-    num: "04",
-    title: "Cây quyết định",
-    question: "Có loại AI 'nhìn thấy' được luật?",
-    blurb: "Một kiểu AI minh bạch: đi qua chuỗi câu hỏi có/không mà ai cũng kiểm tra được vì sao nó kết luận vậy.",
+    id: "decision-tree", icon: "🌳", num: "04",
+    title: { vi: "Cây quyết định", en: "Decision tree" },
+    question: { vi: "Có loại AI 'nhìn thấy' được luật?", en: "An AI whose rules you can see?" },
+    blurb: {
+      vi: "Một kiểu AI minh bạch: đi qua chuỗi câu hỏi có/không mà ai cũng kiểm tra được vì sao nó kết luận vậy.",
+      en: "A transparent kind of AI: a chain of yes/no questions where anyone can check why it decided that way.",
+    },
     render: roomDecisionTree,
   },
   {
-    id: "reinforcement",
-    icon: "🤖",
-    num: "05",
-    title: "Học qua thử và sai",
-    question: "AI học không cần đáp án thì sao?",
-    blurb: "Xem chú robot tự học đường tới đích bằng thưởng–phạt, không hề được chỉ trước — học tăng cường.",
+    id: "reinforcement", icon: "🤖", num: "05",
+    title: { vi: "Học qua thử và sai", en: "Learning by trial and error" },
+    question: { vi: "AI học không cần đáp án thì sao?", en: "What if AI learns with no answer key?" },
+    blurb: {
+      vi: "Xem chú robot tự học đường tới đích bằng thưởng–phạt, không hề được chỉ trước — học tăng cường.",
+      en: "Watch a robot learn its way to the goal via rewards and penalties, with no guidance — reinforcement learning.",
+    },
     render: roomReinforcement,
   },
   {
-    id: "tokenizer",
-    icon: "✂️",
-    num: "06",
-    title: "Token là gì",
-    question: "AI đọc chữ kiểu gì?",
-    blurb: "AI không thấy 'chữ' như ta — nó cắt câu thành token. Gõ thử và xem số token cùng chi phí.",
+    id: "tokenizer", icon: "✂️", num: "06",
+    title: { vi: "Token là gì", en: "What is a token" },
+    question: { vi: "AI đọc chữ kiểu gì?", en: "How does AI read text?" },
+    blurb: {
+      vi: "AI không thấy 'chữ' như ta — nó cắt câu thành token. Gõ thử và xem số token cùng chi phí.",
+      en: "AI doesn't see 'letters' like we do — it slices text into tokens. Type and watch token count and cost.",
+    },
     render: roomTokenizer,
   },
   {
-    id: "embeddings",
-    icon: "🗺️",
-    num: "07",
-    title: "Bản đồ ý nghĩa",
-    question: "AI hiểu nghĩa của từ ra sao?",
-    blurb: "Khám phá cách AI biến từ ngữ thành các điểm trên bản đồ, nơi 'vua − đàn ông + đàn bà = nữ hoàng'.",
+    id: "embeddings", icon: "🗺️", num: "07",
+    title: { vi: "Bản đồ ý nghĩa", en: "The map of meaning" },
+    question: { vi: "AI hiểu nghĩa của từ ra sao?", en: "How does AI grasp word meaning?" },
+    blurb: {
+      vi: "Khám phá cách AI biến từ ngữ thành các điểm trên bản đồ, nơi 'vua − đàn ông + đàn bà = nữ hoàng'.",
+      en: "See how AI turns words into points on a map, where 'king − man + woman = queen'.",
+    },
     render: roomEmbeddings,
   },
   {
-    id: "attention",
-    icon: "👁️",
-    num: "08",
-    title: "AI đọc câu của bạn",
-    question: "Nó đọc một câu kiểu gì?",
-    blurb: "Xem khi AI gặp một từ, nó đang 'nhìn' vào những từ nào khác để hiểu nghĩa — cơ chế attention.",
+    id: "attention", icon: "👁️", num: "08",
+    title: { vi: "AI đọc câu của bạn", en: "AI reads your sentence" },
+    question: { vi: "Nó đọc một câu kiểu gì?", en: "How does it read a sentence?" },
+    blurb: {
+      vi: "Xem khi AI gặp một từ, nó đang 'nhìn' vào những từ nào khác để hiểu nghĩa — cơ chế attention.",
+      en: "See which other words an AI 'looks at' to understand a given word — the attention mechanism.",
+    },
     render: roomAttention,
   },
   {
-    id: "next-token",
-    icon: "🎲",
-    num: "09",
-    title: "Máy đoán chữ",
-    question: "Vì sao AI đôi khi đoán bừa?",
-    blurb: "AI viết câu bằng cách liên tục đoán từ tiếp theo theo xác suất. Tự tay chứng kiến vì sao nó 'ảo giác'.",
+    id: "next-token", icon: "🎲", num: "09",
+    title: { vi: "Máy đoán chữ", en: "The word-guessing machine" },
+    question: { vi: "Vì sao AI đôi khi đoán bừa?", en: "Why does AI sometimes make things up?" },
+    blurb: {
+      vi: "AI viết câu bằng cách liên tục đoán từ tiếp theo theo xác suất. Tự tay chứng kiến vì sao nó 'ảo giác'.",
+      en: "AI writes by repeatedly guessing the next word by probability. See first-hand why it 'hallucinates'.",
+    },
     render: roomNextToken,
   },
   {
-    id: "diffusion",
-    icon: "🎨",
-    num: "10",
-    title: "AI tạo ảnh thế nào",
-    question: "Làm sao AI vẽ ra tranh?",
-    blurb: "Từ một mớ nhiễu hỗn loạn, AI khử nhiễu từng bước cho tới khi hiện ra hình bạn yêu cầu — diffusion.",
+    id: "diffusion", icon: "🎨", num: "10",
+    title: { vi: "AI tạo ảnh thế nào", en: "How AI makes images" },
+    question: { vi: "Làm sao AI vẽ ra tranh?", en: "How does AI paint a picture?" },
+    blurb: {
+      vi: "Từ một mớ nhiễu hỗn loạn, AI khử nhiễu từng bước cho tới khi hiện ra hình bạn yêu cầu — diffusion.",
+      en: "From pure random noise, AI denoises step by step until your requested image appears — diffusion.",
+    },
     render: roomDiffusion,
   },
   {
-    id: "bias",
-    icon: "⚖️",
-    num: "11",
-    title: "AI có thiên kiến?",
-    question: "AI có công bằng không?",
-    blurb: "Dữ liệu dạy AI đến từ con người, nên AI cũng học cả định kiến của chúng ta. Khám phá điều đó.",
+    id: "bias", icon: "⚖️", num: "11",
+    title: { vi: "AI có thiên kiến?", en: "Is AI biased?" },
+    question: { vi: "AI có công bằng không?", en: "Is AI fair?" },
+    blurb: {
+      vi: "Dữ liệu dạy AI đến từ con người, nên AI cũng học cả định kiến của chúng ta. Khám phá điều đó.",
+      en: "AI's training data comes from humans, so it learns our biases too. Explore how.",
+    },
     render: roomBias,
   },
   {
-    id: "chatbot",
-    icon: "💬",
-    num: "12",
-    title: "Chatbot mini",
-    question: "Ghép tất cả lại thành gì?",
-    blurb: "Token + ý nghĩa + chú ý + đoán chữ ghép lại thành một trợ lý. Trò chuyện và xem nó xử lý từng bước.",
+    id: "chatbot", icon: "💬", num: "12",
+    title: { vi: "Chatbot mini", en: "Mini chatbot" },
+    question: { vi: "Ghép tất cả lại thành gì?", en: "What do all the pieces build?" },
+    blurb: {
+      vi: "Token + ý nghĩa + chú ý + đoán chữ ghép lại thành một trợ lý. Trò chuyện và xem nó xử lý từng bước.",
+      en: "Tokens + meaning + attention + guessing combine into an assistant. Chat and watch it work step by step.",
+    },
     render: roomChatbot,
   },
   {
-    id: "summary",
-    icon: "🎓",
-    num: "13",
-    title: "Bạn đã hiểu AI rồi",
-    question: "Tổng kết hành trình",
-    blurb: "Điểm lại những ý tưởng cốt lõi bạn vừa khám phá — và đâu là sự thật quan trọng nhất về AI.",
+    id: "summary", icon: "🎓", num: "13",
+    title: { vi: "Bạn đã hiểu AI rồi", en: "You get AI now" },
+    question: { vi: "Tổng kết hành trình", en: "Journey recap" },
+    blurb: {
+      vi: "Điểm lại những ý tưởng cốt lõi bạn vừa khám phá — và đâu là sự thật quan trọng nhất về AI.",
+      en: "Revisit the core ideas you just explored — and the single most important truth about AI.",
+    },
     render: roomSummary,
   },
 ];
 
-// Mỗi phòng một tông màu chủ đề: [accent, accent-2, "r,g,b"]
+// Chuỗi giao diện chung
+const UI = {
+  soundTitle: { vi: "Bật/tắt âm thanh", en: "Toggle sound" },
+  presentTitle: { vi: "Chế độ trình chiếu (toàn màn hình)", en: "Presentation mode (fullscreen)" },
+  langTitle: { vi: "Chuyển sang tiếng Anh", en: "Switch to Vietnamese" },
+  start: { vi: "Bắt đầu", en: "Start" },
+  nextRoom: { vi: "Phòng tiếp:", en: "Next:" },
+  journeyEnd: { vi: "Hết hành trình", en: "End of journey" },
+  close: { vi: "đóng", en: "close" },
+};
+
 const THEME = {
   home:        ["#6ea8fe", "#b07bff", "110,168,254"],
   teachable:   ["#ff7a59", "#ffb15c", "255,122,89"],
@@ -163,21 +187,21 @@ function applyTheme(id) {
   r.setProperty("--accent-rgb", rgb);
 }
 
-// Gợi ý onboarding cho từng phòng (hiện 1 lần, nhấp nháy nhẹ)
+// Gợi ý onboarding song ngữ (hiện 1 lần mỗi phòng)
 const HINTS = {
-  teachable: "👉 Bấm <b>Bật webcam</b>, rồi chụp vài mẫu cho mỗi tư thế để dạy AI.",
-  "neural-net": "👉 Thử để <b>1 nơ-ron</b> rồi bấm Huấn luyện — xem AI 'bó tay'. Sau đó tăng lên 8.",
-  overfitting: "👉 Bấm <b>Huấn luyện</b> với ít dữ liệu — xem AI 'học vẹt'. Rồi kéo lượng dữ liệu lên cao.",
-  "decision-tree": "👉 Bấm các câu trả lời để đi qua cây — đường đi sẽ sáng lên ở sơ đồ dưới.",
-  reinforcement: "👉 Bấm <b>Học 100 lượt</b> vài lần, rồi bấm <b>Xem robot tự đi</b> để thấy nó tới đích.",
-  tokenizer: "👉 Gõ một câu (cả tiếng Anh, emoji) và xem AI cắt nó thành token thế nào.",
-  embeddings: "👉 Bấm một phép tính ở mục <b>Thử nhanh</b> để thấy AI suy ra từ thứ tư.",
-  attention: "👉 Bấm vào từ <b>nó</b> trong câu để xem AI đang chú ý vào đâu.",
-  "next-token": "👉 Bấm <b>Tự viết cả câu</b>, rồi kéo thanh <b>nhiệt độ</b> lên cao và viết lại.",
-  diffusion: "👉 Chọn một prompt rồi bấm <b>Tạo ảnh</b> — xem nhiễu biến thành hình dần dần.",
-  bias: "👉 Bấm lần lượt các nghề để xem AI 'đoán' giới tính lệch ra sao.",
-  chatbot: "👉 Bấm một câu hỏi gợi ý để xem chatbot xử lý qua từng bước.",
-  summary: "👉 Cuộn xuống cuối để làm <b>quiz</b> và nhận huy hiệu nhé!",
+  teachable: { vi: "👉 Bấm <b>Bật webcam</b>, rồi chụp vài mẫu cho mỗi tư thế để dạy AI.", en: "👉 Click <b>Start webcam</b>, then capture a few samples per pose to teach the AI." },
+  "neural-net": { vi: "👉 Thử để <b>1 nơ-ron</b> rồi bấm Huấn luyện — xem AI 'bó tay'. Sau đó tăng lên 8.", en: "👉 Try <b>1 neuron</b> then Train — watch the AI struggle. Then bump it up to 8." },
+  overfitting: { vi: "👉 Bấm <b>Huấn luyện</b> với ít dữ liệu — xem AI 'học vẹt'. Rồi kéo lượng dữ liệu lên cao.", en: "👉 Click <b>Train</b> with little data — watch it memorize. Then raise the data amount." },
+  "decision-tree": { vi: "👉 Bấm các câu trả lời để đi qua cây — đường đi sẽ sáng lên ở sơ đồ dưới.", en: "👉 Click the answers to walk the tree — your path lights up in the diagram below." },
+  reinforcement: { vi: "👉 Bấm <b>Học 100 lượt</b> vài lần, rồi bấm <b>Xem robot tự đi</b> để thấy nó tới đích.", en: "👉 Click <b>Train 100 rounds</b> a few times, then <b>Watch the robot go</b> to see it reach the goal." },
+  tokenizer: { vi: "👉 Gõ một câu (cả tiếng Anh, emoji) và xem AI cắt nó thành token thế nào.", en: "👉 Type a sentence (English, emoji too) and see how the AI splits it into tokens." },
+  embeddings: { vi: "👉 Bấm một phép tính ở mục <b>Thử nhanh</b> để thấy AI suy ra từ thứ tư.", en: "👉 Click a preset under <b>Quick try</b> to see the AI infer the fourth word." },
+  attention: { vi: "👉 Bấm vào từ <b>nó</b> trong câu để xem AI đang chú ý vào đâu.", en: "👉 Click the word <b>it</b> in a sentence to see where the AI pays attention." },
+  "next-token": { vi: "👉 Bấm <b>Tự viết cả câu</b>, rồi kéo thanh <b>nhiệt độ</b> lên cao và viết lại.", en: "👉 Click <b>Auto-write</b>, then push the <b>temperature</b> up and write again." },
+  diffusion: { vi: "👉 Chọn một prompt rồi bấm <b>Tạo ảnh</b> — xem nhiễu biến thành hình dần dần.", en: "👉 Pick a prompt then click <b>Generate</b> — watch noise turn into an image." },
+  bias: { vi: "👉 Bấm lần lượt các nghề để xem AI 'đoán' giới tính lệch ra sao.", en: "👉 Click through the jobs to see how the AI's gender guesses skew." },
+  chatbot: { vi: "👉 Bấm một câu hỏi gợi ý để xem chatbot xử lý qua từng bước.", en: "👉 Click a suggested question to watch the chatbot process it step by step." },
+  summary: { vi: "👉 Cuộn xuống cuối để làm <b>quiz</b> và nhận huy hiệu nhé!", en: "👉 Scroll down to take the <b>quiz</b> and earn your badge!" },
 };
 const hintsShown = new Set();
 
@@ -186,7 +210,7 @@ function showHint(id) {
   hintsShown.add(id);
   const bar = document.createElement("div");
   bar.className = "hint-bar";
-  bar.innerHTML = `<span>${HINTS[id]}</span><button class="hint-close" aria-label="đóng">✕</button>`;
+  bar.innerHTML = `<span>${tx(HINTS[id])}</span><button class="hint-close" aria-label="${tx(UI.close)}">✕</button>`;
   document.body.appendChild(bar);
   const close = () => bar.classList.add("hide");
   bar.querySelector(".hint-close").onclick = close;
@@ -194,15 +218,21 @@ function showHint(id) {
   bar.addEventListener("animationend", (e) => { if (e.animationName === "hintOut") bar.remove(); });
 }
 
-// Thanh công cụ: âm thanh + trình chiếu
+// Thanh công cụ: ngôn ngữ + âm thanh + trình chiếu
 function buildToolbar() {
   const tb = document.createElement("div");
   tb.className = "toolbar";
   tb.innerHTML = `
-    <button class="tool-btn" id="soundBtn" title="Bật/tắt âm thanh"></button>
-    <button class="tool-btn" id="presentBtn" title="Chế độ trình chiếu (toàn màn hình)">⛶</button>
+    <button class="tool-btn" id="langBtn" title="${tx(UI.langTitle)}"></button>
+    <button class="tool-btn" id="soundBtn" title="${tx(UI.soundTitle)}"></button>
+    <button class="tool-btn" id="presentBtn" title="${tx(UI.presentTitle)}">⛶</button>
   `;
   document.querySelector(".topbar").appendChild(tb);
+
+  const langBtn = tb.querySelector("#langBtn");
+  const refreshLang = () => (langBtn.textContent = getLang() === "vi" ? "EN" : "VI");
+  refreshLang();
+  langBtn.onclick = () => { setLang(getLang() === "vi" ? "en" : "vi"); sfx.click(); };
 
   const soundBtn = tb.querySelector("#soundBtn");
   const refreshSound = () => (soundBtn.textContent = isMuted() ? "🔇" : "🔊");
@@ -230,7 +260,7 @@ function renderProgress(activeId) {
     const dot = document.createElement("div");
     dot.className = "progress-dot";
     dot.textContent = i + 1;
-    dot.title = room.title;
+    dot.title = tx(room.title);
     if (room.id === activeId) dot.classList.add("active");
     else if (visited.has(room.id)) dot.classList.add("done");
     dot.addEventListener("click", () => navigate(room.id));
@@ -274,8 +304,8 @@ function route() {
   head.innerHTML = `
     <div class="rh-icon">${room.icon}</div>
     <div>
-      <div class="rh-q">${room.question}</div>
-      <h2>${room.title}</h2>
+      <div class="rh-q">${tx(room.question)}</div>
+      <h2>${tx(room.title)}</h2>
     </div>`;
   app.appendChild(head);
 
@@ -291,10 +321,10 @@ function route() {
   const next = ROOMS[idx + 1];
   navBtns.innerHTML = `
     <button class="btn ghost" ${prev ? "" : "disabled"} id="prevBtn">
-      ← ${prev ? prev.title : "Bắt đầu"}
+      ← ${prev ? tx(prev.title) : tx(UI.start)}
     </button>
     <button class="btn" ${next ? "" : "disabled"} id="nextBtn">
-      ${next ? "Phòng tiếp: " + next.title + " →" : "Hết hành trình"}
+      ${next ? tx(UI.nextRoom) + " " + tx(next.title) + " →" : tx(UI.journeyEnd)}
     </button>`;
   app.appendChild(navBtns);
   if (prev) document.getElementById("prevBtn").onclick = () => navigate(prev.id);
@@ -304,6 +334,13 @@ function route() {
 
 document.getElementById("brandHome").addEventListener("click", () => navigate("home"));
 window.addEventListener("hashchange", route);
+
+// Đổi ngôn ngữ → dựng lại thanh công cụ + render lại phòng hiện tại
+window.addEventListener("langchange", () => {
+  document.querySelector(".toolbar")?.remove();
+  buildToolbar();
+  route();
+});
 
 // Điều hướng bằng phím mũi tên (hợp cho trình chiếu)
 window.addEventListener("keydown", (e) => {

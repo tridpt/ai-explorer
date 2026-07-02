@@ -1,12 +1,12 @@
-// Phòng — Học tăng cường (Reinforcement Learning): AI học qua thử–sai và phần thưởng.
-// Một "chú robot" học đường tới đích trên lưới bằng Q-learning, ngay trên trình duyệt.
+// Phòng — Học tăng cường (Reinforcement Learning). Song ngữ.
 import { sfx, celebrate } from "../sound.js";
+import { tx } from "../i18n.js";
 
 const ROWS = 5, COLS = 6;
 const START = [0, 0];
 const GOAL = [ROWS - 1, COLS - 1];
 const TRAPS = [[1, 2], [2, 4], [3, 1]];
-const ACTIONS = [[-1, 0], [1, 0], [0, -1], [0, 1]]; // lên, xuống, trái, phải
+const ACTIONS = [[-1, 0], [1, 0], [0, -1], [0, 1]];
 const ARROWS = ["↑", "↓", "←", "→"];
 
 function isTrap(r, c) { return TRAPS.some(([tr, tc]) => tr === r && tc === c); }
@@ -15,36 +15,44 @@ function isGoal(r, c) { return r === GOAL[0] && c === GOAL[1]; }
 export function roomReinforcement(root) {
   root.innerHTML = `
     <p class="room-intro">
-      Không phải AI nào cũng học từ đáp án có sẵn. <strong>Học tăng cường</strong> giống cách ta dạy thú cưng:
-      để nó tự thử, làm đúng thì <em>thưởng</em>, làm sai thì <em>phạt</em>. Dần dần nó tự tìm ra cách tốt nhất.
-      Bên dưới, chú robot 🤖 phải học đường tới đích 🎯, tránh các ô bẫy 💥 — mà không hề được chỉ trước.
+      ${tx(
+        "Không phải AI nào cũng học từ đáp án có sẵn. <strong>Học tăng cường</strong> giống cách ta dạy thú cưng: để nó tự thử, làm đúng thì <em>thưởng</em>, làm sai thì <em>phạt</em>. Dần dần nó tự tìm ra cách tốt nhất. Bên dưới, chú robot 🤖 phải học đường tới đích 🎯, tránh các ô bẫy 💥 — mà không hề được chỉ trước.",
+        "Not all AI learns from an answer key. <strong>Reinforcement learning</strong> is like training a pet: let it try, <em>reward</em> good moves, <em>penalize</em> bad ones. Gradually it finds the best way. Below, a robot 🤖 must learn its path to the goal 🎯, avoiding trap tiles 💥 — with no guidance at all."
+      )}
     </p>
 
     <div class="row">
       <div class="panel center" style="flex:1.1;">
-        <h4 style="text-align:left">🗺️ Thế giới của robot</h4>
+        <h4 style="text-align:left">${tx("🗺️ Thế giới của robot", "🗺️ The robot's world")}</h4>
         <canvas id="rlCanvas" width="480" height="400" style="margin:0 auto;"></canvas>
-        <p class="muted mt">Màu xanh = ô robot thấy "đáng giá" · mũi tên = nước đi nó cho là tốt nhất.</p>
+        <p class="muted mt">${tx(
+          "Màu xanh = ô robot thấy \"đáng giá\" · mũi tên = nước đi nó cho là tốt nhất.",
+          "Green = tiles the robot finds \"valuable\" · arrows = the move it thinks is best."
+        )}</p>
       </div>
       <div class="panel">
-        <h4>🎮 Huấn luyện</h4>
+        <h4>${tx("🎮 Huấn luyện", "🎮 Training")}</h4>
         <div class="row">
-          <button class="btn pulse-hint" id="rlTrain">▶ Học 100 lượt</button>
-          <button class="btn ghost" id="rlReset">↺ Quên hết</button>
+          <button class="btn pulse-hint" id="rlTrain">${tx("▶ Học 100 lượt", "▶ Train 100 rounds")}</button>
+          <button class="btn ghost" id="rlReset">${tx("↺ Quên hết", "↺ Forget all")}</button>
         </div>
-        <button class="btn ghost mt" id="rlPlay" style="width:100%;">🤖 Xem robot tự đi</button>
+        <button class="btn ghost mt" id="rlPlay" style="width:100%;">${tx("🤖 Xem robot tự đi", "🤖 Watch the robot go")}</button>
         <div class="mt">
-          <div class="muted">Số lượt đã học: <b id="rlEp">0</b></div>
-          <div class="muted">Kết quả gần nhất: <b id="rlResult">—</b></div>
+          <div class="muted">${tx("Số lượt đã học:", "Rounds trained:")} <b id="rlEp">0</b></div>
+          <div class="muted">${tx("Kết quả gần nhất:", "Latest result:")} <b id="rlResult">—</b></div>
         </div>
-        <p class="muted mt">Lúc đầu robot đi lung tung và sa bẫy liên tục. Học vài trăm lượt, nó sẽ đi thẳng tới đích.</p>
+        <p class="muted mt">${tx(
+          "Lúc đầu robot đi lung tung và sa bẫy liên tục. Học vài trăm lượt, nó sẽ đi thẳng tới đích.",
+          "At first the robot wanders and falls into traps. After a few hundred rounds, it heads straight for the goal."
+        )}</p>
       </div>
     </div>
 
     <div class="takeaway">
-      💡 <strong>Điều cốt lõi:</strong> Học tăng cường không cần ai dạy "đáp án đúng". AI chỉ nhận
-      <em>phần thưởng</em> khi làm tốt và tự điều chỉnh để nhận thưởng nhiều hơn. Đây là cách AI học chơi
-      cờ vây, chơi game, hay điều khiển robot — những việc mà "đáp án đúng" không hề có sẵn.
+      ${tx(
+        "💡 <strong>Điều cốt lõi:</strong> Học tăng cường không cần ai dạy \"đáp án đúng\". AI chỉ nhận <em>phần thưởng</em> khi làm tốt và tự điều chỉnh để nhận thưởng nhiều hơn. Đây là cách AI học chơi cờ vây, chơi game, hay điều khiển robot — những việc mà \"đáp án đúng\" không hề có sẵn.",
+        "💡 <strong>Key idea:</strong> Reinforcement learning needs no \"correct answer\". The AI just gets a <em>reward</em> for doing well and tunes itself to earn more. This is how AI learns Go, video games, or robot control — tasks where no \"right answer\" exists upfront."
+      )}
     </div>
   `;
 
@@ -52,13 +60,10 @@ export function roomReinforcement(root) {
   const ctx = canvas.getContext("2d");
   const cw = canvas.width / COLS, ch = canvas.height / ROWS;
 
-  // Q[r][c][a]
   let Q, episodes, agent, playing = false;
 
   function resetQ() {
-    Q = Array.from({ length: ROWS }, () =>
-      Array.from({ length: COLS }, () => [0, 0, 0, 0])
-    );
+    Q = Array.from({ length: ROWS }, () => Array.from({ length: COLS }, () => [0, 0, 0, 0]));
     episodes = 0;
     agent = [...START];
     root.querySelector("#rlEp").textContent = 0;
@@ -68,10 +73,10 @@ export function roomReinforcement(root) {
 
   function stepEnv(r, c, a) {
     let nr = r + ACTIONS[a][0], nc = c + ACTIONS[a][1];
-    if (nr < 0 || nr >= ROWS || nc < 0 || nc >= COLS) { nr = r; nc = c; } // đụng tường
+    if (nr < 0 || nr >= ROWS || nc < 0 || nc >= COLS) { nr = r; nc = c; }
     if (isGoal(nr, nc)) return [nr, nc, 1, true];
     if (isTrap(nr, nc)) return [nr, nc, -1, true];
-    return [nr, nc, -0.03, false]; // phạt nhẹ mỗi bước để khuyến khích đi nhanh
+    return [nr, nc, -0.03, false];
   }
 
   function bestAction(r, c) {
@@ -97,7 +102,6 @@ export function roomReinforcement(root) {
 
   function draw(agentPos) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    // giá trị lớn nhất để chuẩn hóa màu
     let maxV = 0.001;
     for (let r = 0; r < ROWS; r++)
       for (let c = 0; c < COLS; c++)
@@ -118,7 +122,6 @@ export function roomReinforcement(root) {
         ctx.strokeStyle = "rgba(255,255,255,0.08)";
         ctx.strokeRect(x + 2, y + 2, cw - 4, ch - 4);
 
-        // biểu tượng
         ctx.font = "24px serif";
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
@@ -131,7 +134,6 @@ export function roomReinforcement(root) {
         }
       }
     }
-    // robot
     const [ar, ac] = agentPos || START;
     ctx.font = "26px serif";
     ctx.fillText("🤖", ac * cw + cw / 2, ar * ch + ch / 2);
@@ -143,13 +145,13 @@ export function roomReinforcement(root) {
     e.target.classList.remove("pulse-hint");
     let wins = 0;
     for (let i = 0; i < 100; i++) {
-      const eps = Math.max(0.05, 0.5 - episodes / 800); // giảm ngẫu nhiên dần
+      const eps = Math.max(0.05, 0.5 - episodes / 800);
       const res = runEpisode(eps);
       episodes++;
       if (res.reachedGoal) wins++;
     }
     root.querySelector("#rlEp").textContent = episodes;
-    root.querySelector("#rlResult").textContent = `tới đích ${wins}/100 lượt`;
+    root.querySelector("#rlResult").textContent = tx(`tới đích ${wins}/100 lượt`, `reached goal ${wins}/100`);
     sfx.pop();
     draw();
   };
