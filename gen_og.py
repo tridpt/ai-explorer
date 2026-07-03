@@ -47,7 +47,7 @@ d.text((62, 430), "Tự tay dạy AI · Nhìn vào bên trong · Khám phá gi�
        font=font(30, bold=False), fill=(75, 70, 58))
 
 # các chip phòng
-chips = [("13 PHÒNG", GREEN), ("VN / EN", PINK), ("KHÔNG CẦN AI VIẾT HỘ", ORANGE)]
+chips = [("21 PHÒNG", GREEN), ("VN / EN", PINK), ("CHẠY TRÊN TRÌNH DUYỆT", ORANGE)]
 x = 62
 for text, col in chips:
     w = int(d.textlength(text, font=font(24))) + 40
