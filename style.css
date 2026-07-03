@@ -650,3 +650,8 @@ canvas { display: block; max-width: 100%; height: auto; }
   .ft-head { display: none; }
   .ft-cell::before { font-weight: 800; }
 }
+
+/* ---------- Adversarial: ảnh + lớp nhiễu cạnh nhau ---------- */
+.adv-imgs { display: flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap; }
+.adv-imgs canvas { border: 2px solid var(--ink); width: 150px; height: 150px; image-rendering: pixelated; }
+.adv-plus { font-size: 28px; font-weight: 900; }

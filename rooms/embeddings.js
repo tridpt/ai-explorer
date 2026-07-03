@@ -98,7 +98,26 @@ export function roomEmbeddings(root) {
     return [x, y];
   }
 
-  let highlight = null;
+  let highlight = null; // { a, b, c, target, ans }
+
+  // Vẽ một mũi tên có đầu nhọn từ p1 → p2.
+  function arrow(p1, p2, color, dash = []) {
+    ctx.save();
+    ctx.strokeStyle = color;
+    ctx.fillStyle = color;
+    ctx.lineWidth = 2.5;
+    ctx.setLineDash(dash);
+    ctx.beginPath(); ctx.moveTo(p1[0], p1[1]); ctx.lineTo(p2[0], p2[1]); ctx.stroke();
+    ctx.setLineDash([]);
+    const ang = Math.atan2(p2[1] - p1[1], p2[0] - p1[0]);
+    const h = 9;
+    ctx.beginPath();
+    ctx.moveTo(p2[0], p2[1]);
+    ctx.lineTo(p2[0] - h * Math.cos(ang - 0.4), p2[1] - h * Math.sin(ang - 0.4));
+    ctx.lineTo(p2[0] - h * Math.cos(ang + 0.4), p2[1] - h * Math.sin(ang + 0.4));
+    ctx.closePath(); ctx.fill();
+    ctx.restore();
+  }
 
   function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -110,22 +129,48 @@ export function roomEmbeddings(root) {
       ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); ctx.stroke();
       ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); ctx.stroke();
     }
+
+    // Các từ tham gia phép loại suy được tô nổi bật.
+    const involved = highlight ? new Set([highlight.a, highlight.b, highlight.c, highlight.ans]) : new Set();
+
     ctx.font = "13px Inter, sans-serif";
     for (const w of WORDS) {
       const [px, py] = toPx(WORD_VECTORS[w]);
-      ctx.fillStyle = "#6ea8fe";
-      ctx.beginPath(); ctx.arc(px, py, 4, 0, Math.PI * 2); ctx.fill();
-      ctx.fillStyle = "#e8ecf6";
+      const hot = involved.has(w);
+      ctx.fillStyle = hot ? "#b07bff" : "rgba(110,168,254,0.5)";
+      ctx.beginPath(); ctx.arc(px, py, hot ? 5 : 4, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = hot ? "#fff" : "rgba(232,236,246,0.55)";
+      ctx.font = hot ? "bold 13px Inter, sans-serif" : "13px Inter, sans-serif";
       ctx.fillText(label(w), px + 7, py + 4);
     }
+
     if (highlight) {
-      const [px, py] = toPx(highlight.vec);
-      ctx.fillStyle = highlight.color;
-      ctx.beginPath(); ctx.arc(px, py, 8, 0, Math.PI * 2); ctx.fill();
-      ctx.strokeStyle = "#fff"; ctx.lineWidth = 2; ctx.stroke();
-      ctx.fillStyle = "#fff";
-      ctx.font = "bold 14px Inter, sans-serif";
-      ctx.fillText("➜ " + label(highlight.label), px + 11, py + 5);
+      const pB = toPx(WORD_VECTORS[highlight.b]);
+      const pA = toPx(WORD_VECTORS[highlight.a]);
+      const pC = toPx(WORD_VECTORS[highlight.c]);
+      const pT = toPx(highlight.target);
+      const pAns = toPx(WORD_VECTORS[highlight.ans]);
+
+      // Hai mũi tên song song: b→a (mối quan hệ) và c→đáp án (áp dụng mối quan hệ đó).
+      arrow(pB, pA, "#22d3ee");
+      arrow(pC, pT, "#b07bff");
+
+      // Điểm "toán học rơi vào" (target) — có thể lệch chút so với từ gần nhất.
+      ctx.fillStyle = "rgba(176,123,255,0.35)";
+      ctx.beginPath(); ctx.arc(pT[0], pT[1], 9, 0, Math.PI * 2); ctx.fill();
+
+      // Nối target tới từ gần nhất thực tế nếu chúng không trùng.
+      if (dist(highlight.target, WORD_VECTORS[highlight.ans]) > 0.15) {
+        ctx.save();
+        ctx.strokeStyle = "rgba(255,255,255,0.5)";
+        ctx.setLineDash([3, 3]); ctx.lineWidth = 1.5;
+        ctx.beginPath(); ctx.moveTo(pT[0], pT[1]); ctx.lineTo(pAns[0], pAns[1]); ctx.stroke();
+        ctx.restore();
+      }
+
+      // Vòng sáng quanh đáp án.
+      ctx.strokeStyle = "#b07bff"; ctx.lineWidth = 2.5;
+      ctx.beginPath(); ctx.arc(pAns[0], pAns[1], 10, 0, Math.PI * 2); ctx.stroke();
     }
   }
   draw();
@@ -134,10 +179,15 @@ export function roomEmbeddings(root) {
     const va = WORD_VECTORS[a], vb = WORD_VECTORS[b], vc = WORD_VECTORS[c];
     const target = [va[0] - vb[0] + vc[0], va[1] - vb[1] + vc[1]];
     const ans = nearest(target, [a, b, c]);
-    highlight = { vec: WORD_VECTORS[ans], label: ans, color: "#b07bff" };
+    highlight = { a, b, c, target, ans };
     draw();
+    const off = dist(target, WORD_VECTORS[ans]);
+    const note = off > 0.15
+      ? tx(" <span class='muted' style='font-size:13px'>(điểm tím là chỗ phép toán rơi vào — gần nhất là từ này, chứ không trùng khít: loại suy chỉ <em>xấp xỉ</em>)</span>",
+           " <span class='muted' style='font-size:13px'>(the purple dot is where the math lands — the nearest word, not an exact hit: analogy is only <em>approximate</em>)</span>")
+      : "";
     root.querySelector("#analogyResult").innerHTML =
-      `<strong style="color:#b07bff">${label(ans)}</strong>`;
+      `<strong style="color:#b07bff">${label(ans)}</strong>${note}`;
     sfx.success();
   }
 

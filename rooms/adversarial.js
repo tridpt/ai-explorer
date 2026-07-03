@@ -17,11 +17,25 @@ export function roomAdversarial(root) {
     <div class="row">
       <div class="panel center" style="flex:1.1;">
         <h4 style="text-align:left">${tx("🖼️ Ảnh đưa cho AI", "🖼️ Image shown to the AI")}</h4>
-        <canvas id="advCanvas" width="${SIZE}" height="${SIZE}" style="margin:0 auto;"></canvas>
+        <div class="adv-imgs">
+          <div>
+            <canvas id="advCanvas" width="${SIZE}" height="${SIZE}" style="margin:0 auto;"></canvas>
+            <div class="muted mt" style="font-size:12px">${tx("Ảnh AI thấy (gốc + nhiễu)", "What the AI sees (original + noise)")}</div>
+          </div>
+          <div class="adv-plus">+</div>
+          <div>
+            <canvas id="advNoiseCanvas" width="${SIZE}" height="${SIZE}" style="margin:0 auto;"></canvas>
+            <div class="muted mt" style="font-size:12px">${tx("Lớp nhiễu (đã phóng đại ×4)", "The noise layer (magnified ×4)")}</div>
+          </div>
+        </div>
         <label class="field mt" style="text-align:left">
           <span>${tx("Lượng nhiễu thêm vào:", "Noise added:")} <b id="advVal">0</b>%</span>
           <input type="range" id="advNoise" min="0" max="80" step="1" value="0" />
         </label>
+        <p class="muted" style="font-size:12px">${tx(
+          "👀 Nhìn ảnh bên trái: bạn vẫn thấy rõ gấu trúc. Lớp nhiễu bên phải chính là thứ được cộng vào — nhỏ tới mức mắt người gần như bỏ qua.",
+          "👀 Look left: you still clearly see a panda. The noise on the right is what's added — so small the human eye nearly ignores it."
+        )}</p>
       </div>
       <div class="panel">
         <h4>${tx("🤖 AI nhận diện", "🤖 AI's verdict")}</h4>
@@ -40,6 +54,8 @@ export function roomAdversarial(root) {
 
   const canvas = root.querySelector("#advCanvas");
   const ctx = canvas.getContext("2d");
+  const noiseCanvas = root.querySelector("#advNoiseCanvas");
+  const nctx = noiseCanvas.getContext("2d");
   const base = document.createElement("canvas");
   base.width = SIZE; base.height = SIZE;
   const bctx = base.getContext("2d");
@@ -64,16 +80,22 @@ export function roomAdversarial(root) {
     const strength = parseInt(slider.value);
     root.querySelector("#advVal").textContent = strength;
 
-    // vẽ ảnh gốc + nhiễu
-    const img = ctx.createImageData(SIZE, SIZE);
+    // Tạo lớp nhiễu chung để cả ảnh-đã-nhiễu và bản-đồ-nhiễu dùng cùng một giá trị.
     const amt = strength * 1.6;
+    const img = ctx.createImageData(SIZE, SIZE);
+    const noiseImg = nctx.createImageData(SIZE, SIZE);
     for (let i = 0; i < img.data.length; i += 4) {
       for (let k = 0; k < 3; k++) {
-        img.data[i + k] = Math.max(0, Math.min(255, baseData.data[i + k] + (Math.random() - 0.5) * amt));
+        const n = (Math.random() - 0.5) * amt; // nhiễu cho kênh màu này
+        img.data[i + k] = Math.max(0, Math.min(255, baseData.data[i + k] + n));
+        // Bản đồ nhiễu: khuếch đại quanh mức xám 128 để "nhìn thấy" thứ vô hình.
+        noiseImg.data[i + k] = Math.max(0, Math.min(255, 128 + n * 4));
       }
       img.data[i + 3] = 255;
+      noiseImg.data[i + 3] = 255;
     }
     ctx.putImageData(img, 0, 0);
+    nctx.putImageData(noiseImg, 0, 0);
 
     // "dự đoán" của AI
     if (strength < FLIP) {

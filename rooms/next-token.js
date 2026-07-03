@@ -86,6 +86,11 @@ export function roomNextToken(root) {
   const lang = getLang();
   const MODEL = buildModel(tokenize(CORPUS[lang]));
 
+  let startWords = [...START[lang]];
+  let context = [...startWords];
+  let mode = "sample"; // "sample" | "greedy"
+  let lastPick = null;  // từ vừa được chọn (để tô sáng)
+
   root.innerHTML = `
     <p class="room-intro">
       ${tx(
@@ -95,12 +100,26 @@ export function roomNextToken(root) {
     </p>
 
     <div class="panel">
+      <h4>${tx("✍️ Câu mồi (gõ vài từ để AI viết tiếp)", "✍️ Seed (type a few words for the AI to continue)")}</h4>
+      <div class="row" style="align-items:center; gap:10px">
+        <input type="text" id="seed" style="flex:1" value="${startWords.join(" ")}" />
+        <button class="btn ghost" id="seedBtn">${tx("Dùng câu này", "Use this")}</button>
+      </div>
+      <p class="muted mt">${tx("Gợi ý: gõ những từ có trong các câu mẫu để cỗ máy \"biết đường\". Từ lạ hoàn toàn sẽ khiến nó bí.", "Tip: use words seen in the sample sentences so the machine has a path. Totally new words make it stuck.")}</p>
+    </div>
+
+    <div class="panel">
       <h4>${tx("🎲 Cỗ máy đoán chữ", "🎲 The word-guessing machine")}</h4>
       <div id="sentence" style="font-size:20px; line-height:1.8; min-height:32px; margin-bottom:10px;"></div>
       <p class="muted">${tx("Các ứng viên cho từ tiếp theo (bấm để chọn, hoặc để máy tự chọn):", "Candidates for the next word (click to pick, or let it choose):")}</p>
       <div id="candidates" class="mt"></div>
 
-      <label class="field mt">
+      <div class="seg mt" id="modeSeg">
+        <button class="seg-btn active" data-mode="sample">${tx("🎲 Chọn theo xác suất", "🎲 Sample by probability")}</button>
+        <button class="seg-btn" data-mode="greedy">${tx("🥇 Luôn chọn từ cao nhất", "🥇 Always pick the top")}</button>
+      </div>
+
+      <label class="field mt" id="tempField">
         <span>${tx("Độ sáng tạo (nhiệt độ):", "Creativity (temperature):")} <b id="tempVal">0.7</b> — ${tx("kéo cao để thấy AI \"bay bổng\" và dễ sai hơn", "raise it to see the AI get \"wild\" and more error-prone")}</span>
         <input type="range" id="temp" min="0.1" max="2.0" step="0.1" value="0.7" />
       </label>
@@ -110,6 +129,7 @@ export function roomNextToken(root) {
         <button class="btn ghost" id="autoBtn">${tx("⏩ Tự viết cả câu", "⏩ Auto-write")}</button>
         <button class="btn ghost" id="resetBtn">${tx("↺ Bắt đầu lại", "↺ Restart")}</button>
       </div>
+      <p class="muted mt" id="ntStatus"></p>
     </div>
 
     <div class="takeaway">
@@ -120,37 +140,45 @@ export function roomNextToken(root) {
     </div>
   `;
 
-  const startWords = START[lang];
-  let context = [...startWords];
-
   const sentenceEl = root.querySelector("#sentence");
   const candEl = root.querySelector("#candidates");
   const tempEl = root.querySelector("#temp");
   const tempVal = root.querySelector("#tempVal");
+  const seedEl = root.querySelector("#seed");
+  const statusEl = root.querySelector("#ntStatus");
+  const tempField = root.querySelector("#tempField");
 
   function renderSentence() {
     sentenceEl.innerHTML = context
-      .map((w) => `<span class="tok" style="background:rgba(110,168,254,0.15)">${w}</span>`)
+      .map((w, i) => {
+        const isNew = i >= startWords.length && i === context.length - 1;
+        const bg = isNew ? "rgba(251,191,36,0.4)" : "rgba(110,168,254,0.15)";
+        return `<span class="tok" style="background:${bg}">${w}</span>`;
+      })
       .join(" ");
   }
 
   function renderCandidates() {
-    const temp = parseFloat(tempEl.value);
+    const temp = mode === "greedy" ? 1 : parseFloat(tempEl.value);
     const probs = distribution(MODEL, context.join(" "), temp).slice(0, 6);
     candEl.innerHTML = "";
     if (probs.length === 0) {
-      candEl.innerHTML = `<p class="muted">${tx("Hết đường đoán — cỗ máy chưa từng thấy ngữ cảnh này. Bấm \"Bắt đầu lại\".", "Dead end — the machine hasn't seen this context. Click \"Restart\".")}</p>`;
+      candEl.innerHTML = `<p class="muted">${tx("🚧 Hết đường đoán — cỗ máy chưa từng thấy ngữ cảnh này (từ cuối quá lạ). Bấm \"Bắt đầu lại\" hoặc đổi câu mồi.", "🚧 Dead end — the machine has never seen this context (last word too rare). Click \"Restart\" or change the seed.")}</p>`;
       return;
     }
+    const topProb = probs[0][1];
     probs.forEach(([w, p]) => {
+      const isTop = p === topProb;
+      const isPick = w === lastPick;
       const row = document.createElement("div");
       row.className = "bar-row";
+      const barColor = isPick ? "linear-gradient(90deg,#fbbf24,#fb923c)" : "";
       row.innerHTML = `
-        <div class="bar-label">${w === "." ? tx("[hết câu]", "[end]") : w}</div>
-        <div class="bar-track"><div class="bar-fill" style="width:${Math.max(6, p * 100)}%">${Math.round(p * 100)}%</div></div>
+        <div class="bar-label">${w === "." ? tx("[hết câu]", "[end]") : w}${mode === "greedy" && isTop ? " 🥇" : ""}</div>
+        <div class="bar-track"><div class="bar-fill" style="width:${Math.max(6, p * 100)}%${barColor ? ";background:" + barColor : ""}">${Math.round(p * 100)}%</div></div>
       `;
       row.style.cursor = "pointer";
-      row.onclick = () => { if (w !== ".") { context.push(w); update(); } };
+      row.onclick = () => { if (w !== ".") { lastPick = w; context.push(w); update(); } };
       candEl.appendChild(row);
     });
   }
@@ -158,23 +186,52 @@ export function roomNextToken(root) {
   function update() { renderSentence(); renderCandidates(); }
 
   function step() {
-    const temp = parseFloat(tempEl.value);
+    const temp = mode === "greedy" ? 1 : parseFloat(tempEl.value);
     const probs = distribution(MODEL, context.join(" "), temp);
-    if (probs.length === 0) return false;
-    const w = sample(probs);
-    if (w === "." || !w) return false;
+    if (probs.length === 0) { statusEl.textContent = tx("🚧 Bí đường — không có từ nào để đoán tiếp.", "🚧 Stuck — no word to continue."); return false; }
+    // greedy: luôn lấy từ xác suất cao nhất; sample: bốc theo xác suất
+    const w = mode === "greedy" ? probs[0][0] : sample(probs);
+    if (w === "." || !w) { statusEl.textContent = tx("⏹ Máy quyết định kết thúc câu ở đây.", "⏹ The machine chose to end the sentence here."); return false; }
+    lastPick = w;
     context.push(w);
     update();
     return true;
   }
 
+  function applyMode() {
+    root.querySelectorAll("#modeSeg .seg-btn").forEach((b) =>
+      b.classList.toggle("active", b.dataset.mode === mode));
+    // greedy không dùng nhiệt độ → làm mờ thanh trượt cho rõ ý
+    tempField.style.opacity = mode === "greedy" ? "0.4" : "1";
+    tempField.style.pointerEvents = mode === "greedy" ? "none" : "";
+    statusEl.textContent = mode === "greedy"
+      ? tx("🥇 Chế độ tất định: cùng câu mồi → luôn ra cùng kết quả (nhưng dễ lặp, cụt).", "🥇 Deterministic: same seed → always same output (but repetitive, dull).")
+      : tx("🎲 Chế độ ngẫu nhiên: cùng câu mồi vẫn ra khác nhau mỗi lần — vì sao AI 'sáng tạo'.", "🎲 Stochastic: same seed varies each run — why AI feels 'creative'.");
+    renderCandidates();
+  }
+
+  root.querySelectorAll("#modeSeg .seg-btn").forEach((b) => {
+    b.onclick = () => { mode = b.dataset.mode; applyMode(); };
+  });
+
   tempEl.oninput = () => { tempVal.textContent = parseFloat(tempEl.value).toFixed(1); renderCandidates(); };
   root.querySelector("#stepBtn").onclick = step;
-  root.querySelector("#resetBtn").onclick = () => { context = [...startWords]; update(); };
+  root.querySelector("#resetBtn").onclick = () => { context = [...startWords]; lastPick = null; statusEl.textContent = ""; update(); };
+
+  root.querySelector("#seedBtn").onclick = () => {
+    const raw = tokenize(seedEl.value);
+    if (!raw.length) return;
+    context = raw;
+    lastPick = null;
+    statusEl.textContent = "";
+    update();
+  };
+
   root.querySelector("#autoBtn").onclick = () => {
     let n = 0;
     const timer = setInterval(() => { if (!step() || ++n > 18) clearInterval(timer); }, 280);
   };
 
+  applyMode();
   update();
 }
