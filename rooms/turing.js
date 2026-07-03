@@ -75,6 +75,28 @@ export function roomTuring(root) {
           <div class="score">${score}/${ROUNDS.length}</div>
           <p class="muted mt">${tx("Đúng số câu bạn phân biệt được người / AI.", "Passages you correctly told apart.")}</p>
           <button class="btn mt" id="tuAgain">${tx("↺ Chơi lại", "↺ Play again")}</button>
+        </div>
+        <div class="panel mt">
+          <h4>${tx("🔎 Bỏ túi: dấu hiệu nhận biết", "🔎 Cheat sheet: the tells")}</h4>
+          <div class="tu-tells">
+            <div class="tu-tell tu-human">
+              <b>🧑 ${tx("Thường là người", "Usually human")}</b>
+              <ul>
+                <li>${tx("Khẩu ngữ, tiếng lóng, emoji, sai chính tả \"có duyên\"", "Slang, colloquialisms, emoji, playful typos")}</li>
+                <li>${tx("Cảm xúc vụn vặt, chi tiết đời thường rất cụ thể", "Small feelings, very specific everyday detail")}</li>
+                <li>${tx("Ngập ngừng, lý lẽ lộn xộn, có \"cái tôi\"", "Hesitation, messy reasoning, a personal voice")}</li>
+              </ul>
+            </div>
+            <div class="tu-tell tu-ai">
+              <b>🤖 ${tx("Thường là AI", "Usually AI")}</b>
+              <ul>
+                <li>${tx("Trơn tru, trung lập, \"an toàn\", hơi sáo", "Smooth, neutral, safe, slightly bland")}</li>
+                <li>${tx("Hay liệt kê gọn gàng, giọng \"trợ lý\"", "Tidy lists, an \"assistant\" tone")}</li>
+                <li>${tx("Đầy đủ, đúng ngữ pháp nhưng thiếu cá tính", "Complete and grammatical but impersonal")}</li>
+              </ul>
+            </div>
+          </div>
+          <p class="muted mt">${tx("Lưu ý: đây chỉ là <b>xu hướng</b>, không phải luật. AI ngày càng biết bắt chước giọng người.", "Note: these are <b>tendencies</b>, not rules. AI keeps getting better at mimicking human voice.")}</p>
         </div>`;
       stage.querySelector("#tuAgain").onclick = () => { idx = 0; score = 0; render(); };
       sfx.complete();

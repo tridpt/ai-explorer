@@ -16,11 +16,29 @@ const ITEMS = [
   { icon: "🛸", t: { vi: "Người ngoài hành tinh", en: "Alien thriller" }, v: [.3, 0, 0, .7, .5] },
 ];
 
+// Nhãn các thể loại (khớp thứ tự vector đặc trưng ở trên).
+const GENRES = [
+  { vi: "Hành động", en: "Action" },
+  { vi: "Hài", en: "Comedy" },
+  { vi: "Tình cảm", en: "Romance" },
+  { vi: "Khoa học", en: "Sci-fi" },
+  { vi: "Kinh dị", en: "Horror" },
+];
+
 function cosine(a, b) {
   let dot = 0, na = 0, nb = 0;
   for (let i = 0; i < a.length; i++) { dot += a[i] * b[i]; na += a[i] * a[i]; nb += b[i] * b[i]; }
   return na && nb ? dot / (Math.sqrt(na) * Math.sqrt(nb)) : 0;
 }
+
+// Nhãn cho 5 chiều đặc trưng (song ngữ).
+const GENRES = [
+  { vi: "Hành động", en: "Action" },
+  { vi: "Hài", en: "Comedy" },
+  { vi: "Tình cảm", en: "Romance" },
+  { vi: "Khoa học", en: "Sci-fi" },
+  { vi: "Kinh dị", en: "Horror" },
+];
 
 export function roomRecommendation(root) {
   root.innerHTML = `
@@ -37,8 +55,13 @@ export function roomRecommendation(root) {
         <div id="rcItems"></div>
       </div>
       <div class="panel">
-        <h4>${tx("✨ AI gợi ý cho bạn", "✨ AI recommends for you")}</h4>
+        <h4>${tx("🧬 Hồ sơ \"gu\" của bạn (AI thấy)", "🧬 Your taste profile (as AI sees it)")}</h4>
+        <p class="muted">${tx("AI không biết bạn thích gì — nó chỉ cộng dồn đặc trưng các mục bạn thích thành mấy con số:", "AI doesn't know your taste — it just sums up the features of what you liked into a few numbers:")}</p>
+        <div id="rcProfile" class="mt"></div>
+
+        <h4 class="mt">${tx("✨ AI gợi ý cho bạn", "✨ AI recommends for you")}</h4>
         <div id="rcResult"><p class="muted">${tx("Hãy thích ít nhất 1 mục để AI bắt đầu gợi ý.", "Like at least 1 item for the AI to start.")}</p></div>
+        <div id="rcBubble" class="mt"></div>
       </div>
     </div>
 
@@ -67,17 +90,34 @@ export function roomRecommendation(root) {
     itemsEl.appendChild(row);
   });
 
+  const profileEl = root.querySelector("#rcProfile");
+  const bubbleEl = root.querySelector("#rcBubble");
+
   function recompute() {
     const liked = Object.keys(ratings).filter((i) => ratings[i] === 1).map(Number);
     const disliked = Object.keys(ratings).filter((i) => ratings[i] === -1).map(Number);
     if (liked.length === 0) {
       resultEl.innerHTML = `<p class="muted">${tx("Hãy thích ít nhất 1 mục để AI bắt đầu gợi ý.", "Like at least 1 item for the AI to start.")}</p>`;
+      profileEl.innerHTML = `<p class="muted">${tx("(chưa có gì — hãy 👍 vài mục)", "(nothing yet — 👍 a few items)")}</p>`;
+      bubbleEl.innerHTML = "";
       return;
     }
     const dim = ITEMS[0].v.length;
     const profile = new Array(dim).fill(0);
     liked.forEach((i) => ITEMS[i].v.forEach((val, d) => (profile[d] += val)));
     disliked.forEach((i) => ITEMS[i].v.forEach((val, d) => (profile[d] -= val * 0.6)));
+
+    // Vẽ "hồ sơ gu": mỗi thể loại một thanh, cho thấy AI mô tả bạn bằng con số.
+    const maxAbs = Math.max(0.01, ...profile.map((v) => Math.abs(v)));
+    profileEl.innerHTML = GENRES.map((g, d) => {
+      const val = profile[d];
+      const pct = Math.round((Math.abs(val) / maxAbs) * 100);
+      const color = val >= 0 ? "linear-gradient(90deg,#0ea5e9,#38bdf8)" : "#e5352b";
+      return `<div class="bar-row">
+        <div class="bar-label" style="text-align:left; width:auto; flex:0 0 96px;">${tx(g)}</div>
+        <div class="bar-track"><div class="bar-fill" style="width:${Math.max(4, pct)}%; background:${color}">${val.toFixed(1)}</div></div>
+      </div>`;
+    }).join("");
 
     const scored = ITEMS
       .map((it, i) => ({ it, i, s: cosine(profile, it.v) }))
@@ -92,6 +132,17 @@ export function roomRecommendation(root) {
         <div class="bar-track"><div class="bar-fill" style="width:${Math.max(8, pct)}%">${pct}%</div></div>
       </div>`;
     }).join("") + `<p class="muted mt">${tx("Càng chấm nhiều, gợi ý càng sát gu bạn.", "The more you rate, the better it fits your taste.")}</p>`;
+
+    // Cảnh báo "bong bóng lọc": nếu gu dồn hẳn vào 1 thể loại.
+    const top = profile.map((v, d) => ({ v, d })).sort((a, b) => b.v - a.v);
+    if (liked.length >= 2 && top[0].v > 0 && top[0].v >= (top[1].v + top[2].v) * 1.5) {
+      bubbleEl.innerHTML = `<div class="takeaway" style="margin:0; box-shadow:none;">${tx(
+        `🫧 <b>Bong bóng lọc:</b> gu của bạn đang dồn hẳn về "<b>${tx(GENRES[top[0].d])}</b>". AI sẽ liên tục gợi ý quanh đó — tiện, nhưng bạn dễ chỉ thấy một loại nội dung. Đó là mặt trái của hệ gợi ý.`,
+        `🫧 <b>Filter bubble:</b> your taste is skewing hard toward "<b>${tx(GENRES[top[0].d])}</b>". The AI will keep recommending around it — handy, but you may only ever see one kind of content. That's the downside of recommenders.`
+      )}</div>`;
+    } else {
+      bubbleEl.innerHTML = "";
+    }
   }
 
   itemsEl.querySelectorAll("button").forEach((b) => {

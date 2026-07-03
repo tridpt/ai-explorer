@@ -687,3 +687,13 @@ canvas { display: block; max-width: 100%; height: auto; }
 .attn-col-label { flex: 1 1 0; min-width: 34px; text-align: center; font-size: 11px; font-weight: 600; color: var(--text-dim); transform: rotate(-18deg); transform-origin: center; white-space: nowrap; }
 .attn-cell { flex: 1 1 0; min-width: 34px; height: 34px; border: 1px solid rgba(17,17,17,0.12); cursor: pointer; transition: outline 0.1s ease; }
 .attn-cell:hover { outline: 2px solid var(--ink); outline-offset: -1px; }
+
+/* ---------- Turing: bảng dấu hiệu ---------- */
+.tu-tells { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.tu-tell { border: 2px solid var(--ink); padding: 12px 14px; }
+.tu-tell.tu-human { background: #eaf6ff; }
+.tu-tell.tu-ai { background: #fff0f0; }
+.tu-tell b { display: block; margin-bottom: 8px; font-size: 15px; }
+.tu-tell ul { margin: 0; padding-left: 18px; }
+.tu-tell li { font-size: 13px; font-weight: 500; line-height: 1.5; margin-bottom: 4px; }
+@media (max-width: 700px) { .tu-tells { grid-template-columns: 1fr; } }
