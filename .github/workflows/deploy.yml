@@ -16,7 +16,35 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  # Kiểm tra 21 phòng render sạch (không lỗi console) trước khi deploy.
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Install Playwright (Chromium)
+        run: npx playwright install --with-deps chromium
+
+      - name: Serve app in background
+        run: npx --yes http-server -p 8000 -c-1 . &
+
+      - name: Wait for server
+        run: npx --yes wait-on http://localhost:8000 --timeout 30000
+
+      - name: Run smoke test (21 phòng)
+        run: node tests/smoke.mjs
+
   deploy:
+    needs: test
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}

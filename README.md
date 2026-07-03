@@ -138,3 +138,19 @@ python gen_icons.py
 Kiến trúc module hóa: chỉ cần tạo `rooms/ten-phong.js` export một hàm `render(root)`,
 rồi thêm một mục vào mảng `ROOMS` trong `app.js`. Khung sườn (tiêu đề, điều hướng, thanh tiến trình)
 được xử lý tự động.
+
+## Kiểm thử (smoke test)
+
+Một smoke test tự động mở app bằng Chromium (Playwright), duyệt qua **tất cả các phòng**
+và fail nếu có bất kỳ lỗi console / exception nào. Danh sách phòng được đọc trực tiếp từ
+mảng `ROOMS` trong `app.js`, nên phòng mới thêm sau này được kiểm tra tự động.
+
+```
+npm install
+npx playwright install chromium
+npm run serve      # cửa sổ 1: chạy server tại http://localhost:8000
+npm test           # cửa sổ 2: chạy smoke test
+```
+
+Test này cũng chạy tự động trên GitHub Actions trước mỗi lần deploy (job `test` trong
+`.github/workflows/deploy.yml`) — nếu một phòng nào đó lỗi, quá trình deploy sẽ bị chặn.
