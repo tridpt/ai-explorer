@@ -44,6 +44,7 @@ export function roomClustering(root) {
         </div>
         <button class="btn ghost mt" id="clAuto" style="width:100%;">${tx("⏩ Chạy tới khi ổn định", "⏩ Run until stable")}</button>
         <div class="muted mt">${tx("Vòng lặp:", "Iterations:")} <b id="clIter">0</b></div>
+        <div class="muted">${tx("Độ \"chặt\" của nhóm:", "Cluster tightness:")} <b id="clInertia">—</b> <span id="clQuality"></span></div>
         <p class="muted mt">${tx(
           "AI chọn đại vài \"tâm nhóm\" (dấu ◆), gán mỗi điểm về tâm gần nhất, rồi dời tâm vào giữa nhóm. Lặp lại tới khi không đổi.",
           "The AI picks a few \"centroids\" (◆), assigns each point to the nearest, then moves each centroid to its group's center. Repeat until stable."
@@ -72,6 +73,7 @@ export function roomClustering(root) {
     iter = 0;
     root.querySelector("#clIter").textContent = 0;
     draw();
+    showInertia();
   }
 
   function assign() {
@@ -97,12 +99,37 @@ export function roomClustering(root) {
     });
   }
 
+  // Inertia = tổng bình phương khoảng cách từ mỗi điểm tới tâm của nó.
+  // Càng nhỏ = các nhóm càng "chặt". Dùng để bàn về việc chọn số nhóm.
+  function inertia() {
+    let s = 0;
+    for (const p of pts) {
+      if (p.cl < 0) continue;
+      const c = centroids[p.cl];
+      s += (p.x - c[0]) ** 2 + (p.y - c[1]) ** 2;
+    }
+    return s;
+  }
+
+  function showInertia() {
+    const el = root.querySelector("#clInertia");
+    const q = root.querySelector("#clQuality");
+    if (!pts.some((p) => p.cl >= 0)) { el.textContent = "—"; q.textContent = ""; return; }
+    const v = inertia();
+    el.textContent = v.toFixed(2);
+    // Gợi ý trực quan: chặt (thấp) = xanh, lỏng (cao) = cam.
+    if (v < 1.2) q.innerHTML = tx("✅ khá chặt", "✅ nice and tight");
+    else if (v < 2.2) q.innerHTML = tx("🙂 tạm ổn", "🙂 okay");
+    else q.innerHTML = tx("⚠️ khá lỏng — thử đổi số nhóm", "⚠️ loose — try another group count");
+  }
+
   function step() {
     const changed = assign();
     update();
     iter++;
     root.querySelector("#clIter").textContent = iter;
     draw();
+    showInertia();
     return changed;
   }
 

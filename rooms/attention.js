@@ -81,6 +81,15 @@ export function roomAttention(root) {
       <div id="attnNote" class="muted"></div>
     </div>
 
+    <div class="panel">
+      <h4>${tx("🔥 Bản đồ chú ý toàn câu", "🔥 Full-sentence attention map")}</h4>
+      <p class="muted">${tx(
+        "Mỗi hàng là một từ đang được xử lý; ô càng sáng nghĩa là từ đó càng \"chú ý\" nhiều tới từ ở cột đó. Rê chuột lên một ô để xem chi tiết.",
+        "Each row is a word being processed; the brighter a cell, the more that word \"attends\" to the column word. Hover a cell for details."
+      )}</p>
+      <div id="attnMatrix" class="attn-matrix mt"></div>
+    </div>
+
     <div class="takeaway">
       ${tx(
         "💡 <strong>Điều cốt lõi:</strong> AI không đọc tuần tự từng chữ một cách máy móc. Với mỗi từ, nó <em>cân nhắc trọng số</em> tất cả các từ khác trong câu để nắm ngữ cảnh. Nhờ vậy nó biết \"nó\", \"cô ấy\" đang trỏ về ai — đây chính là trái tim của các mô hình ngôn ngữ hiện đại (Transformer).",
@@ -114,11 +123,37 @@ export function roomAttention(root) {
 
   const display = root.querySelector("#sentDisplay");
   const noteEl = root.querySelector("#attnNote");
+  const matrixEl = root.querySelector("#attnMatrix");
+
+  // Vẽ ma trận attention đầy đủ: hàng = từ đang xử lý, cột = từ được chú ý.
+  function renderMatrix(s, M) {
+    const n = s.words.length;
+    // header + n hàng, mỗi hàng: nhãn + n ô.
+    let html = `<div class="attn-row attn-head"><div class="attn-corner"></div>`;
+    s.words.forEach((w) => (html += `<div class="attn-col-label">${w}</div>`));
+    html += `</div>`;
+    for (let i = 0; i < n; i++) {
+      const isSel = i === selected;
+      html += `<div class="attn-row${isSel ? " sel" : ""}"><div class="attn-row-label">${s.words[i]}</div>`;
+      for (let j = 0; j < n; j++) {
+        const wgt = M[i][j] || 0;
+        const title = tx(`"${s.words[i]}" chú ý "${s.words[j]}": ${Math.round(wgt * 100)}%`,
+                         `"${s.words[i]}" → "${s.words[j]}": ${Math.round(wgt * 100)}%`);
+        html += `<div class="attn-cell" style="background:${mix(wgt)}" title="${title}" data-i="${i}"></div>`;
+      }
+      html += `</div>`;
+    }
+    matrixEl.innerHTML = html;
+    matrixEl.querySelectorAll(".attn-cell").forEach((c) => {
+      c.onclick = () => { selected = parseInt(c.dataset.i); setParams({ s: current, w: selected }); render(); };
+    });
+  }
 
   function render() {
     const s = SENTENCES[current][getLang()] || SENTENCES[current].vi;
     if (selected !== null && selected >= s.words.length) selected = null;
     const M = buildAttention(s);
+    renderMatrix(s, M);
     display.innerHTML = "";
     s.words.forEach((w, j) => {
       const span = document.createElement("span");
