@@ -159,8 +159,8 @@ export function roomOverfitting(root) {
     const gap = trA - teA;
     const v = root.querySelector("#verdict");
     if (trA < 70) v.innerHTML = tx("⏳ Chưa học xong — bấm Huấn luyện thêm.", "⏳ Not trained yet — click Train more.");
-    else if (gap >= 18) v.innerHTML = tx("⚠️ <b style='color:#fb7185'>Học vẹt!</b> Nhớ bài cũ nhưng làm dở bài mới. Thử thêm dữ liệu.", "⚠️ <b style='color:#fb7185'>Overfitting!</b> Great on old, poor on new. Try more data.");
-    else v.innerHTML = tx("✅ <b style='color:#34d399'>Hiểu thật!</b> Làm tốt cả bài mới — cân bằng tốt.", "✅ <b style='color:#34d399'>It understands!</b> Good on new data too — well balanced.");
+    else if (gap >= 18) v.innerHTML = tx("⚠️ <b style='color:#cc2418'>Học vẹt!</b> Nhớ bài cũ nhưng làm dở bài mới. Thử thêm dữ liệu.", "⚠️ <b style='color:#cc2418'>Overfitting!</b> Great on old, poor on new. Try more data.");
+    else v.innerHTML = tx("✅ <b style='color:#0a7a38'>Hiểu thật!</b> Làm tốt cả bài mới — cân bằng tốt.", "✅ <b style='color:#0a7a38'>It understands!</b> Good on new data too — well balanced.");
     if (trA >= 70 && gap < 18 && !celebrated) { celebrated = true; sfx.success(); }
   }
 

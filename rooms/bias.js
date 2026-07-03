@@ -99,9 +99,9 @@ export function roomBias(root) {
     // (Đó chính là điều xảy ra thật: model phản chiếu thống kê của dữ liệu.)
     let verdict, vColor;
     const skew = Math.abs(male - female);
-    if (skew >= 60) { verdict = tx("⚠️ Thiên kiến mạnh — AI gần như luôn đoán một giới.", "⚠️ Strong bias — AI almost always guesses one gender."); vColor = "#e5352b"; }
-    else if (skew >= 25) { verdict = tx("🟡 Có thiên kiến — AI nghiêng rõ về một phía.", "🟡 Some bias — AI leans clearly to one side."); vColor = "#f5a300"; }
-    else { verdict = tx("✅ Khá cân bằng — AI không thiên vị giới nào.", "✅ Fairly balanced — AI favors neither gender."); vColor = "#00b34a"; }
+    if (skew >= 60) { verdict = tx("⚠️ Thiên kiến mạnh — AI gần như luôn đoán một giới.", "⚠️ Strong bias — AI almost always guesses one gender."); vColor = "#cc2418"; }
+    else if (skew >= 25) { verdict = tx("🟡 Có thiên kiến — AI nghiêng rõ về một phía.", "🟡 Some bias — AI leans clearly to one side."); vColor = "#8a5a00"; }
+    else { verdict = tx("✅ Khá cân bằng — AI không thiên vị giới nào.", "✅ Fairly balanced — AI favors neither gender."); vColor = "#067a34"; }
 
     trainOut.innerHTML = `
       <p class="muted">${tx("📥 Dữ liệu bạn cho AI học:", "📥 Data you fed the AI:")}</p>

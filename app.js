@@ -311,12 +311,38 @@ const THEME = {
   summary:     ["#34d399", "#6ea8fe", "52,211,153"],
 };
 
+// Độ sáng tương đối (WCAG) của một màu hex.
+function luminance(hex) {
+  const n = parseInt(hex.slice(1), 16);
+  const ch = [(n >> 16) & 255, (n >> 8) & 255, n & 255].map((v) => {
+    const s = v / 255;
+    return s <= 0.03928 ? s / 12.92 : ((s + 0.055) / 1.055) ** 2.4;
+  });
+  return 0.2126 * ch[0] + 0.7152 * ch[1] + 0.0722 * ch[2];
+}
+function contrast(l1, l2) { return (Math.max(l1, l2) + 0.05) / (Math.min(l1, l2) + 0.05); }
+
+// Làm đậm dần một màu (nhân hệ số) tới khi đạt tương phản ≥4.5:1 với nền sáng.
+// Nhờ vậy chữ màu theo tông từng phòng vẫn đọc được (accessibility) mà không đổi màu khối.
+const BG_LUM = luminance("#fffbf0"); // nền kem sáng nhất trong app
+function darkenForText(hex) {
+  let n = parseInt(hex.slice(1), 16);
+  let r = (n >> 16) & 255, g = (n >> 8) & 255, b = n & 255;
+  for (let i = 0; i < 24; i++) {
+    const cur = "#" + [r, g, b].map((v) => v.toString(16).padStart(2, "0")).join("");
+    if (contrast(luminance(cur), BG_LUM) >= 4.5) return cur;
+    r = Math.round(r * 0.9); g = Math.round(g * 0.9); b = Math.round(b * 0.9);
+  }
+  return "#111111";
+}
+
 function applyTheme(id) {
   const [a, a2, rgb] = THEME[id] || THEME.home;
   const r = document.documentElement.style;
   r.setProperty("--accent", a);
   r.setProperty("--accent-2", a2);
   r.setProperty("--accent-rgb", rgb);
+  r.setProperty("--accent-ink", darkenForText(a)); // biến màu ĐẬM chỉ dùng cho chữ
 }
 
 // Gợi ý onboarding song ngữ (hiện 1 lần mỗi phòng)
