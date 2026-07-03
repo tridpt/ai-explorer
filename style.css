@@ -655,3 +655,17 @@ canvas { display: block; max-width: 100%; height: auto; }
 .adv-imgs { display: flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap; }
 .adv-imgs canvas { border: 2px solid var(--ink); width: 150px; height: 150px; image-rendering: pixelated; }
 .adv-plus { font-size: 28px; font-weight: 900; }
+
+/* ---------- Tokenizer: so sánh Việt–Anh ---------- */
+.tk-cmp { border: 2px solid var(--ink); padding: 12px; margin-bottom: 12px; }
+.tk-cmp-line { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+.tk-cmp-line .tk-flag { font-size: 20px; flex: 0 0 auto; }
+.tk-cmp-line .tk-sent { flex: 1 1 40%; font-size: 13px; font-weight: 500; min-width: 120px; }
+.tk-cmp-line .tk-bar { flex: 1 1 40%; }
+.tk-cmp-note { font-size: 13px; margin-top: 4px; }
+
+@media (max-width: 700px) {
+  .adv-imgs { flex-direction: column; }
+  .adv-plus { transform: rotate(90deg); }
+  .tk-cmp-line { flex-wrap: wrap; }
+}

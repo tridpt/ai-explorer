@@ -10,6 +10,9 @@ const PROMPTS = [
   { label: { vi: "🚀 tên lửa", en: "🚀 a rocket" }, emoji: "🚀" },
   { label: { vi: "🍕 pizza", en: "🍕 pizza" }, emoji: "🍕" },
   { label: { vi: "🏠 ngôi nhà", en: "🏠 a house" }, emoji: "🏠" },
+  { label: { vi: "🌳 cái cây", en: "🌳 a tree" }, emoji: "🌳" },
+  { label: { vi: "🚗 ô tô", en: "🚗 a car" }, emoji: "🚗" },
+  { label: { vi: "🦋 con bướm", en: "🦋 a butterfly" }, emoji: "🦋" },
 ];
 
 export function roomDiffusion(root) {
@@ -25,19 +28,30 @@ export function roomDiffusion(root) {
       <div class="panel center" style="flex:1.1;">
         <h4 style="text-align:left">${tx("🖼️ Quá trình tạo ảnh", "🖼️ Image generation process")}</h4>
         <canvas id="dfCanvas" width="${SIZE}" height="${SIZE}" style="background:#000; margin:0 auto;"></canvas>
-        <div class="mt"><span class="muted">${tx("Bước khử nhiễu:", "Denoising step:")} <b id="dfStep">0</b> / 40</span></div>
+        <div class="mt"><span class="muted">${tx("Bước khử nhiễu:", "Denoising step:")} <b id="dfStep">0</b> / <b id="dfMax">40</b></span></div>
+        <label class="field mt" style="text-align:left">
+          <span>${tx("Tua tay qua từng bước:", "Scrub through steps:")}</span>
+          <input type="range" id="dfScrub" min="0" max="40" step="1" value="0" disabled />
+        </label>
       </div>
       <div class="panel">
         <h4>${tx("⌨️ Bạn muốn AI vẽ gì?", "⌨️ What should the AI draw?")}</h4>
         <p class="muted">${tx("Chọn một \"câu lệnh\" (prompt):", "Pick a \"prompt\":")}</p>
         <div id="dfPrompts" class="mt"></div>
+
+        <label class="field mt" style="text-align:left">
+          <span>${tx("Số bước khử nhiễu:", "Denoising steps:")} <b id="dfStepsVal">40</b> — ${tx("ít bước = nhanh nhưng thô; nhiều bước = mượt hơn", "fewer = faster but rough; more = smoother")}</span>
+          <input type="range" id="dfSteps" min="6" max="60" step="2" value="40" />
+        </label>
+        <p class="muted" id="dfQuality" style="font-size:12px"></p>
+
         <div class="row mt">
           <button class="btn pulse-hint" id="dfGen">${tx("✨ Tạo ảnh", "✨ Generate")}</button>
           <button class="btn ghost" id="dfNoise">${tx("🎛️ Chỉ xem nhiễu", "🎛️ Show noise only")}</button>
         </div>
         <p class="muted mt">${tx(
-          "Để ý: lúc đầu chỉ là nhiễu vô nghĩa, sau vài bước hình dạng mới hiện ra.",
-          "Notice: at first it's meaningless noise, then after a few steps a shape appears."
+          "Để ý: lúc đầu chỉ là nhiễu vô nghĩa, sau vài bước hình dạng mới hiện ra. Tạo xong, kéo thanh \"tua tay\" để xem lại từng bước.",
+          "Notice: at first it's meaningless noise, then a shape appears. After generating, drag the \"scrub\" slider to replay each step."
         )}</p>
       </div>
     </div>
@@ -62,6 +76,16 @@ export function roomDiffusion(root) {
   const startIdx = Number.isInteger(sharedIdx) && PROMPTS[sharedIdx] ? sharedIdx : 0;
   let current = PROMPTS[startIdx];
   let anim = null;
+  let steps = 40;         // số bước khử nhiễu (điều chỉnh được)
+  let frames = [];        // lưu ImageData từng bước để tua qua lại
+  let scrubbing = false;
+
+  const stepEl = root.querySelector("#dfStep");
+  const stepsVal = root.querySelector("#dfStepsVal");
+  const stepMax = root.querySelector("#dfMax");
+  const scrub = root.querySelector("#dfScrub");
+  const stepsSlider = root.querySelector("#dfSteps");
+  const qualityEl = root.querySelector("#dfQuality");
 
   function buildTarget(emoji) {
     octx.clearRect(0, 0, SIZE, SIZE);
@@ -83,7 +107,8 @@ export function roomDiffusion(root) {
     ctx.putImageData(img, 0, 0);
   }
 
-  function renderStep(t, T) {
+  // Tạo ImageData cho bước t / T (không vẽ trực tiếp — để cache lại).
+  function makeStep(t, T) {
     const mix = t / T;
     const img = ctx.createImageData(SIZE, SIZE);
     const tgt = target.data;
@@ -96,22 +121,40 @@ export function roomDiffusion(root) {
       }
       img.data[i + 3] = 255;
     }
-    ctx.putImageData(img, 0, 0);
+    return img;
+  }
+
+  // Ước lượng "chất lượng" theo số bước: ít bước → thô, nhiều bước → mượt.
+  function qualityLabel(T) {
+    if (T <= 8) return tx("⚡ Rất nhanh nhưng thô (ít bước → ảnh lởm chởm)", "⚡ Very fast but rough (few steps → blocky)");
+    if (T <= 25) return tx("🙂 Cân bằng giữa tốc độ và độ mịn", "🙂 A balance of speed and smoothness");
+    return tx("💎 Chậm hơn nhưng mịn nhất (nhiều bước → chi tiết hơn)", "💎 Slower but smoothest (more steps → finer detail)");
   }
 
   function generate() {
     if (anim) cancelAnimationFrame(anim);
     buildTarget(current.emoji);
-    const T = 40;
+    const T = steps;
+    frames = [];
     let t = 0;
-    const stepEl = root.querySelector("#dfStep");
+    scrub.max = T;
+    scrub.disabled = false;
+    stepMax.textContent = T;
     function frame() {
-      renderStep(t, T);
+      const img = makeStep(t, T);
+      frames.push(img);
+      ctx.putImageData(img, 0, 0);
       stepEl.textContent = t;
+      scrub.value = t;
       sfx.tick();
       t++;
-      if (t <= T) anim = requestAnimationFrame(() => setTimeout(frame, 55));
-      else { ctx.putImageData(target, 0, 0); sfx.success(); celebrate(); }
+      if (t <= T) anim = requestAnimationFrame(() => setTimeout(frame, Math.max(20, 2200 / T)));
+      else {
+        ctx.putImageData(target, 0, 0);
+        frames.push(target);
+        scrub.disabled = false;
+        sfx.success(); celebrate();
+      }
     }
     frame();
   }
@@ -133,8 +176,31 @@ export function roomDiffusion(root) {
   });
 
   root.querySelector("#dfGen").onclick = (e) => { e.target.classList.remove("pulse-hint"); generate(); };
-  root.querySelector("#dfNoise").onclick = () => { if (anim) cancelAnimationFrame(anim); renderNoise(); root.querySelector("#dfStep").textContent = 0; };
+  root.querySelector("#dfNoise").onclick = () => {
+    if (anim) cancelAnimationFrame(anim);
+    frames = [];
+    renderNoise();
+    stepEl.textContent = 0;
+    scrub.value = 0; scrub.disabled = true;
+  };
 
+  // Số bước khử nhiễu: cập nhật nhãn + gợi ý chất lượng.
+  function refreshSteps() {
+    steps = parseInt(stepsSlider.value);
+    stepsVal.textContent = steps;
+    stepMax.textContent = steps;
+    scrub.max = steps;
+    qualityEl.textContent = qualityLabel(steps);
+  }
+  stepsSlider.oninput = refreshSteps;
+
+  // Tua tay: xem lại từng bước đã lưu trong frames.
+  scrub.oninput = () => {
+    const i = parseInt(scrub.value);
+    if (frames[i]) { ctx.putImageData(frames[i], 0, 0); stepEl.textContent = i; }
+  };
+
+  refreshSteps();
   window.addEventListener("roomleave", () => { if (anim) cancelAnimationFrame(anim); }, { once: true });
 
   renderNoise();

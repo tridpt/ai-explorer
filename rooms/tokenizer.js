@@ -79,6 +79,12 @@ export function roomTokenizer(root) {
       )}</p>
     </div>
 
+    <div class="panel">
+      <h4>${tx("🌍 Cùng một ý — tiếng Việt vs tiếng Anh", "🌍 Same meaning — Vietnamese vs English")}</h4>
+      <p class="muted">${tx("AI phần lớn được huấn luyện trên tiếng Anh, nên tiếng Việt (nhiều dấu, ít gặp hơn) thường bị cắt vụn hơn — tốn nhiều token hơn cho cùng một ý.", "Most AI is trained on English, so Vietnamese (accented, rarer) tends to be chopped finer — more tokens for the same meaning.")}</p>
+      <div id="tkCompare" class="mt"></div>
+    </div>
+
     <div class="takeaway">
       ${tx(
         "💡 <strong>Điều cốt lõi:</strong> AI không thấy \"chữ\" như ta. Nó thấy các token. Vì thế tiếng Anh thông dụng thường tốn ít token hơn, từ hiếm/dài bị xé thành nhiều mảnh, và mỗi token bạn gửi đi đều tốn một chút chi phí tính toán — đó là lý do các dịch vụ AI tính tiền theo token.",
@@ -113,6 +119,37 @@ export function roomTokenizer(root) {
   }
 
   input.oninput = () => { render(); persist(); };
+
+  // Bảng so sánh Việt–Anh: vài cặp câu cùng nghĩa.
+  const PAIRS = [
+    { vi: "Xin chào, hôm nay bạn thế nào?", en: "Hello, how are you today?" },
+    { vi: "Trí tuệ nhân tạo đang thay đổi thế giới.", en: "Artificial intelligence is changing the world." },
+    { vi: "Tôi thích uống cà phê vào buổi sáng.", en: "I like drinking coffee in the morning." },
+  ];
+  const cmpEl = root.querySelector("#tkCompare");
+  PAIRS.forEach((p) => {
+    const nVi = tokenize(p.vi).length;
+    const nEn = tokenize(p.en).length;
+    const max = Math.max(nVi, nEn);
+    const row = document.createElement("div");
+    row.className = "tk-cmp";
+    row.innerHTML = `
+      <div class="tk-cmp-line">
+        <span class="tk-flag">🇻🇳</span>
+        <span class="tk-sent">${p.vi}</span>
+        <div class="bar-track tk-bar"><div class="bar-fill" style="width:${(nVi / max) * 100}%">${nVi}</div></div>
+      </div>
+      <div class="tk-cmp-line">
+        <span class="tk-flag">🇬🇧</span>
+        <span class="tk-sent">${p.en}</span>
+        <div class="bar-track tk-bar"><div class="bar-fill" style="width:${(nEn / max) * 100}%; background:linear-gradient(90deg,#34d399,#22d3ee)">${nEn}</div></div>
+      </div>
+      <div class="tk-cmp-note muted">${tx(
+        `→ Cùng một ý, tiếng Việt tốn <b>${nVi}</b> token, tiếng Anh <b>${nEn}</b> token${nVi > nEn ? ` (nhiều hơn ${nVi - nEn})` : ""}.`,
+        `→ Same meaning: Vietnamese uses <b>${nVi}</b> tokens, English <b>${nEn}</b>${nVi > nEn ? ` (${nVi - nEn} more)` : ""}.`
+      )}</div>`;
+    cmpEl.appendChild(row);
+  });
 
   const samplesDiv = root.querySelector("#tkSamples");
   (SAMPLES[getLang()] || SAMPLES.vi).forEach((s) => {
