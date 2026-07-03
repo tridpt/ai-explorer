@@ -31,15 +31,6 @@ function cosine(a, b) {
   return na && nb ? dot / (Math.sqrt(na) * Math.sqrt(nb)) : 0;
 }
 
-// Nhãn cho 5 chiều đặc trưng (song ngữ).
-const GENRES = [
-  { vi: "Hành động", en: "Action" },
-  { vi: "Hài", en: "Comedy" },
-  { vi: "Tình cảm", en: "Romance" },
-  { vi: "Khoa học", en: "Sci-fi" },
-  { vi: "Kinh dị", en: "Horror" },
-];
-
 export function roomRecommendation(root) {
   root.innerHTML = `
     <p class="room-intro">

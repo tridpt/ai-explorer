@@ -369,9 +369,10 @@ function openSearch() {
   overlay.className = "search-overlay";
   overlay.innerHTML = `
     <div class="search-box" role="dialog" aria-modal="true" aria-label="${tx(UI.searchTitle)}">
-      <input type="text" id="searchInput" class="search-input"
+      <input type="text" id="searchInput" class="search-input" role="combobox"
+        aria-expanded="true" aria-controls="searchResults" aria-autocomplete="list"
         placeholder="${tx(UI.searchPlaceholder)}" autocomplete="off" spellcheck="false" />
-      <div class="search-results" id="searchResults"></div>
+      <div class="search-results" id="searchResults" role="listbox" aria-label="${tx(UI.searchTitle)}"></div>
       <div class="search-foot muted">${tx(UI.searchHint)}</div>
     </div>`;
   document.body.appendChild(overlay);
@@ -404,8 +405,11 @@ function openSearch() {
     matches.forEach((r, i) => {
       const item = document.createElement("div");
       item.className = "search-item" + (i === active ? " active" : "");
+      item.id = "search-opt-" + i;
+      item.setAttribute("role", "option");
+      item.setAttribute("aria-selected", i === active ? "true" : "false");
       item.innerHTML = `
-        <span class="si-icon">${r.icon}</span>
+        <span class="si-icon" aria-hidden="true">${r.icon}</span>
         <span class="si-text">
           <b>${r.num} · ${tx(r.title)}</b>
           <small>${tx(r.question)}</small>
@@ -417,8 +421,14 @@ function openSearch() {
   }
 
   function highlight() {
-    [...resultsEl.children].forEach((el, i) => el.classList.toggle("active", i === active));
-    resultsEl.children[active]?.scrollIntoView({ block: "nearest" });
+    [...resultsEl.children].forEach((el, i) => {
+      const on = i === active;
+      el.classList.toggle("active", on);
+      if (el.getAttribute("role") === "option") el.setAttribute("aria-selected", on ? "true" : "false");
+    });
+    const cur = resultsEl.children[active];
+    cur?.scrollIntoView({ block: "nearest" });
+    if (cur?.id) input.setAttribute("aria-activedescendant", cur.id);
   }
 
   function choose(i) {
@@ -488,10 +498,10 @@ function buildToolbar() {
   const tb = document.createElement("div");
   tb.className = "toolbar";
   tb.innerHTML = `
-    <button class="tool-btn" id="searchBtn" title="${tx(UI.searchTitle)}">🔍</button>
-    <button class="tool-btn" id="langBtn" title="${tx(UI.langTitle)}"></button>
-    <button class="tool-btn" id="soundBtn" title="${tx(UI.soundTitle)}"></button>
-    <button class="tool-btn" id="presentBtn" title="${tx(UI.presentTitle)}">⛶</button>
+    <button class="tool-btn" id="searchBtn" title="${tx(UI.searchTitle)}" aria-label="${tx(UI.searchTitle)}">🔍</button>
+    <button class="tool-btn" id="langBtn" title="${tx(UI.langTitle)}" aria-label="${tx(UI.langTitle)}"></button>
+    <button class="tool-btn" id="soundBtn" title="${tx(UI.soundTitle)}" aria-label="${tx(UI.soundTitle)}" aria-pressed="false"></button>
+    <button class="tool-btn" id="presentBtn" title="${tx(UI.presentTitle)}" aria-label="${tx(UI.presentTitle)}">⛶</button>
   `;
   document.querySelector(".topbar").appendChild(tb);
 
@@ -503,7 +513,10 @@ function buildToolbar() {
   langBtn.onclick = () => { setLang(getLang() === "vi" ? "en" : "vi"); sfx.click(); };
 
   const soundBtn = tb.querySelector("#soundBtn");
-  const refreshSound = () => (soundBtn.textContent = isMuted() ? "🔇" : "🔊");
+  const refreshSound = () => {
+    soundBtn.textContent = isMuted() ? "🔇" : "🔊";
+    soundBtn.setAttribute("aria-pressed", isMuted() ? "false" : "true");
+  };
   refreshSound();
   soundBtn.onclick = () => { setMuted(!isMuted()); refreshSound(); if (!isMuted()) sfx.pop(); };
 
@@ -525,12 +538,17 @@ function currentRoute() {
 function renderProgress(activeId) {
   progressNav.innerHTML = "";
   ROOMS.forEach((room, i) => {
-    const dot = document.createElement("div");
+    const dot = document.createElement("button");
+    dot.type = "button";
     dot.className = "progress-dot";
     dot.textContent = i + 1;
+    const done = visited.has(room.id);
+    const state = room.id === activeId ? tx("đang mở", "current") : done ? tx("đã xem", "visited") : tx("chưa xem", "not visited");
+    // Nhãn cho trình đọc màn hình: số + tên phòng + trạng thái.
+    dot.setAttribute("aria-label", `${tx("Phòng", "Room")} ${i + 1}: ${tx(room.title)} — ${state}`);
     dot.title = tx(room.title);
-    if (room.id === activeId) dot.classList.add("active");
-    else if (visited.has(room.id)) dot.classList.add("done");
+    if (room.id === activeId) { dot.classList.add("active"); dot.setAttribute("aria-current", "page"); }
+    else if (done) dot.classList.add("done");
     dot.addEventListener("click", () => navigate(room.id));
     progressNav.appendChild(dot);
   });
@@ -607,7 +625,11 @@ function route() {
   if (next) document.getElementById("nextBtn").onclick = () => navigate(next.id);
 }
 
-document.getElementById("brandHome").addEventListener("click", () => navigate("home"));
+const brandEl = document.getElementById("brandHome");
+brandEl.addEventListener("click", () => navigate("home"));
+brandEl.addEventListener("keydown", (e) => {
+  if (e.key === "Enter" || e.key === " ") { e.preventDefault(); navigate("home"); }
+});
 window.addEventListener("hashchange", route);
 
 // Đổi ngôn ngữ → dựng lại thanh công cụ + render lại phòng hiện tại

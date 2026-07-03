@@ -20,6 +20,7 @@ const S = {
   trackTitle: { vi: "Chọn lộ trình phù hợp với bạn", en: "Pick the path that fits you" },
   trackSub: { vi: "Không chắc bắt đầu từ đâu? Chọn một lộ trình — bạn vẫn mở được mọi phòng bất cứ lúc nào.", en: "Not sure where to start? Pick a path — you can still open any room anytime." },
   inTrack: { vi: "Trong lộ trình", en: "In your path" },
+  done: { vi: "đã hoàn thành", en: "completed" },
 };
 
 export function renderHome(app, rooms, navigate) {
@@ -98,16 +99,23 @@ export function renderHome(app, rooms, navigate) {
         + (isDone ? "" : "")
         + (!showFull && !onPath ? " dimmed" : "")
         + (!showFull && onPath ? " on-path" : "");
+      card.setAttribute("role", "link");
+      card.setAttribute("tabindex", "0");
+      card.setAttribute("aria-label", `${tx(room.title)}. ${tx(room.question)}${isDone ? " — " + tx(S.done) : ""}`);
       card.innerHTML = `
-        <div class="rc-num">${room.num}</div>
-        ${isDone ? `<div class="rc-check">✓</div>` : ""}
+        <div class="rc-num" aria-hidden="true">${room.num}</div>
+        ${isDone ? `<div class="rc-check" aria-hidden="true">✓</div>` : ""}
         ${!showFull && onPath ? `<div class="rc-path">${tx(S.inTrack)}</div>` : ""}
-        <div class="rc-icon">${room.icon}</div>
+        <div class="rc-icon" aria-hidden="true">${room.icon}</div>
         <h3>${tx(room.title)}</h3>
         <p>${tx(room.blurb)}</p>
         <div class="rc-q">${tx(room.question)}</div>
       `;
-      card.addEventListener("click", () => navigate(room.id));
+      const go = () => navigate(room.id);
+      card.addEventListener("click", go);
+      card.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" || e.key === " ") { e.preventDefault(); go(); }
+      });
       grid.appendChild(card);
     });
   }

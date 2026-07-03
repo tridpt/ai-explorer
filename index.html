@@ -32,15 +32,16 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+  <a href="#app" class="skip-link">Bỏ qua tới nội dung</a>
   <header class="topbar">
-    <div class="brand" id="brandHome">
-      <span class="brand-logo">🧠</span>
+    <div class="brand" id="brandHome" role="button" tabindex="0" aria-label="Về trang chủ AI Explorer">
+      <span class="brand-logo" aria-hidden="true">🧠</span>
       <span class="brand-name">AI Explorer</span>
     </div>
-    <nav class="progress" id="progressNav"></nav>
+    <nav class="progress" id="progressNav" aria-label="Tiến trình các phòng"></nav>
   </header>
 
-  <main id="app" class="app"></main>
+  <main id="app" class="app" tabindex="-1"></main>
 
   <footer class="footer">
     <span>Một hành trình tương tác để hiểu AI · Chạy hoàn toàn trên trình duyệt của bạn</span>
