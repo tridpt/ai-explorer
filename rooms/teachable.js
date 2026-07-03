@@ -62,6 +62,13 @@ export function roomTeachable(root) {
         <video id="cam" autoplay playsinline muted style="width:100%; border-radius:12px; background:#000;"></video>
         <button class="btn mt" id="startCam" style="width:100%;">${tx(S.startCam)}</button>
         <p id="camMsg" class="muted mt"></p>
+        <div class="tc-see mt">
+          <canvas id="tcFeature" width="${GRID}" height="${GRID}" aria-hidden="true"></canvas>
+          <p class="muted" style="font-size:12px">${tx(
+            "👁️ Đây là thứ AI <b>thực sự nhìn thấy</b>: một lưới ${GRID}×${GRID} điểm xám, không phải ảnh nét như mắt bạn. Nó tìm điểm chung giữa các lưới này.",
+            "👁️ This is what the AI <b>actually sees</b>: a ${GRID}×${GRID} grid of gray dots, not the sharp image you see. It finds what these grids share."
+          ).replace(/\$\{GRID\}/g, GRID)}</p>
+        </div>
       </div>
       <div class="panel">
         <h4>${tx(S.teachTitle)}</h4>
@@ -115,11 +122,24 @@ export function roomTeachable(root) {
   });
 
   const predEl = root.querySelector("#prediction");
+  const featCanvas = root.querySelector("#tcFeature");
+  const fctx = featCanvas.getContext("2d");
+
+  // Vẽ vector đặc trưng (lưới xám) mà AI thực sự dùng — cho thấy AI "nhìn" thô thế nào.
+  function drawFeature(f) {
+    const img = fctx.createImageData(GRID, GRID);
+    for (let i = 0; i < f.length; i++) {
+      const v = Math.max(0, Math.min(255, Math.round((f[i] + 0.5) * 255)));
+      img.data[i * 4] = v; img.data[i * 4 + 1] = v; img.data[i * 4 + 2] = v; img.data[i * 4 + 3] = 255;
+    }
+    fctx.putImageData(img, 0, 0);
+  }
 
   function predict() {
+    const f = extractFeature(video, work);
+    drawFeature(f);
     const trained = CLASSES.filter((c) => c.samples.length > 0);
     if (trained.length < 2) return;
-    const f = extractFeature(video, work);
     const scores = trained.map((c) => {
       const minD = Math.min(...c.samples.map((s) => distance(f, s)));
       return { c, score: 1 / (minD + 0.001) };

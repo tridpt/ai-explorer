@@ -4,37 +4,48 @@ import { tx, getLang } from "../i18n.js";
 
 // Mỗi mục: từ khóa (cả vi & en) + câu trả lời song ngữ.
 const KB = [
-  { keys: ["học", "training", "dữ liệu", "dạy", "learn", "data", "teach"],
+  { topic: { vi: "Cách AI học", en: "How AI learns" },
+    keys: ["học", "training", "dữ liệu", "dạy", "learn", "data", "teach"],
     a: { vi: "AI học từ ví dụ: bạn cho nó xem nhiều dữ liệu, nó tự rút ra mẫu hình — như ở phòng 'Tự tay dạy AI'.",
          en: "AI learns from examples: you show it lots of data and it extracts patterns — like the 'Teach an AI' room." } },
-  { keys: ["nơ-ron", "neural", "mạng", "deep", "sâu", "network", "neuron"],
+  { topic: { vi: "Mạng nơ-ron", en: "Neural network" },
+    keys: ["nơ-ron", "neural", "mạng", "deep", "sâu", "network", "neuron"],
     a: { vi: "Mạng nơ-ron gồm nhiều đơn vị tính toán nhỏ. Ghép nhiều lớp lại (deep learning) giúp AI học được mẫu hình phức tạp.",
          en: "A neural network is many tiny compute units. Stacking layers (deep learning) lets AI learn complex patterns." } },
-  { keys: ["token", "cắt", "chữ", "split", "text"],
+  { topic: { vi: "Token", en: "Tokens" },
+    keys: ["token", "cắt", "chữ", "split", "text"],
     a: { vi: "AI không đọc từng chữ — nó cắt văn bản thành 'token' và xử lý theo token. Đó cũng là cách tính chi phí.",
          en: "AI doesn't read letter by letter — it splits text into 'tokens' and works by token. That's also how cost is billed." } },
-  { keys: ["nghĩa", "embedding", "từ", "tọa độ", "bản đồ", "meaning", "word", "map"],
+  { topic: { vi: "Embedding / ý nghĩa", en: "Embeddings / meaning" },
+    keys: ["nghĩa", "embedding", "từ", "tọa độ", "bản đồ", "meaning", "word", "map"],
     a: { vi: "AI biến mỗi từ thành một điểm tọa độ. Từ gần nghĩa nằm gần nhau, nên nó tính được 'vua − đàn ông + đàn bà = nữ hoàng'.",
          en: "AI turns each word into a coordinate point. Similar words sit close, so it computes 'king − man + woman = queen'." } },
-  { keys: ["attention", "chú ý", "ngữ cảnh", "nó", "context"],
+  { topic: { vi: "Attention", en: "Attention" },
+    keys: ["attention", "chú ý", "ngữ cảnh", "nó", "context"],
     a: { vi: "Với mỗi từ, AI 'chú ý' tới các từ liên quan trong câu để hiểu ngữ cảnh — đó là cơ chế attention của Transformer.",
          en: "For each word, AI 'attends' to related words to grasp context — that's the Transformer's attention mechanism." } },
-  { keys: ["đoán", "xác suất", "ảo giác", "hallucination", "sai", "guess", "probability", "wrong"],
+  { topic: { vi: "Ảo giác / đoán chữ", en: "Hallucination" },
+    keys: ["đoán", "xác suất", "ảo giác", "hallucination", "sai", "guess", "probability", "wrong"],
     a: { vi: "AI sinh chữ bằng cách đoán từ tiếp theo theo xác suất. Vì không kiểm chứng sự thật, đôi khi nó 'ảo giác': sai mà nghe rất thật.",
          en: "AI writes by guessing the next word by probability. Not verifying facts, it sometimes 'hallucinates': wrong but convincing." } },
-  { keys: ["ảnh", "diffusion", "vẽ", "tạo", "image", "draw", "generate"],
+  { topic: { vi: "Tạo ảnh (diffusion)", en: "Image generation" },
+    keys: ["ảnh", "diffusion", "vẽ", "tạo", "image", "draw", "generate"],
     a: { vi: "AI tạo ảnh bằng diffusion: bắt đầu từ nhiễu rồi khử nhiễu dần theo câu lệnh của bạn cho tới khi hiện ra hình.",
          en: "AI makes images via diffusion: start from noise and denoise step by step per your prompt until the image appears." } },
-  { keys: ["thiên kiến", "bias", "công bằng", "định kiến", "fair"],
+  { topic: { vi: "Thiên kiến", en: "Bias" },
+    keys: ["thiên kiến", "bias", "công bằng", "định kiến", "fair"],
     a: { vi: "AI học cả định kiến trong dữ liệu của con người. Dữ liệu lệch thì AI cũng lệch — nên cần dùng có trách nhiệm.",
          en: "AI learns the biases in human data. Skewed data means a skewed AI — so use it responsibly." } },
-  { keys: ["cây", "quyết định", "luật", "giải thích", "tree", "decision", "rule", "explain"],
+  { topic: { vi: "Cây quyết định", en: "Decision tree" },
+    keys: ["cây", "quyết định", "luật", "giải thích", "tree", "decision", "rule", "explain"],
     a: { vi: "Cây quyết định là kiểu AI minh bạch: nó ra quyết định qua chuỗi câu hỏi có/không mà ai cũng đọc hiểu được.",
          en: "A decision tree is a transparent AI: it decides via a chain of yes/no questions anyone can read." } },
-  { keys: ["overfitting", "học vẹt", "thuộc lòng", "memorize"],
+  { topic: { vi: "Overfitting", en: "Overfitting" },
+    keys: ["overfitting", "học vẹt", "thuộc lòng", "memorize"],
     a: { vi: "Overfitting là khi AI học thuộc lòng dữ liệu cũ nhưng làm dở với dữ liệu mới. Chữa bằng nhiều dữ liệu hơn hoặc giảm độ phức tạp.",
          en: "Overfitting is when AI memorizes old data but does poorly on new data. Fix it with more data or less complexity." } },
-  { keys: ["tăng cường", "reinforcement", "thưởng", "phạt", "robot", "reward"],
+  { topic: { vi: "Học tăng cường", en: "Reinforcement" },
+    keys: ["tăng cường", "reinforcement", "thưởng", "phạt", "robot", "reward"],
     a: { vi: "Học tăng cường: AI tự thử, được thưởng khi làm tốt và tự điều chỉnh — không cần đáp án có sẵn.",
          en: "Reinforcement learning: AI tries things, gets rewarded for good moves, and tunes itself — no answer key needed." } },
 ];
@@ -51,16 +62,21 @@ const SUGGEST = {
 
 function tokenize(s) { return s.toLowerCase().match(/[\p{L}\p{N}-]+/gu) || []; }
 
-function answer(q) {
+// Chấm điểm khớp cho mọi mục tri thức, trả về đã xếp hạng (để hiện AI "cân nhắc").
+function rank(q) {
   const toks = new Set(tokenize(q));
   const ql = q.toLowerCase();
-  let best = null, bestScore = 0;
-  for (const item of KB) {
+  return KB.map((item, i) => {
     let score = 0;
-    for (const k of item.keys) if (toks.has(k) || ql.includes(k)) score++;
-    if (score > bestScore) { bestScore = score; best = item; }
-  }
-  return bestScore > 0 ? tx(best.a) : tx(FALLBACK);
+    const hit = [];
+    for (const k of item.keys) if (toks.has(k) || ql.includes(k)) { score++; hit.push(k); }
+    return { item, i, score, hit };
+  }).sort((a, b) => b.score - a.score);
+}
+
+function answer(q) {
+  const top = rank(q)[0];
+  return top && top.score > 0 ? tx(top.item.a) : tx(FALLBACK);
 }
 
 export function roomChatbot(root) {
@@ -134,13 +150,36 @@ export function roomChatbot(root) {
     detail.innerHTML += `<br/>${tx("Đang dò các từ khóa quen thuộc...", "Scanning for familiar keywords...")}`;
     await wait(550);
     lightStep(2);
-    detail.innerHTML += `<br/>${tx("So khớp với kho tri thức để chọn câu trả lời hợp nhất.", "Matching the knowledge base to pick the best answer.")}`;
-    await wait(550);
+    // Hiện AI "cân nhắc": xếp hạng vài chủ đề khớp nhất theo điểm từ khóa.
+    const ranked = rank(text);
+    const top = ranked[0];
+    const cands = ranked.filter((r) => r.score > 0).slice(0, 3);
+    if (cands.length) {
+      const maxS = cands[0].score;
+      detail.innerHTML += `<br/>${tx("Cân nhắc các chủ đề khớp:", "Weighing matching topics:")}`
+        + cands.map((r) => {
+            const pct = Math.round((r.score / maxS) * 100);
+            return `<div class="bar-row" style="margin-top:6px">
+              <div class="bar-label" style="width:auto;flex:0 0 120px;text-align:left;font-size:12px">${tx(r.item.topic)}</div>
+              <div class="bar-track" style="height:18px"><div class="bar-fill" style="width:${Math.max(12, pct)}%;font-size:11px">${r.score}</div></div>
+            </div>`;
+          }).join("");
+    } else {
+      detail.innerHTML += `<br/>${tx("Không khớp chủ đề nào quen thuộc → sẽ trả lời an toàn.", "No familiar topic matched → will answer safely.")}`;
+    }
+    await wait(650);
     lightStep(3);
-    const a = answer(text);
+    const a = top && top.score > 0 ? tx(top.item.a) : tx(FALLBACK);
+    // Độ tự tin thô: chênh lệch giữa ứng viên số 1 và số 2.
+    const conf = top && top.score > 0
+      ? (ranked[1] && ranked[1].score === top.score
+          ? tx("⚖️ Hai chủ đề ngang điểm — AI chọn tạm cái đầu (dễ trả lời chưa trúng).", "⚖️ Two topics tie — AI just picks the first (may miss).")
+          : tx("✓ Một chủ đề nổi trội — khá chắc.", "✓ One clear topic — fairly confident."))
+      : tx("⚠️ Không đủ căn cứ — trả lời chung chung.", "⚠️ Not enough to go on — generic reply.");
     const typing = bubble("...", "bot");
     await wait(300);
     typing.textContent = a;
+    detail.innerHTML += `<br/><span class="muted">${conf}</span>`;
     sfx.success();
     setTimeout(() => lightStep(-1), 800);
   }

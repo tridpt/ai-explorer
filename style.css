@@ -751,3 +751,15 @@ textarea:focus-visible,
   white-space: nowrap;
   border: 0;
 }
+
+/* ---------- Teachable: "thứ AI thực sự nhìn thấy" ---------- */
+.tc-see { display: flex; align-items: center; gap: 12px; }
+.tc-see canvas {
+  width: 84px; height: 84px;
+  image-rendering: pixelated;
+  border: 3px solid var(--ink);
+  box-shadow: var(--sh-sm);
+  background: #14140f;
+  flex: 0 0 auto;
+}
+.tc-see p { flex: 1; margin: 0; }
