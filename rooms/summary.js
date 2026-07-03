@@ -1,6 +1,6 @@
 // Phòng — Tổng kết + Quiz + Huy hiệu. Song ngữ.
 import { sfx, celebrate } from "../sound.js";
-import { setBestScore } from "../store.js";
+import { setBestScore, getMicroTotal } from "../store.js";
 import { tx } from "../i18n.js";
 
 const POINTS = [
@@ -12,6 +12,10 @@ const POINTS = [
   { icon: "👁️", title: { vi: "Nó chú ý có chọn lọc", en: "It attends selectively" }, text: { vi: "Với mỗi từ, AI cân nhắc cả câu để hiểu ngữ cảnh — đó là cơ chế attention.", en: "For each word, AI weighs the whole sentence to grasp context — that's attention." } },
   { icon: "🎲", title: { vi: "Nó đoán theo xác suất", en: "It guesses by probability" }, text: { vi: "AI không 'biết' sự thật, nó chọn từ nghe hợp lý. Vì thế nó có thể sai mà vẫn rất tự tin.", en: "AI doesn't 'know' the truth, it picks plausible words. So it can be wrong yet confident." } },
   { icon: "⚖️", title: { vi: "Nó phản chiếu dữ liệu", en: "It mirrors the data" }, text: { vi: "AI học cả định kiến của con người. Dữ liệu lệch thì AI cũng lệch.", en: "AI learns human biases too. Skewed data means a skewed AI." } },
+  { icon: "🔧", title: { vi: "Nó tra được tài liệu riêng", en: "It can look things up" }, text: { vi: "RAG: trước khi trả lời, AI tìm những mảnh tài liệu liên quan rồi dựa vào đó — nên bớt bịa và dẫn được nguồn.", en: "RAG: before answering, AI retrieves relevant passages and grounds on them — less making things up, with sources." } },
+  { icon: "🧩", title: { vi: "Có hai cách dạy thêm", en: "Two ways to teach it more" }, text: { vi: "Prompting (ra lệnh bằng chữ) nhanh và rẻ; fine-tuning (huấn luyện lại) mạnh nhưng tốn kém. Chọn đúng theo nhu cầu.", en: "Prompting (instruct with text) is fast and cheap; fine-tuning (retraining) is powerful but costly. Pick per need." } },
+  { icon: "🤝", title: { vi: "Nó biết dùng công cụ", en: "It can use tools" }, text: { vi: "Agent lên kế hoạch nhiều bước và tự gọi công cụ (máy tính, tra cứu…) — vượt khỏi giới hạn 'chỉ biết chữ'.", en: "An agent plans multi-step work and calls tools (calculator, lookup…) — beyond 'text only'." } },
+  { icon: "🖼️", title: { vi: "Nó hiểu cả ảnh lẫn chữ", en: "It sees and reads" }, text: { vi: "Multimodal: ảnh và chữ nằm chung một bản đồ ý nghĩa, nên AI mô tả được ảnh và trả lời câu hỏi về ảnh.", en: "Multimodal: images and text share one meaning map, so AI can caption images and answer questions about them." } },
 ];
 
 const QUIZ = [
@@ -39,6 +43,14 @@ const QUIZ = [
     opts: { vi: ["AI tự tìm nhóm trong dữ liệu mà không cần nhãn", "AI được dạy từng đáp án", "AI hỏi con người mỗi bước"], en: ["AI finds groups in data with no labels", "AI is taught every answer", "AI asks a human each step"] }, correct: 0 },
   { q: { vi: "Vì sao AI nhận diện ảnh có thể bị 'đánh lừa'?", en: "Why can image-recognition AI be 'fooled'?" },
     opts: { vi: ["Vì nó bám vào mẫu pixel nhỏ mà mắt người không để ý", "Vì nó lười", "Không thể đánh lừa AI"], en: ["It latches onto tiny pixel patterns humans ignore", "It's lazy", "AI can't be fooled"] }, correct: 0 },
+  { q: { vi: "RAG giúp chatbot trả lời đúng tài liệu riêng bằng cách nào?", en: "How does RAG ground answers in your own documents?" },
+    opts: { vi: ["Tìm những mảnh tài liệu liên quan rồi đưa vào ngữ cảnh trước khi trả lời", "Học thuộc lòng cả Internet", "Đoán bừa cho nhanh"], en: ["Retrieving relevant passages into context before answering", "Memorizing the whole Internet", "Guessing quickly"] }, correct: 0 },
+  { q: { vi: "Khác biệt cốt lõi giữa prompting và fine-tuning là gì?", en: "Core difference between prompting and fine-tuning?" },
+    opts: { vi: ["Prompting chỉ dẫn lúc dùng; fine-tuning đổi trọng số của mô hình", "Cả hai giống hệt nhau", "Prompting luôn đắt hơn"], en: ["Prompting guides at use-time; fine-tuning changes the model's weights", "They're identical", "Prompting always costs more"] }, correct: 0 },
+  { q: { vi: "Điều gì khiến một 'AI agent' khác chatbot thường?", en: "What makes an 'AI agent' differ from a plain chatbot?" },
+    opts: { vi: ["Nó lên kế hoạch nhiều bước và tự gọi công cụ", "Nó chỉ trả lời nhanh hơn", "Nó chỉ biết dịch"], en: ["It plans multi-step and calls tools itself", "It just replies faster", "It only translates"] }, correct: 0 },
+  { q: { vi: "Mô hình 'multimodal' đặc biệt ở chỗ nào?", en: "What's special about a 'multimodal' model?" },
+    opts: { vi: ["Hiểu nhiều loại dữ liệu (ảnh + chữ) trong cùng một không gian nghĩa", "Chỉ xử lý được chữ", "Chỉ chạy trên điện thoại"], en: ["It understands images + text in one shared meaning space", "It handles text only", "It only runs on phones"] }, correct: 0 },
 ];
 
 export function roomSummary(root) {
@@ -50,6 +62,8 @@ export function roomSummary(root) {
       )}
     </p>
     <div class="room-grid" id="sumGrid"></div>
+
+    <div id="microSlot"></div>
 
     <div class="panel" style="margin-top:24px;">
       <h4>${tx("🎯 Thử thách nhỏ: bạn nhớ được bao nhiêu?", "🎯 Quick challenge: how much do you recall?")}</h4>
@@ -86,6 +100,19 @@ export function roomSummary(root) {
     card.innerHTML = `<div class="rc-icon">${p.icon}</div><h3>${tx(p.title)}</h3><p>${tx(p.text)}</p>`;
     grid.appendChild(card);
   });
+
+  // Tổng số câu "kiểm tra nhanh" đã trả lời đúng dọc đường (quiz nhỏ mỗi phòng).
+  const microDone = getMicroTotal();
+  if (microDone > 0) {
+    const slot = root.querySelector("#microSlot");
+    slot.innerHTML = `
+      <div class="takeaway" style="margin-top:20px;">
+        ${tx(
+          `✅ <strong>Dọc hành trình</strong>, bạn đã trả lời đúng <strong>${microDone}</strong> câu kiểm tra nhanh ở các phòng. Điểm dưới đây là bài tổng kết cuối cùng.`,
+          `✅ <strong>Along the way</strong>, you got <strong>${microDone}</strong> quick checks right across the rooms. The score below is your final recap quiz.`
+        )}
+      </div>`;
+  }
 
   const quizEl = root.querySelector("#quiz");
   let score = 0;
