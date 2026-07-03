@@ -447,3 +447,206 @@ canvas { display: block; max-width: 100%; height: auto; }
   .progress::-webkit-scrollbar { display: none; }
   .progress-dot { flex: 0 0 auto; }
 }
+
+/* ---------- Nút chia sẻ phòng (trong room-head) ---------- */
+.room-head .rh-text { flex: 1 1 auto; min-width: 0; }
+.room-head .rh-share {
+  flex: 0 0 auto;
+  align-self: flex-start;
+  padding: 9px 14px;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+/* ---------- Bảng tìm kiếm / nhảy nhanh phòng ---------- */
+.search-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  background: rgba(17, 17, 17, 0.45);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 12vh 16px 16px;
+  animation: overlayIn 0.15s ease;
+}
+@keyframes overlayIn { from { opacity: 0; } to { opacity: 1; } }
+.search-box {
+  width: 100%;
+  max-width: 560px;
+  background: var(--paper);
+  border: 3px solid var(--ink);
+  box-shadow: var(--sh);
+  padding: 16px;
+  animation: badgePop 0.2s ease;
+}
+.search-input {
+  width: 100%;
+  border: 2px solid var(--ink) !important;
+  font-size: 17px !important;
+  font-weight: 600 !important;
+  padding: 13px 15px !important;
+}
+.search-results { max-height: 46vh; overflow-y: auto; margin-top: 12px; }
+.search-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border: 2px solid transparent;
+  cursor: pointer;
+}
+.search-item:hover, .search-item.active {
+  border-color: var(--ink);
+  background: var(--accent-2);
+  box-shadow: var(--sh-sm);
+}
+.search-item .si-icon { font-size: 24px; flex: 0 0 auto; }
+.search-item .si-text { display: flex; flex-direction: column; min-width: 0; }
+.search-item .si-text b { font-size: 15px; font-weight: 800; }
+.search-item .si-text small { color: var(--text-dim); font-size: 12px; font-weight: 500; }
+.search-empty { padding: 18px 12px; text-align: center; }
+.search-foot { margin-top: 12px; font-size: 12px; font-family: "Space Mono", monospace; }
+
+/* ---------- Thông báo nhỏ (toast) ---------- */
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 26px;
+  transform: translateX(-50%);
+  z-index: 400;
+  background: var(--ink);
+  color: #fff;
+  border: 3px solid var(--ink);
+  box-shadow: var(--sh);
+  padding: 12px 18px;
+  font-size: 14px;
+  font-weight: 700;
+  max-width: 90vw;
+  animation: toastIn 0.25s ease;
+}
+.toast.hide { animation: toastOut 0.3s ease forwards; }
+@keyframes toastIn { from { opacity: 0; transform: translate(-50%, 14px); } to { opacity: 1; transform: translate(-50%, 0); } }
+@keyframes toastOut { from { opacity: 1; transform: translate(-50%, 0); } to { opacity: 0; transform: translate(-50%, 14px); } }
+
+@media (max-width: 700px) {
+  .room-head { flex-wrap: wrap; }
+  .room-head .rh-share { order: 3; align-self: stretch; width: 100%; text-align: center; margin-top: 6px; }
+  .search-overlay { padding: 8vh 12px 12px; }
+}
+
+/* ---------- Bộ chọn lộ trình (trang chủ) ---------- */
+.track-picker { margin: 8px 0 26px; }
+.track-title { font-size: 18px; font-weight: 900; text-transform: uppercase; letter-spacing: -0.3px; margin-bottom: 4px; }
+.track-sub { font-size: 14px; margin-bottom: 14px; }
+.track-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+.track-card {
+  text-align: left;
+  background: var(--paper);
+  border: 3px solid var(--ink);
+  box-shadow: var(--sh-sm);
+  padding: 16px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+.track-card:hover { transform: translate(-2px, -2px); box-shadow: var(--sh); }
+.track-card.active { background: var(--accent-2); box-shadow: var(--sh); }
+.track-card .tc-icon { font-size: 30px; }
+.track-card .tc-label { font-size: 16px; font-weight: 900; text-transform: uppercase; margin: 6px 0 4px; }
+.track-card .tc-desc { font-size: 13px; font-weight: 500; color: var(--text-dim); line-height: 1.5; }
+
+/* phòng ngoài lộ trình bị làm mờ nhẹ; phòng trong lộ trình có nhãn */
+.room-card.dimmed { opacity: 0.5; }
+.room-card.dimmed:hover { opacity: 1; }
+.room-card.on-path { border-color: var(--accent); }
+.room-card .rc-path {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  padding: 3px 7px;
+  border: 2px solid var(--ink);
+}
+
+/* ---------- Quiz nhỏ "kiểm tra nhanh" ở cuối phòng ---------- */
+.micro-quiz { border-style: dashed; }
+.micro-quiz .mq-list { display: flex; flex-direction: column; gap: 16px; }
+.micro-quiz .mq-note { font-weight: 700; }
+
+@media (max-width: 700px) {
+  .track-cards { grid-template-columns: 1fr; }
+}
+
+/* ---------- Phòng mới: tab phân đoạn dùng chung ---------- */
+.seg { display: inline-flex; border: 3px solid var(--ink); box-shadow: var(--sh-sm); margin-bottom: 18px; flex-wrap: wrap; }
+.seg-btn {
+  border: none;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: inherit;
+  font-weight: 800;
+  font-size: 14px;
+  padding: 10px 16px;
+  cursor: pointer;
+  border-right: 3px solid var(--ink);
+}
+.seg-btn:last-child { border-right: none; }
+.seg-btn.active { background: var(--accent); color: #fff; }
+
+/* ---------- RAG ---------- */
+.rag-doc { border: 2px solid var(--ink); padding: 10px 12px; margin-bottom: 10px; transition: background 0.15s ease, box-shadow 0.15s ease; }
+.rag-doc b { font-size: 14px; }
+.rag-doc p { font-size: 13px; margin-top: 4px; }
+.rag-doc.hit { background: var(--accent-2); box-shadow: var(--sh-sm); }
+.rag-step { border: 2px dashed var(--ink); padding: 12px; }
+.rag-chip { display: inline-block; background: var(--accent-2); border: 2px solid var(--ink); padding: 3px 9px; font-size: 12px; font-weight: 700; margin: 2px; }
+.rag-answer { border: 2px solid var(--ink); padding: 11px 13px; background: var(--paper); font-weight: 500; min-height: 20px; }
+.rag-answer:empty { display: none; }
+.rag-cite { display: inline-block; font-family: "Space Mono", monospace; font-size: 12px; color: var(--accent); font-weight: 700; margin-left: 4px; }
+
+/* ---------- Fine-tuning vs Prompting ---------- */
+.ft-grid { display: grid; grid-template-columns: 1.2fr 1fr 1fr; gap: 8px; align-items: stretch; margin-bottom: 8px; }
+.ft-head { font-weight: 800; }
+.ft-col { text-align: center; padding: 8px; border: 2px solid var(--ink); }
+.ft-prompt { background: #cdefff; }
+.ft-tune { background: #ffe0f0; }
+.ft-axis { font-weight: 700; font-size: 13px; display: flex; align-items: center; }
+.ft-cell { border: 2px solid var(--ink); padding: 8px 10px; font-size: 13px; font-weight: 500; }
+.ft-cell.ft-win { background: var(--accent-2); font-weight: 700; box-shadow: var(--sh-sm); }
+.ft-scenario { border: 2px solid var(--ink); padding: 12px; margin-top: 12px; }
+.ft-q { font-weight: 700; margin-bottom: 10px; }
+.ft-choices { display: flex; gap: 10px; flex-wrap: wrap; }
+.ft-choices .btn.correct { background: var(--good); color: #fff; border-color: var(--ink); }
+.ft-choices .btn.wrong { background: var(--bad); color: #fff; border-color: var(--ink); }
+.ft-feedback { margin-top: 10px; font-weight: 600; }
+.ft-feedback:empty { display: none; }
+
+/* ---------- AI Agents ---------- */
+.ag-trace { display: flex; flex-direction: column; gap: 10px; }
+.ag-step { display: flex; gap: 10px; border: 2px solid var(--ink); padding: 10px 12px; animation: bubbleIn 0.25s ease; }
+.ag-step.ag-think { background: #f3f0ff; }
+.ag-step.ag-tool { background: #e0f7ff; }
+.ag-step.ag-answer { background: var(--accent-2); box-shadow: var(--sh-sm); }
+.ag-tag { font-size: 12px; font-weight: 800; white-space: nowrap; flex: 0 0 auto; text-transform: uppercase; }
+.ag-body { font-size: 14px; font-weight: 500; }
+.ag-tool { display: inline-block; font-family: "Space Mono", monospace; font-size: 12px; background: var(--ink); color: #fff; padding: 2px 7px; margin-bottom: 4px; }
+.ag-result { font-family: "Space Mono", monospace; font-size: 13px; color: var(--accent); font-weight: 700; margin-top: 3px; }
+.mb { margin-bottom: 10px; }
+
+/* ---------- Multimodal ---------- */
+.mm-caption { border: 2px solid var(--ink); padding: 11px 13px; background: var(--paper); font-style: italic; font-weight: 500; }
+.mm-qa { margin-top: 8px; }
+.mm-answer { margin-top: 6px; padding-left: 6px; max-height: 0; overflow: hidden; transition: max-height 0.2s ease; }
+.mm-answer.show { max-height: 80px; }
+
+@media (max-width: 700px) {
+  .ft-grid { grid-template-columns: 1fr; }
+  .ft-head { display: none; }
+  .ft-cell::before { font-weight: 800; }
+}

@@ -1,6 +1,7 @@
 // Trang chủ — song ngữ
-import { getVisited, getBestScore } from "../store.js";
+import { getVisited, getBestScore, getTrack, setTrack, getMicroTotal } from "../store.js";
 import { getLang, tx } from "../i18n.js";
+import { TRACKS, trackRoomIds } from "../tracks.js";
 
 const S = {
   eyebrow: { vi: "✦ Hành trình tương tác · %n phòng", en: "✦ Interactive journey · %n rooms" },
@@ -15,20 +16,29 @@ const S = {
   restart: { vi: "Đi lại từ đầu", en: "Restart" },
   progress: { vi: "Đã khám phá %d/%t phòng", en: "Explored %d/%t rooms" },
   best: { vi: " · Điểm quiz cao nhất: <b>%s</b> 🏅", en: " · Best quiz score: <b>%s</b> 🏅" },
+  micro: { vi: " · Câu đúng dọc đường: <b>%m</b> ✅", en: " · Checks passed: <b>%m</b> ✅" },
+  trackTitle: { vi: "Chọn lộ trình phù hợp với bạn", en: "Pick the path that fits you" },
+  trackSub: { vi: "Không chắc bắt đầu từ đâu? Chọn một lộ trình — bạn vẫn mở được mọi phòng bất cứ lúc nào.", en: "Not sure where to start? Pick a path — you can still open any room anytime." },
+  inTrack: { vi: "Trong lộ trình", en: "In your path" },
 };
 
 export function renderHome(app, rooms, navigate) {
   const visited = getVisited();
   const best = getBestScore();
+  const micro = getMicroTotal();
+  let track = getTrack();
   const journeyRooms = rooms.filter((r) => r.id !== "summary");
   const doneCount = journeyRooms.filter((r) => visited.has(r.id)).length;
   const started = visited.size > 0;
-  const firstUnvisited = rooms.find((r) => !visited.has(r.id)) || rooms[0];
+
+  // Danh sách id phòng của lộ trình đang chọn (để lọc/đánh dấu).
+  const pathIds = () => new Set(trackRoomIds(track, rooms));
 
   const hero = document.createElement("div");
   hero.className = "hero";
   const progressText = tx(S.progress).replace("%d", doneCount).replace("%t", journeyRooms.length)
-    + (best >= 0 ? tx(S.best).replace("%s", best) : "");
+    + (best >= 0 ? tx(S.best).replace("%s", best) : "")
+    + (micro > 0 ? tx(S.micro).replace("%m", micro) : "");
   hero.innerHTML = `
     <span class="eyebrow">${tx(S.eyebrow).replace("%n", journeyRooms.length)}</span>
     <h1>${tx(S.h1a)}<span class="grad">AI</span>${tx(S.h1b)}</h1>
@@ -45,28 +55,74 @@ export function renderHome(app, rooms, navigate) {
   `;
   app.appendChild(hero);
 
+  // ---------- Bộ chọn lộ trình ----------
+  const trackWrap = document.createElement("div");
+  trackWrap.className = "track-picker";
+  trackWrap.innerHTML = `
+    <h3 class="track-title">${tx(S.trackTitle)}</h3>
+    <p class="muted track-sub">${tx(S.trackSub)}</p>
+    <div class="track-cards"></div>`;
+  const trackCards = trackWrap.querySelector(".track-cards");
+  Object.entries(TRACKS).forEach(([key, t]) => {
+    const c = document.createElement("button");
+    c.className = "track-card" + (track === key ? " active" : "");
+    c.dataset.track = key;
+    c.innerHTML = `
+      <div class="tc-icon">${t.icon}</div>
+      <div class="tc-label">${tx(t.label)}</div>
+      <div class="tc-desc">${tx(t.desc)}</div>`;
+    c.addEventListener("click", () => {
+      track = key;
+      setTrack(key);
+      trackCards.querySelectorAll(".track-card").forEach((el) =>
+        el.classList.toggle("active", el.dataset.track === key));
+      paintGrid();
+    });
+    trackCards.appendChild(c);
+  });
+  app.appendChild(trackWrap);
+
   const grid = document.createElement("div");
   grid.className = "room-grid";
-  rooms.forEach((room) => {
-    const isDone = visited.has(room.id);
-    const card = document.createElement("div");
-    card.className = "room-card";
-    card.innerHTML = `
-      <div class="rc-num">${room.num}</div>
-      ${isDone ? `<div class="rc-check">✓</div>` : ""}
-      <div class="rc-icon">${room.icon}</div>
-      <h3>${tx(room.title)}</h3>
-      <p>${tx(room.blurb)}</p>
-      <div class="rc-q">${tx(room.question)}</div>
-    `;
-    card.addEventListener("click", () => navigate(room.id));
-    grid.appendChild(card);
-  });
   app.appendChild(grid);
 
+  function paintGrid() {
+    const inPath = pathIds();
+    const showFull = !track || track === "full";
+    grid.innerHTML = "";
+    rooms.forEach((room) => {
+      const isDone = visited.has(room.id);
+      const onPath = inPath.has(room.id);
+      const card = document.createElement("div");
+      card.className = "room-card"
+        + (isDone ? "" : "")
+        + (!showFull && !onPath ? " dimmed" : "")
+        + (!showFull && onPath ? " on-path" : "");
+      card.innerHTML = `
+        <div class="rc-num">${room.num}</div>
+        ${isDone ? `<div class="rc-check">✓</div>` : ""}
+        ${!showFull && onPath ? `<div class="rc-path">${tx(S.inTrack)}</div>` : ""}
+        <div class="rc-icon">${room.icon}</div>
+        <h3>${tx(room.title)}</h3>
+        <p>${tx(room.blurb)}</p>
+        <div class="rc-q">${tx(room.question)}</div>
+      `;
+      card.addEventListener("click", () => navigate(room.id));
+      grid.appendChild(card);
+    });
+  }
+  paintGrid();
+
+  // Nút bắt đầu: đi theo phòng đầu tiên chưa ghé TRONG lộ trình đang chọn.
+  function firstRoomOfPath() {
+    const ids = trackRoomIds(track, rooms);
+    const firstUnvisited = ids.find((id) => !visited.has(id));
+    return firstUnvisited || ids[0];
+  }
+
   document.getElementById("startBtn").addEventListener("click", () =>
-    navigate(started ? firstUnvisited.id : rooms[0].id)
+    navigate(firstRoomOfPath())
   );
   const restart = document.getElementById("restartBtn");
-  if (restart) restart.addEventListener("click", () => navigate(rooms[0].id));
+  if (restart) restart.addEventListener("click", () => navigate(trackRoomIds(track, rooms)[0]));
 }

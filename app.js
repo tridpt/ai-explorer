@@ -16,11 +16,17 @@ import { roomBias } from "./rooms/bias.js";
 import { roomAdversarial } from "./rooms/adversarial.js";
 import { roomTuring } from "./rooms/turing.js";
 import { roomChatbot } from "./rooms/chatbot.js";
+import { roomRag } from "./rooms/rag.js";
+import { roomFinetune } from "./rooms/finetune.js";
+import { roomAgents } from "./rooms/agents.js";
+import { roomMultimodal } from "./rooms/multimodal.js";
 import { roomSummary } from "./rooms/summary.js";
-import { sfx, isMuted, setMuted, celebrate } from "./sound.js";
+import { sfx, isMuted, setMuted } from "./sound.js";
 import { markVisited, getVisited } from "./store.js";
 import { getLang, setLang, tx } from "./i18n.js";
 import { initAnalytics, trackView } from "./analytics.js";
+import { parseHash, buildShareUrl } from "./roomstate.js";
+import { renderMicroQuiz, hasMicroQuiz } from "./roomquiz.js";
 
 // Thứ tự các phòng = mạch kể chuyện của hành trình. title/question/blurb song ngữ.
 export const ROOMS = [
@@ -185,7 +191,47 @@ export const ROOMS = [
     render: roomChatbot,
   },
   {
-    id: "summary", icon: "🎓", num: "17",
+    id: "rag", icon: "🔧", num: "17",
+    title: { vi: "AI tra cứu tài liệu", en: "AI that looks things up" },
+    question: { vi: "Sao chatbot đọc được tài liệu riêng?", en: "How does a chatbot read your docs?" },
+    blurb: {
+      vi: "RAG: trước khi trả lời, AI đi 'tìm' đoạn tài liệu liên quan rồi mới dựa vào đó mà nói — bớt bịa, có dẫn nguồn.",
+      en: "RAG: before answering, the AI 'retrieves' relevant passages and grounds its reply on them — less making-up, with sources.",
+    },
+    render: roomRag,
+  },
+  {
+    id: "finetune", icon: "🧩", num: "18",
+    title: { vi: "Dạy thêm cho AI", en: "Teaching an AI more" },
+    question: { vi: "Prompt hay fine-tune?", en: "Prompt or fine-tune?" },
+    blurb: {
+      vi: "Hai cách 'dạy thêm' cho AI: chỉ dẫn ngay lúc dùng (prompting) hay huấn luyện lại trọng số (fine-tuning). Khi nào dùng cái nào?",
+      en: "Two ways to 'teach' an AI: guide it at use-time (prompting) or retrain its weights (fine-tuning). When to use which?",
+    },
+    render: roomFinetune,
+  },
+  {
+    id: "agents", icon: "🤝", num: "19",
+    title: { vi: "AI biết dùng công cụ", en: "AI that uses tools" },
+    question: { vi: "AI tự làm việc nhiều bước kiểu gì?", en: "How does AI do multi-step work?" },
+    blurb: {
+      vi: "AI agent không chỉ trả lời — nó lên kế hoạch, gọi công cụ (máy tính, tìm kiếm…), xem kết quả rồi đi tiếp cho tới khi xong.",
+      en: "An AI agent doesn't just answer — it plans, calls tools (calculator, search…), reads results, and loops until done.",
+    },
+    render: roomAgents,
+  },
+  {
+    id: "multimodal", icon: "🖼️", num: "20",
+    title: { vi: "AI hiểu cả ảnh lẫn chữ", en: "AI that sees and reads" },
+    question: { vi: "Làm sao AI 'nhìn' được ảnh?", en: "How does AI 'see' an image?" },
+    blurb: {
+      vi: "Multimodal: AI đưa ảnh và chữ về cùng một 'không gian ý nghĩa', nên nó mô tả được ảnh và trả lời câu hỏi về ảnh.",
+      en: "Multimodal: AI maps images and text into one 'meaning space', so it can describe images and answer questions about them.",
+    },
+    render: roomMultimodal,
+  },
+  {
+    id: "summary", icon: "🎓", num: "21",
     title: { vi: "Bạn đã hiểu AI rồi", en: "You get AI now" },
     question: { vi: "Tổng kết hành trình", en: "Journey recap" },
     blurb: {
@@ -205,6 +251,39 @@ const UI = {
   nextRoom: { vi: "Phòng tiếp:", en: "Next:" },
   journeyEnd: { vi: "Hết hành trình", en: "End of journey" },
   close: { vi: "đóng", en: "close" },
+  searchTitle: { vi: "Tìm phòng (phím /)", en: "Search rooms (press /)" },
+  searchPlaceholder: { vi: "Tìm khái niệm hoặc phòng… (token, attention, gợi ý…)", en: "Search a concept or room… (token, attention, recommend…)" },
+  searchEmpty: { vi: "Không tìm thấy phòng nào phù hợp.", en: "No matching room found." },
+  shareRoom: { vi: "🔗 Chia sẻ", en: "🔗 Share" },
+  shareRoomTitle: { vi: "Chia sẻ phòng này (kèm trạng thái hiện tại)", en: "Share this room (with its current state)" },
+  shareCopied: { vi: "✓ Đã copy link phòng vào clipboard!", en: "✓ Room link copied to clipboard!" },
+  shareFail: { vi: "Copy link trên thanh địa chỉ để chia sẻ nhé.", en: "Copy the address-bar URL to share." },
+  searchHint: { vi: "↑↓ để chọn · Enter để mở · Esc để đóng", en: "↑↓ to move · Enter to open · Esc to close" },
+};
+
+// Từ khóa tìm kiếm cho mỗi phòng (song ngữ, giúp gõ khái niệm là ra phòng).
+const SEARCH_KEYWORDS = {
+  teachable: "webcam knn dữ liệu huấn luyện training data dạy ví dụ pose tư thế",
+  "neural-net": "mạng nơ-ron neural network mlp neuron perceptron layer lớp",
+  overfitting: "overfitting học vẹt memorize generalize tổng quát train test",
+  "decision-tree": "cây quyết định decision tree rule luật if else minh bạch",
+  reinforcement: "reinforcement rl học tăng cường reward thưởng phạt robot agent",
+  clustering: "clustering kmeans phân nhóm unsupervised không giám sát group cụm",
+  tokenizer: "token tokenizer cắt chữ subword chi phí cost bpe",
+  embeddings: "embedding vector nghĩa meaning word2vec analogy loại suy bản đồ",
+  attention: "attention transformer chú ý ngữ cảnh context self-attention",
+  "next-token": "next token bigram hallucination ảo giác xác suất temperature nhiệt độ sinh chữ",
+  diffusion: "diffusion tạo ảnh image generation nhiễu noise denoise stable",
+  recommendation: "recommendation gợi ý recommender tiktok youtube netflix collaborative",
+  bias: "bias thiên kiến định kiến fairness công bằng giới tính",
+  adversarial: "adversarial đánh lừa nhiễu perturbation robustness an toàn attack",
+  turing: "turing test người hay ai human detection phân biệt văn",
+  chatbot: "chatbot trợ lý assistant pipeline llm conversation trò chuyện",
+  rag: "rag retrieval tra cứu tài liệu document grounding nguồn citation vector search knowledge base tri thức",
+  finetune: "fine-tuning finetune prompting prompt huấn luyện lại trọng số weights lora dạy thêm adapt",
+  agents: "agent agents công cụ tool tool-use react planning kế hoạch nhiều bước autonomous tự động function calling",
+  multimodal: "multimodal đa phương thức ảnh chữ image text vision caption clip gpt-4v gemini nhìn",
+  summary: "summary tổng kết quiz huy hiệu badge recap ôn tập",
 };
 
 const THEME = {
@@ -225,6 +304,10 @@ const THEME = {
   adversarial: ["#ef4444", "#f59e0b", "239,68,68"],
   turing:      ["#8b5cf6", "#a855f7", "139,92,246"],
   chatbot:     ["#38bdf8", "#818cf8", "56,189,248"],
+  rag:         ["#0ea5e9", "#22d3ee", "14,165,233"],
+  finetune:    ["#f59e0b", "#a855f7", "245,158,11"],
+  agents:      ["#10b981", "#6ea8fe", "16,185,129"],
+  multimodal:  ["#e879f9", "#38bdf8", "232,121,249"],
   summary:     ["#34d399", "#6ea8fe", "52,211,153"],
 };
 
@@ -254,6 +337,10 @@ const HINTS = {
   adversarial: { vi: "👉 Kéo thanh <b>nhiễu</b> lên từ từ — để ý lúc AI đột nhiên đổi ý.", en: "👉 Slide the <b>noise</b> up slowly — watch the moment the AI suddenly flips." },
   turing: { vi: "👉 Đọc từng đoạn và đoán do người hay AI viết, rồi xem giải thích.", en: "👉 Read each passage, guess human or AI, then see the explanation." },
   chatbot: { vi: "👉 Bấm một câu hỏi gợi ý để xem chatbot xử lý qua từng bước.", en: "👉 Click a suggested question to watch the chatbot process it step by step." },
+  rag: { vi: "👉 Đặt một câu hỏi để xem AI <b>tra tài liệu</b> rồi trả lời có dẫn nguồn.", en: "👉 Ask a question to see the AI <b>look up documents</b> then answer with citations." },
+  finetune: { vi: "👉 So sánh <b>Prompting</b> và <b>Fine-tuning</b> — bấm qua lại để thấy khác biệt.", en: "👉 Compare <b>Prompting</b> vs <b>Fine-tuning</b> — toggle to see the difference." },
+  agents: { vi: "👉 Giao một nhiệm vụ để xem agent <b>lên kế hoạch</b> và tự gọi công cụ từng bước.", en: "👉 Give a task to watch the agent <b>plan</b> and call tools step by step." },
+  multimodal: { vi: "👉 Chọn một ảnh để xem AI vừa <b>nhìn</b> vừa <b>đọc chữ</b> và mô tả nó.", en: "👉 Pick an image to see the AI <b>see</b> and <b>read</b> it, then describe it." },
   summary: { vi: "👉 Cuộn xuống cuối để làm <b>quiz</b> và nhận huy hiệu nhé!", en: "👉 Scroll down to take the <b>quiz</b> and earn your badge!" },
 };
 const hintsShown = new Set();
@@ -271,16 +358,144 @@ function showHint(id) {
   bar.addEventListener("animationend", (e) => { if (e.animationName === "hintOut") bar.remove(); });
 }
 
+// ---------- Bảng tìm kiếm / nhảy nhanh phòng (phím "/") ----------
+let searchOpen = false;
+
+function openSearch() {
+  if (searchOpen) return;
+  searchOpen = true;
+
+  const overlay = document.createElement("div");
+  overlay.className = "search-overlay";
+  overlay.innerHTML = `
+    <div class="search-box" role="dialog" aria-modal="true" aria-label="${tx(UI.searchTitle)}">
+      <input type="text" id="searchInput" class="search-input"
+        placeholder="${tx(UI.searchPlaceholder)}" autocomplete="off" spellcheck="false" />
+      <div class="search-results" id="searchResults"></div>
+      <div class="search-foot muted">${tx(UI.searchHint)}</div>
+    </div>`;
+  document.body.appendChild(overlay);
+
+  const input = overlay.querySelector("#searchInput");
+  const resultsEl = overlay.querySelector("#searchResults");
+  let matches = [];
+  let active = 0;
+
+  const norm = (s) =>
+    s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/đ/g, "d");
+
+  function search(q) {
+    const nq = norm(q.trim());
+    if (!nq) return ROOMS.slice();
+    return ROOMS.filter((r) => {
+      const hay = norm(
+        [tx(r.title), tx(r.question), tx(r.blurb), r.id, r.num, SEARCH_KEYWORDS[r.id] || ""].join(" ")
+      );
+      return hay.includes(nq);
+    });
+  }
+
+  function renderResults() {
+    resultsEl.innerHTML = "";
+    if (!matches.length) {
+      resultsEl.innerHTML = `<div class="search-empty muted">${tx(UI.searchEmpty)}</div>`;
+      return;
+    }
+    matches.forEach((r, i) => {
+      const item = document.createElement("div");
+      item.className = "search-item" + (i === active ? " active" : "");
+      item.innerHTML = `
+        <span class="si-icon">${r.icon}</span>
+        <span class="si-text">
+          <b>${r.num} · ${tx(r.title)}</b>
+          <small>${tx(r.question)}</small>
+        </span>`;
+      item.onmouseenter = () => { active = i; highlight(); };
+      item.onclick = () => choose(i);
+      resultsEl.appendChild(item);
+    });
+  }
+
+  function highlight() {
+    [...resultsEl.children].forEach((el, i) => el.classList.toggle("active", i === active));
+    resultsEl.children[active]?.scrollIntoView({ block: "nearest" });
+  }
+
+  function choose(i) {
+    const r = matches[i];
+    if (!r) return;
+    close();
+    navigate(r.id);
+    sfx.pop();
+  }
+
+  function close() {
+    searchOpen = false;
+    overlay.remove();
+  }
+
+  function update() {
+    matches = search(input.value);
+    active = 0;
+    renderResults();
+  }
+
+  input.addEventListener("input", update);
+  overlay.addEventListener("mousedown", (e) => { if (e.target === overlay) close(); });
+  overlay.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") { e.preventDefault(); close(); }
+    else if (e.key === "ArrowDown") { e.preventDefault(); active = Math.min(active + 1, matches.length - 1); highlight(); }
+    else if (e.key === "ArrowUp") { e.preventDefault(); active = Math.max(active - 1, 0); highlight(); }
+    else if (e.key === "Enter") { e.preventDefault(); choose(active); }
+  });
+
+  update();
+  input.focus();
+}
+
+// ---------- Chia sẻ phòng hiện tại (Web Share API, fallback clipboard) ----------
+async function shareRoom(room) {
+  // Dùng URL hiện tại để mang theo cả trạng thái deep-link (câu đang gõ, prompt đã chọn…).
+  const url = location.href.includes("#") ? location.href : buildShareUrl(room.id);
+  const title = "AI Explorer — " + tx(room.title);
+  const text = tx(
+    `${tx(room.question)} Khám phá trực quan trong "${tx(room.title)}" trên AI Explorer:`,
+    `${tx(room.question)} Explore it visually in "${tx(room.title)}" on AI Explorer:`
+  );
+  if (navigator.share) {
+    try { await navigator.share({ title, text, url }); return; } catch { /* người dùng hủy */ }
+  }
+  try {
+    await navigator.clipboard.writeText(`${text} ${url}`);
+    toast(tx(UI.shareCopied));
+  } catch {
+    toast(tx(UI.shareFail));
+  }
+}
+
+// Thông báo nhỏ tự biến mất
+function toast(msg) {
+  const t = document.createElement("div");
+  t.className = "toast";
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.classList.add("hide"), 2200);
+  t.addEventListener("animationend", (e) => { if (e.animationName === "toastOut") t.remove(); });
+}
+
 // Thanh công cụ: ngôn ngữ + âm thanh + trình chiếu
 function buildToolbar() {
   const tb = document.createElement("div");
   tb.className = "toolbar";
   tb.innerHTML = `
+    <button class="tool-btn" id="searchBtn" title="${tx(UI.searchTitle)}">🔍</button>
     <button class="tool-btn" id="langBtn" title="${tx(UI.langTitle)}"></button>
     <button class="tool-btn" id="soundBtn" title="${tx(UI.soundTitle)}"></button>
     <button class="tool-btn" id="presentBtn" title="${tx(UI.presentTitle)}">⛶</button>
   `;
   document.querySelector(".topbar").appendChild(tb);
+
+  tb.querySelector("#searchBtn").onclick = () => { openSearch(); sfx.click(); };
 
   const langBtn = tb.querySelector("#langBtn");
   const refreshLang = () => (langBtn.textContent = getLang() === "vi" ? "EN" : "VI");
@@ -304,7 +519,7 @@ const progressNav = document.getElementById("progressNav");
 const visited = getVisited();
 
 function currentRoute() {
-  return location.hash.replace(/^#\/?/, "") || "home";
+  return parseHash().id;
 }
 
 function renderProgress(activeId) {
@@ -359,15 +574,19 @@ function route() {
   head.className = "room-head";
   head.innerHTML = `
     <div class="rh-icon">${room.icon}</div>
-    <div>
+    <div class="rh-text">
       <div class="rh-q">${tx(room.question)}</div>
       <h2>${tx(room.title)}</h2>
-    </div>`;
+    </div>
+    <button class="btn ghost rh-share" id="shareRoomBtn" title="${tx(UI.shareRoomTitle)}">${tx(UI.shareRoom)}</button>`;
   app.appendChild(head);
+  head.querySelector("#shareRoomBtn").onclick = () => shareRoom(room);
 
   const body = document.createElement("div");
   app.appendChild(body);
   room.render(body);
+  // Quiz nhỏ "kiểm tra hiểu bài" ở cuối phòng (trừ trang tổng kết vốn đã có quiz lớn).
+  if (room.id !== "summary" && hasMicroQuiz(room.id)) renderMicroQuiz(body, room.id);
   showHint(room.id);
 
   // Nút điều hướng trước / sau
@@ -400,6 +619,12 @@ window.addEventListener("langchange", () => {
 
 // Điều hướng bằng phím mũi tên (hợp cho trình chiếu)
 window.addEventListener("keydown", (e) => {
+  // Phím "/" mở nhanh ô tìm kiếm phòng (trừ khi đang gõ trong ô nhập)
+  if (e.key === "/" && !["INPUT", "TEXTAREA", "SELECT"].includes(document.activeElement?.tagName)) {
+    e.preventDefault();
+    openSearch();
+    return;
+  }
   if (["INPUT", "TEXTAREA", "SELECT"].includes(document.activeElement?.tagName)) return;
   const id = currentRoute();
   const idx = ROOMS.findIndex((r) => r.id === id);

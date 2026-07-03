@@ -1,5 +1,6 @@
 // Phòng — Attention: AI "nhìn" vào từ nào khi đọc một từ. Song ngữ.
 import { tx, getLang } from "../i18n.js";
+import { getParam, setParams } from "../roomstate.js";
 
 // Mỗi câu có bản vi & en riêng (vị trí đại từ khác nhau giữa hai ngôn ngữ).
 const SENTENCES = [
@@ -88,8 +89,11 @@ export function roomAttention(root) {
     </div>
   `;
 
-  let current = 0;
-  let selected = null;
+  // Deep-link: ?s=<câu>&w=<từ> để chia sẻ đúng câu và từ đang xét.
+  const sIdx = parseInt(getParam("s", ""), 10);
+  let current = Number.isInteger(sIdx) && SENTENCES[sIdx] ? sIdx : 0;
+  const wIdx = parseInt(getParam("w", ""), 10);
+  let selected = Number.isInteger(wIdx) ? wIdx : null;
 
   const picker = root.querySelector("#sentPicker");
   SENTENCES.forEach((pair, i) => {
@@ -97,7 +101,14 @@ export function roomAttention(root) {
     const tag = document.createElement("span");
     tag.className = "tag";
     tag.textContent = s.words.join(" ");
-    tag.onclick = () => { current = i; selected = null; render(); };
+    if (i === current) tag.style.borderColor = "var(--accent)";
+    tag.onclick = () => {
+      current = i; selected = null;
+      setParams({ s: i });
+      picker.querySelectorAll(".tag").forEach((t) => (t.style.borderColor = ""));
+      tag.style.borderColor = "var(--accent)";
+      render();
+    };
     picker.appendChild(tag);
   });
 
@@ -106,6 +117,7 @@ export function roomAttention(root) {
 
   function render() {
     const s = SENTENCES[current][getLang()] || SENTENCES[current].vi;
+    if (selected !== null && selected >= s.words.length) selected = null;
     const M = buildAttention(s);
     display.innerHTML = "";
     s.words.forEach((w, j) => {
@@ -120,7 +132,7 @@ export function roomAttention(root) {
       } else {
         span.style.background = "rgba(255,255,255,0.05)";
       }
-      span.onclick = () => { selected = j; render(); };
+      span.onclick = () => { selected = j; setParams({ s: current, w: j }); render(); };
       display.appendChild(span);
     });
     const pronoun = tx("nó / cô", "it / she");

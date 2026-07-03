@@ -1,6 +1,7 @@
 // Phòng — Token là gì? Song ngữ.
 import { sfx } from "../sound.js";
 import { tx, getLang } from "../i18n.js";
+import { getParam, setParams } from "../roomstate.js";
 
 const COMMON = new Set([
   "tôi", "bạn", "là", "và", "của", "có", "không", "một", "ai", "học", "máy",
@@ -44,7 +45,9 @@ const SAMPLES = {
 };
 
 export function roomTokenizer(root) {
-  const defaultText = tx("Tôi đang học cách trí tuệ nhân tạo hoạt động.", "I am learning how artificial intelligence works.");
+  // Deep-link: nếu URL có ?text=... thì mở đúng câu đó để chia sẻ demo cụ thể.
+  const shared = getParam("text");
+  const defaultText = shared ?? tx("Tôi đang học cách trí tuệ nhân tạo hoạt động.", "I am learning how artificial intelligence works.");
   root.innerHTML = `
     <p class="room-intro">
       ${tx(
@@ -102,14 +105,21 @@ export function roomTokenizer(root) {
     root.querySelector("#tkCost").textContent = cost + "đ";
   }
 
-  input.oninput = render;
+  // Ghi câu vào URL (gọn nhẹ, có debounce) để nút "Chia sẻ" mang theo đúng câu đang gõ.
+  let saveTimer = null;
+  function persist() {
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(() => setParams({ text: input.value.trim() || null }), 300);
+  }
+
+  input.oninput = () => { render(); persist(); };
 
   const samplesDiv = root.querySelector("#tkSamples");
   (SAMPLES[getLang()] || SAMPLES.vi).forEach((s) => {
     const tag = document.createElement("span");
     tag.className = "tag";
     tag.textContent = s.length > 32 ? s.slice(0, 32) + "…" : s;
-    tag.onclick = () => { input.value = s; render(); sfx.pop(); };
+    tag.onclick = () => { input.value = s; render(); persist(); sfx.pop(); };
     samplesDiv.appendChild(tag);
   });
 

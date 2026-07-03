@@ -1,6 +1,7 @@
 // Phòng — AI tạo ảnh thế nào? Mô phỏng diffusion. Song ngữ.
 import { sfx, celebrate } from "../sound.js";
 import { tx } from "../i18n.js";
+import { getParam, setParams } from "../roomstate.js";
 
 const SIZE = 220;
 const PROMPTS = [
@@ -56,7 +57,10 @@ export function roomDiffusion(root) {
   const octx = off.getContext("2d");
 
   let target = null;
-  let current = PROMPTS[0];
+  // Deep-link: ?prompt=<index> chọn sẵn prompt để chia sẻ đúng ảnh muốn tạo.
+  const sharedIdx = parseInt(getParam("prompt", ""), 10);
+  const startIdx = Number.isInteger(sharedIdx) && PROMPTS[sharedIdx] ? sharedIdx : 0;
+  let current = PROMPTS[startIdx];
   let anim = null;
 
   function buildTarget(emoji) {
@@ -119,11 +123,12 @@ export function roomDiffusion(root) {
     tag.textContent = tx(p.label);
     tag.onclick = () => {
       current = p;
+      setParams({ prompt: i });
       promptsDiv.querySelectorAll(".tag").forEach((t) => (t.style.borderColor = ""));
       tag.style.borderColor = "var(--accent)";
       sfx.pop();
     };
-    if (i === 0) tag.style.borderColor = "var(--accent)";
+    if (i === startIdx) tag.style.borderColor = "var(--accent)";
     promptsDiv.appendChild(tag);
   });
 

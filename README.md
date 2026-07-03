@@ -9,18 +9,26 @@
 </p>
 
 <p align="center">
-  <img alt="rooms" src="https://img.shields.io/badge/ph%C3%B2ng-17-6ea8fe" />
+  <img alt="rooms" src="https://img.shields.io/badge/ph%C3%B2ng-21-6ea8fe" />
   <img alt="languages" src="https://img.shields.io/badge/ng%C3%B4n%20ng%E1%BB%AF-VN%20%2F%20EN-b07bff" />
   <img alt="pwa" src="https://img.shields.io/badge/PWA-c%C3%A0i%20%C4%91%C6%B0%E1%BB%A3c-34d399" />
   <img alt="backend" src="https://img.shields.io/badge/backend-kh%C3%B4ng%20c%E1%BA%A7n-f59e0b" />
 </p>
 
 Một "bảo tàng AI tương tác" chạy **hoàn toàn trên trình duyệt** — không cần server backend,
-không cần API key. Bạn đi qua 17 "phòng", mỗi phòng giải thích trực quan một khái niệm cốt lõi
+không cần API key. Bạn đi qua 21 "phòng", mỗi phòng giải thích trực quan một khái niệm cốt lõi
 về AI và cho **tự tay nghịch**: dạy AI qua webcam, huấn luyện mạng nơ-ron, xem AI tạo ảnh,
-trò chuyện với chatbot mini... Song ngữ Việt–Anh, cài được như app, chạy cả khi offline.
+trò chuyện với chatbot mini, cho AI tra tài liệu (RAG), xem agent tự gọi công cụ... Song ngữ
+Việt–Anh, cài được như app, chạy cả khi offline.
 
 > 🌐 **Bản song ngữ:** bấm nút **EN/VI** ở góc trên bên phải để đổi ngôn ngữ bất cứ lúc nào.
+
+> 🧭 **Chọn lộ trình:** ngay ở trang chủ, chọn *Người mới* (5 phòng cốt lõi), *Đầy đủ*, hoặc
+> *Cho lập trình viên* (token, embeddings, RAG, fine-tuning, agents…) để không bị choáng.
+
+> 🔍 **Tìm nhanh:** bấm phím `/` (hoặc nút 🔍) để mở ô tìm và nhảy thẳng tới bất kỳ phòng nào.
+
+> ✅ **Kiểm tra hiểu bài:** mỗi phòng có một câu hỏi nhỏ, trả lời đúng sẽ cộng dồn vào điểm hành trình.
 
 ## Hành trình
 
@@ -42,7 +50,11 @@ trò chuyện với chatbot mini... Song ngữ Việt–Anh, cài được như 
 | 14 | 🐺 Đánh lừa AI | Adversarial — nhiễu vô hình khiến AI nhìn sai |
 | 15 | 🕵️ Người hay AI viết? | Rèn con mắt phân biệt văn người / AI |
 | 16 | 💬 Chatbot mini | Ghép tất cả khái niệm lại thành một trợ lý |
-| 17 | 🎓 Tổng kết | Quiz + huy hiệu hoàn thành |
+| 17 | 🔧 AI tra cứu tài liệu | RAG — vì sao chatbot đọc được tài liệu riêng |
+| 18 | 🧩 Dạy thêm cho AI | Prompting vs Fine-tuning — chọn cách nào? |
+| 19 | 🤝 AI biết dùng công cụ | Agents — AI tự lên kế hoạch, gọi công cụ nhiều bước |
+| 20 | 🖼️ AI hiểu cả ảnh lẫn chữ | Multimodal — ảnh + chữ trong cùng không gian nghĩa |
+| 21 | 🎓 Tổng kết | Quiz + huy hiệu hoàn thành |
 
 ## Cách chạy
 
@@ -65,13 +77,16 @@ Rồi mở http://localhost:8000
 ai-explorer/
 ├── index.html          # Khung trang + meta chia sẻ + favicon
 ├── style.css           # Toàn bộ giao diện (Neo-brutalism: Archivo + Space Mono, viền dày + bóng cứng)
-├── app.js              # Router + điều hướng + thanh tiến trình + phím mũi tên + toolbar + i18n
+├── app.js              # Router + điều hướng + tiến trình + toolbar + tìm phòng + chia sẻ + i18n
+├── roomstate.js        # Deep-link: đọc/ghi trạng thái phòng vào query của URL
+├── roomquiz.js         # Ngân hàng câu hỏi nhỏ + chèn quiz "kiểm tra hiểu bài" ở mỗi phòng
+├── tracks.js           # Định nghĩa các lộ trình học (Người mới / Đầy đủ / Cho lập trình viên)
 ├── i18n.js             # Song ngữ VN/EN
 ├── analytics.js        # Thống kê ẩn danh (GoatCounter, tùy chọn)
 ├── sound.js            # Âm thanh Web Audio + hiệu ứng confetti
-├── store.js            # Lưu tiến trình & điểm quiz vào localStorage
+├── store.js            # Lưu tiến trình, điểm quiz, câu đã đúng & lộ trình vào localStorage
 ├── rooms/              # Mỗi phòng là một module độc lập
-│   ├── home.js         # Trang chủ + tiến trình + nút tiếp tục
+│   ├── home.js         # Trang chủ + chọn lộ trình + tiến trình + nút tiếp tục
 │   ├── teachable.js    # Webcam KNN (thuần JS)
 │   ├── neural-net.js   # MLP 2→H→1 huấn luyện trên trình duyệt
 │   ├── overfitting.js  # Học vẹt vs hiểu thật (train vs test)
@@ -83,6 +98,10 @@ ai-explorer/
 │   ├── diffusion.js    # Mô phỏng tạo ảnh từ nhiễu
 │   ├── bias.js         # Liên tưởng giới tính theo nghề
 │   ├── chatbot.js      # Chatbot mini + pipeline trực quan
+│   ├── rag.js          # RAG: tra kho tài liệu rồi trả lời có dẫn nguồn
+│   ├── finetune.js     # Prompting vs Fine-tuning: so sánh + quiz tình huống
+│   ├── agents.js       # AI agent: vòng lặp suy nghĩ → gọi công cụ → trả lời
+│   ├── multimodal.js   # AI hiểu ảnh + chữ: nhãn, mô tả, hỏi–đáp về ảnh
 │   └── summary.js      # Tổng kết + quiz + huy hiệu + chia sẻ
 └── data/
     └── embeddings.js   # Vector 2D tính sẵn cho các từ
@@ -90,11 +109,16 @@ ai-explorer/
 
 ## Tính năng
 
-- 17 phòng tương tác, mỗi phòng một tông màu chủ đề.
+- 21 phòng tương tác, mỗi phòng một tông màu chủ đề.
 - Giao diện Neo-brutalism (viền đen dày, bóng cứng, khối màu rực).
+- **Lộ trình học theo cấp độ**: chọn *Người mới* (5 phòng cốt lõi), *Đầy đủ*, hay *Cho lập trình viên* — không bị choáng với hơn 20 phòng.
+- **Quiz nhỏ rải rác** ở cuối mỗi phòng ("kiểm tra hiểu bài"), cộng dồn vào điểm hành trình.
 - Âm thanh phản hồi (bật/tắt được) + confetti khi hoàn thành quiz.
-- Quiz + huy hiệu theo cấp, tải được thành ảnh PNG để khoe.
+- Quiz tổng kết + huy hiệu theo cấp, tải được thành ảnh PNG để khoe.
 - Chế độ trình chiếu toàn màn hình, điều hướng bằng phím ←/→.
+- **Tìm nhanh phòng**: bấm 🔍 hoặc phím `/` để tra theo tên/khái niệm (token, attention, gợi ý…) và nhảy thẳng tới phòng.
+- **Deep-link theo trạng thái**: một số phòng mã hóa trạng thái vào URL (câu ở Tokenizer/Attention, prompt ở Diffusion) để chia sẻ đúng một demo cụ thể.
+- **Nút "Chia sẻ"** trên mỗi phòng: dùng Web Share API trên điện thoại, tự copy link (kèm trạng thái) khi trên desktop.
 - Gợi ý onboarding cho từng phòng.
 - Ghi nhớ tiến trình & điểm cao nhất qua localStorage.
 - Tối ưu cho cả điện thoại.
