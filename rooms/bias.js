@@ -31,6 +31,19 @@ export function roomBias(root) {
       )}</p>
     </div>
 
+    <div class="panel">
+      <h4>${tx("🧪 Chính bạn nuôi dữ liệu — xem AI học theo", "🧪 Feed the data yourself — watch AI follow")}</h4>
+      <p class="muted">${tx(
+        "Giả sử ta dạy AI về nghề \"bác sĩ\" bằng một tập ví dụ. Kéo thanh để đổi tỉ lệ nam/nữ trong <b>dữ liệu huấn luyện</b>, rồi xem AI \"đoán\" giới tính ra sao.",
+        "Say we teach AI about \"doctor\" with a set of examples. Drag to change the male/female ratio in the <b>training data</b>, then see how the AI \"guesses\" gender."
+      )}</p>
+      <label class="field mt">
+        <span>${tx("Tỉ lệ nam trong dữ liệu:", "Share of men in the data:")} <b id="biasDataVal">50</b>%</span>
+        <input type="range" id="biasData" min="0" max="100" step="5" value="50" />
+      </label>
+      <div id="biasTrainOut" class="mt"></div>
+    </div>
+
     <div class="takeaway">
       ${tx(
         "💡 <strong>Điều cốt lõi:</strong> AI không trung lập một cách tự nhiên — nó là tấm gương phản chiếu dữ liệu mà ta cho nó ăn. Hiểu được điều này giúp ta dùng AI có trách nhiệm: luôn đặt câu hỏi <em>\"dữ liệu dạy nó đến từ đâu, và nó có thể đang thiên lệch chỗ nào?\"</em>",
@@ -72,4 +85,39 @@ export function roomBias(root) {
   }
 
   show(PROFESSIONS[0]);
+
+  // ---------- Tương tác: dữ liệu lệch → AI lệch ----------
+  const dataSlider = root.querySelector("#biasData");
+  const trainOut = root.querySelector("#biasTrainOut");
+
+  function renderTrain() {
+    const male = parseInt(dataSlider.value);
+    const female = 100 - male;
+    root.querySelector("#biasDataVal").textContent = male;
+
+    // AI "học" thẳng từ tỉ lệ dữ liệu: dự đoán bám sát phân bố nó thấy.
+    // (Đó chính là điều xảy ra thật: model phản chiếu thống kê của dữ liệu.)
+    let verdict, vColor;
+    const skew = Math.abs(male - female);
+    if (skew >= 60) { verdict = tx("⚠️ Thiên kiến mạnh — AI gần như luôn đoán một giới.", "⚠️ Strong bias — AI almost always guesses one gender."); vColor = "#e5352b"; }
+    else if (skew >= 25) { verdict = tx("🟡 Có thiên kiến — AI nghiêng rõ về một phía.", "🟡 Some bias — AI leans clearly to one side."); vColor = "#f5a300"; }
+    else { verdict = tx("✅ Khá cân bằng — AI không thiên vị giới nào.", "✅ Fairly balanced — AI favors neither gender."); vColor = "#00b34a"; }
+
+    trainOut.innerHTML = `
+      <p class="muted">${tx("📥 Dữ liệu bạn cho AI học:", "📥 Data you fed the AI:")}</p>
+      <div class="bar-row"><div class="bar-label">${tx("👨 Nam", "👨 Male")}</div>
+        <div class="bar-track"><div class="bar-fill" style="width:${male}%">${male}%</div></div></div>
+      <div class="bar-row"><div class="bar-label">${tx("👩 Nữ", "👩 Female")}</div>
+        <div class="bar-track"><div class="bar-fill" style="width:${female}%; background:linear-gradient(90deg,#b07bff,#f472b6)">${female}%</div></div></div>
+      <p class="muted mt">${tx("🤖 Sau khi học, AI đoán \"bác sĩ\" là:", "🤖 After learning, AI guesses a \"doctor\" is:")}</p>
+      <div class="bar-row"><div class="bar-label">${tx("👨 Nam", "👨 Male")}</div>
+        <div class="bar-track"><div class="bar-fill" style="width:${male}%">${male}%</div></div></div>
+      <div class="bar-row"><div class="bar-label">${tx("👩 Nữ", "👩 Female")}</div>
+        <div class="bar-track"><div class="bar-fill" style="width:${female}%; background:linear-gradient(90deg,#b07bff,#f472b6)">${female}%</div></div></div>
+      <p class="mt" style="font-weight:700; color:${vColor}">${verdict}</p>
+      <p class="muted">${tx("👉 Để ý: dự đoán của AI <b>y hệt</b> tỉ lệ trong dữ liệu. Nó không có thành kiến riêng — nó chỉ phản chiếu thứ ta cho nó ăn.", "👉 Notice: the AI's guess <b>mirrors</b> the data ratio exactly. It has no opinion of its own — it just reflects what we fed it.")}</p>
+    `;
+  }
+  dataSlider.oninput = renderTrain;
+  renderTrain();
 }

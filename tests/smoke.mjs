@@ -83,7 +83,8 @@ await page.waitForSelector(".room-grid", { timeout: 5000 }).catch(() =>
   failures.push("[home] không render được .room-grid")
 );
 
-await browser.close();
+// Đóng browser nhưng không chờ quá lâu (đôi khi Chromium đóng chậm trên Windows).
+await Promise.race([browser.close(), new Promise((r) => setTimeout(r, 3000))]);
 
 console.log("\n=== KẾT QUẢ ===");
 if (failures.length === 0) {
