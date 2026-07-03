@@ -669,3 +669,11 @@ canvas { display: block; max-width: 100%; height: auto; }
   .adv-plus { transform: rotate(90deg); }
   .tk-cmp-line { flex-wrap: wrap; }
 }
+
+/* ---------- Cây quyết định: AI tự học chọn câu hỏi ---------- */
+.dt-split { display: flex; gap: 12px; flex-wrap: wrap; }
+.dt-branch { flex: 1; min-width: 130px; border: 2px solid var(--ink); padding: 10px; }
+.dt-branch.pure { background: rgba(0, 179, 74, 0.12); }
+.dt-branch-h { font-weight: 800; font-size: 14px; margin-bottom: 8px; }
+.dt-chips { display: flex; flex-wrap: wrap; gap: 5px; }
+.dt-chip { display: inline-grid; place-items: center; width: 30px; height: 30px; border: 2px solid var(--ink); background: var(--paper); font-size: 16px; }

@@ -49,6 +49,16 @@ export function roomDecisionTree(root) {
       <canvas id="treeCanvas" width="640" height="300"></canvas>
     </div>
 
+    <div class="panel">
+      <h4>${tx("🧠 Nhưng AI TỰ HỌC cây từ đâu?", "🧠 But where does the AI LEARN the tree?")}</h4>
+      <p class="muted">${tx(
+        "Cho AI một bảng dữ liệu, nó thử từng câu hỏi và chọn câu <b>chia dữ liệu gọn nhất</b> (mỗi nhánh càng \"thuần\" một loại càng tốt). Bấm các câu hỏi để xem chúng chia bảng ra sao — câu tốt nhất được ⭐.",
+        "Give the AI a data table; it tries each question and picks the one that <b>splits data cleanest</b> (each branch as \"pure\" as possible). Click the questions to see how they split — the best gets a ⭐."
+      )}</p>
+      <div id="splitFeatures" class="mt"></div>
+      <div id="splitView" class="mt"></div>
+    </div>
+
     <div class="takeaway">
       ${tx(
         "💡 <strong>Điều cốt lõi:</strong> Khác với mạng nơ-ron (hàng triệu con số khó hiểu), cây quyết định <em>minh bạch</em> — ai cũng kiểm tra được vì sao nó ra kết luận đó. Vì vậy nó hay được dùng ở những nơi cần giải thích rõ ràng như ngân hàng, y tế. Đánh đổi: nó thường kém linh hoạt hơn với dữ liệu phức tạp.",
@@ -165,4 +175,82 @@ export function roomDecisionTree(root) {
 
   resetBtn.onclick = () => { path = []; resetBtn.style.display = "none"; renderWalk(); };
   renderWalk();
+
+  // ---------- AI tự học: chọn câu hỏi chia dữ liệu tốt nhất ----------
+  // Dữ liệu: "có nên mang ô?" theo thời tiết & mây. label = 🌂 / 🚶
+  const DATA = [
+    { troi: "nắng", may: "ít",   nhan: "🚶" },
+    { troi: "nắng", may: "nhiều", nhan: "🚶" },
+    { troi: "mưa",  may: "nhiều", nhan: "🌂" },
+    { troi: "mưa",  may: "ít",   nhan: "🌂" },
+    { troi: "mưa",  may: "nhiều", nhan: "🌂" },
+    { troi: "nắng", may: "nhiều", nhan: "🚶" },
+    { troi: "mưa",  may: "ít",   nhan: "🌂" },
+    { troi: "nắng", may: "ít",   nhan: "🚶" },
+  ];
+  const FEATURES = [
+    { key: "troi", label: { vi: "Trời (nắng/mưa)", en: "Sky (sunny/rainy)" } },
+    { key: "may",  label: { vi: "Mây (ít/nhiều)", en: "Clouds (few/many)" } },
+  ];
+  const featLabel = (v) => tx(
+    { nắng: "nắng", mưa: "mưa", ít: "ít", nhiều: "nhiều" }[v],
+    { nắng: "sunny", mưa: "rainy", ít: "few", nhiều: "many" }[v]
+  );
+
+  // Gini impurity của một nhóm (0 = thuần khiết hoàn toàn).
+  function gini(rows) {
+    if (!rows.length) return 0;
+    const counts = {};
+    rows.forEach((r) => (counts[r.nhan] = (counts[r.nhan] || 0) + 1));
+    let sum = 0;
+    for (const k in counts) sum += (counts[k] / rows.length) ** 2;
+    return 1 - sum;
+  }
+  // Gini trung bình có trọng số sau khi chia theo feature (càng thấp càng tốt).
+  function splitGini(key) {
+    const groups = {};
+    DATA.forEach((r) => (groups[r[key]] ||= []).push(r));
+    let g = 0;
+    for (const v in groups) g += (groups[v].length / DATA.length) * gini(groups[v]);
+    return { g, groups };
+  }
+
+  const scores = FEATURES.map((f) => ({ f, ...splitGini(f.key) }));
+  const bestKey = scores.reduce((a, b) => (b.g < a.g ? b : a)).f.key;
+
+  const featEl = root.querySelector("#splitFeatures");
+  const viewEl = root.querySelector("#splitView");
+
+  function showSplit(key) {
+    const { groups, g } = splitGini(key);
+    featEl.querySelectorAll(".tag").forEach((t) => (t.style.borderColor = t.dataset.k === key ? "var(--accent)" : ""));
+    let html = `<div class="dt-split">`;
+    for (const v in groups) {
+      const rows = groups[v];
+      const chips = rows.map((r) => `<span class="dt-chip">${r.nhan}</span>`).join("");
+      const pure = gini(rows) === 0;
+      html += `<div class="dt-branch ${pure ? "pure" : ""}">
+        <div class="dt-branch-h">${featLabel(v)} <span class="muted">(${rows.length})</span> ${pure ? "✅" : ""}</div>
+        <div class="dt-chips">${chips}</div>
+      </div>`;
+    }
+    html += `</div>
+      <p class="muted mt">${tx(
+        `Độ lẫn lộn sau khi chia (Gini): <b>${g.toFixed(2)}</b> — càng gần 0 nghĩa là mỗi nhánh càng \"thuần\" một loại. ${key === bestKey ? "⭐ Đây chính là câu hỏi AI chọn đầu tiên!" : "Thử câu kia xem có gọn hơn không."}`,
+        `Impurity after split (Gini): <b>${g.toFixed(2)}</b> — closer to 0 means each branch is \"purer\". ${key === bestKey ? "⭐ This is the question the AI picks first!" : "Try the other one to see if it's cleaner."}`
+      )}</p>`;
+    viewEl.innerHTML = html;
+    if (key === bestKey) sfx.success(); else sfx.tick();
+  }
+
+  FEATURES.forEach((f) => {
+    const tag = document.createElement("span");
+    tag.className = "tag";
+    tag.dataset.k = f.key;
+    tag.textContent = (f.key === bestKey ? "⭐ " : "") + tx(f.label);
+    tag.onclick = () => showSplit(f.key);
+    featEl.appendChild(tag);
+  });
+
+  showSplit(bestKey);
 }

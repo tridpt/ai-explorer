@@ -37,6 +37,7 @@ export function roomReinforcement(root) {
           <button class="btn ghost" id="rlReset">${tx("↺ Quên hết", "↺ Forget all")}</button>
         </div>
         <button class="btn ghost mt" id="rlPlay" style="width:100%;">${tx("🤖 Xem robot tự đi", "🤖 Watch the robot go")}</button>
+        <button class="btn ghost mt" id="rlRandom" style="width:100%;">${tx("🎲 Xem robot CHƯA học (đi bừa)", "🎲 Watch an UNtrained robot (random)")}</button>
         <div class="mt">
           <div class="muted">${tx("Số lượt đã học:", "Rounds trained:")} <b id="rlEp">0</b></div>
           <div class="muted">${tx("Kết quả gần nhất:", "Latest result:")} <b id="rlResult">—</b></div>
@@ -170,6 +171,27 @@ export function roomReinforcement(root) {
       steps++;
       sfx.tick();
     }, 260);
+    window.addEventListener("roomleave", () => clearInterval(timer), { once: true });
+  };
+
+  // Robot CHƯA học: đi ngẫu nhiên hoàn toàn — để tương phản với robot đã học.
+  root.querySelector("#rlRandom").onclick = () => {
+    if (playing) return;
+    playing = true;
+    root.querySelector("#rlResult").textContent = tx("robot đi bừa…", "random walk…");
+    let [r, c] = START, steps = 0;
+    const timer = setInterval(() => {
+      draw([r, c]);
+      if (isGoal(r, c)) { clearInterval(timer); playing = false; root.querySelector("#rlResult").textContent = tx("may mà tới đích 😅", "got lucky 😅"); sfx.success(); return; }
+      if (isTrap(r, c)) { clearInterval(timer); playing = false; root.querySelector("#rlResult").textContent = tx("💥 sa bẫy (điều thường xảy ra khi chưa học)", "💥 hit a trap (typical when untrained)"); sfx.wrong(); return; }
+      if (steps > 40) { clearInterval(timer); playing = false; root.querySelector("#rlResult").textContent = tx("lạc đường, không tới nơi", "lost, never arrived"); sfx.wrong(); return; }
+      const a = (Math.random() * 4) | 0; // hoàn toàn ngẫu nhiên
+      let nr = r + ACTIONS[a][0], nc = c + ACTIONS[a][1];
+      if (nr < 0 || nr >= ROWS || nc < 0 || nc >= COLS) { nr = r; nc = c; }
+      r = nr; c = nc;
+      steps++;
+      sfx.tick();
+    }, 200);
     window.addEventListener("roomleave", () => clearInterval(timer), { once: true });
   };
 
