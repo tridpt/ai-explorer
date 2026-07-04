@@ -1,10 +1,11 @@
 // Service Worker — cache để AI Explorer chạy được cả khi offline.
-const CACHE = "ai-explorer-v8";
+const CACHE = "ai-explorer-v9";
 const ASSETS = [
   "./",
   "./index.html",
   "./style.css",
   "./app.js",
+  "./pwa.js",
   "./sound.js",
   "./store.js",
   "./i18n.js",
@@ -38,6 +39,7 @@ const ASSETS = [
   "./data/embeddings.js",
   "./icons/icon-192.png",
   "./icons/icon-512.png",
+  "./icons/icon-maskable-512.png",
 ];
 
 self.addEventListener("install", (e) => {
