@@ -43,7 +43,14 @@ const ASSETS = [
 ];
 
 self.addEventListener("install", (e) => {
-  e.waitUntil(caches.open(CACHE).then((c) => c.addAll(ASSETS)).then(() => self.skipWaiting()));
+  // Không tự skipWaiting: để worker mới "chờ" cho tới khi người dùng bấm "Tải lại"
+  // (pwa.js gửi message SKIP_WAITING). Nhờ vậy app không đổi asset giữa chừng.
+  e.waitUntil(caches.open(CACHE).then((c) => c.addAll(ASSETS)));
+});
+
+// Cho phép trang yêu cầu worker mới chiếm quyền ngay (khi người dùng đồng ý cập nhật).
+self.addEventListener("message", (e) => {
+  if (e.data === "SKIP_WAITING") self.skipWaiting();
 });
 
 self.addEventListener("activate", (e) => {
