@@ -31,6 +31,9 @@ jobs:
       - name: Install dependencies
         run: npm install
 
+      - name: Check offline cache integrity (sw.js ASSETS)
+        run: node tests/check-assets.mjs
+
       - name: Install Playwright (Chromium)
         run: npx playwright install --with-deps chromium
 

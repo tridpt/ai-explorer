@@ -6,6 +6,7 @@
   "type": "module",
   "scripts": {
     "serve": "python -m http.server 8000",
+    "check-assets": "node tests/check-assets.mjs",
     "test": "node tests/smoke.mjs"
   },
   "devDependencies": {
