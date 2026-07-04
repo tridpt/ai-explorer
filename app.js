@@ -405,6 +405,7 @@ function openSearch() {
 
   const input = overlay.querySelector("#searchInput");
   const resultsEl = overlay.querySelector("#searchResults");
+  const prevFocus = document.activeElement; // để trả lại focus khi đóng
   let matches = [];
   let active = 0;
 
@@ -468,6 +469,8 @@ function openSearch() {
   function close() {
     searchOpen = false;
     overlay.remove();
+    // Trả focus về phần tử đã mở overlay (thường là nút 🔍) để không "mất dấu" bàn phím.
+    if (prevFocus && typeof prevFocus.focus === "function") prevFocus.focus();
   }
 
   function update() {
@@ -483,6 +486,8 @@ function openSearch() {
     else if (e.key === "ArrowDown") { e.preventDefault(); active = Math.min(active + 1, matches.length - 1); highlight(); }
     else if (e.key === "ArrowUp") { e.preventDefault(); active = Math.max(active - 1, 0); highlight(); }
     else if (e.key === "Enter") { e.preventDefault(); choose(active); }
+    // Bẫy focus: ô nhập là phần tử focus duy nhất, giữ Tab/Shift+Tab quẩn trong dialog.
+    else if (e.key === "Tab") { e.preventDefault(); input.focus(); }
   });
 
   update();
