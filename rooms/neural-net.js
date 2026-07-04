@@ -79,6 +79,10 @@ export function roomNeuralNet(root) {
           <button class="btn pulse-hint" id="trainBtn">${tx("▶ Huấn luyện", "▶ Train")}</button>
           <button class="btn ghost" id="resetBtn">${tx("↺ Làm lại", "↺ Reset")}</button>
         </div>
+        <label class="nn-toggle mt" style="display:flex; align-items:center; gap:8px; cursor:pointer; font-size:14px; font-weight:600;">
+          <input type="checkbox" id="showNeurons" style="width:auto;" />
+          ${tx("👁️ Hiện đường của <b>từng nơ-ron</b>", "👁️ Show <b>each neuron's</b> line")}
+        </label>
         <div class="mt">
           <div class="muted">${tx("Số vòng học:", "Epochs:")} <b id="epochs">0</b></div>
           <div class="muted">${tx("Độ chính xác:", "Accuracy:")} <b id="acc">—</b></div>
@@ -107,6 +111,7 @@ export function roomNeuralNet(root) {
   let epochs = 0;
   let timer = null;
   let celebrated = false;
+  let showNeurons = false;
 
   const toPx = (v) => ((v + 1) / 2) * W;
 
@@ -124,6 +129,33 @@ export function roomNeuralNet(root) {
         ctx.fillRect(px, py, step, step);
       }
     }
+    // Vẽ "đường" của từng nơ-ron ẩn: mỗi nơ-ron tạo một ranh giới tuyến tính
+    // (w1·x + w2·y + b = 0). Nhiều đường thẳng này ghép lại thành đường cong.
+    if (showNeurons) {
+      ctx.save();
+      ctx.setLineDash([5, 4]);
+      ctx.lineWidth = 1.5;
+      for (let h = 0; h < net.H; h++) {
+        const [w1, w2] = net.W1[h];
+        const b = net.b1[h];
+        // giải w1*x + w2*y + b = 0 trong hệ toạ độ [-1,1]
+        const hue = Math.round((h / net.H) * 360);
+        ctx.strokeStyle = `hsla(${hue}, 85%, 60%, 0.9)`;
+        ctx.beginPath();
+        if (Math.abs(w2) > Math.abs(w1)) {
+          const yAt = (x) => -(w1 * x + b) / w2;
+          ctx.moveTo(toPx(-1), toPx(yAt(-1)));
+          ctx.lineTo(toPx(1), toPx(yAt(1)));
+        } else {
+          const xAt = (y) => -(w2 * y + b) / w1;
+          ctx.moveTo(toPx(xAt(-1)), toPx(-1));
+          ctx.lineTo(toPx(xAt(1)), toPx(1));
+        }
+        ctx.stroke();
+      }
+      ctx.restore();
+    }
+
     for (const p of data) {
       ctx.beginPath();
       ctx.arc(toPx(p.x), toPx(p.y), 4, 0, Math.PI * 2);
@@ -162,6 +194,11 @@ export function roomNeuralNet(root) {
     root.querySelector("#hVal").textContent = hRange.value;
     reset();
   };
+
+  root.querySelector("#showNeurons").addEventListener("change", (e) => {
+    showNeurons = e.target.checked;
+    draw();
+  });
 
   function reset() {
     if (timer) { clearInterval(timer); timer = null; root.querySelector("#trainBtn").textContent = tx("▶ Huấn luyện", "▶ Train"); }
