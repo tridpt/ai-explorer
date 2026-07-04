@@ -20,6 +20,7 @@ import { roomRag } from "./rooms/rag.js";
 import { roomFinetune } from "./rooms/finetune.js";
 import { roomAgents } from "./rooms/agents.js";
 import { roomMultimodal } from "./rooms/multimodal.js";
+import { roomContextWindow } from "./rooms/context-window.js";
 import { roomSummary } from "./rooms/summary.js";
 import { sfx, isMuted, setMuted } from "./sound.js";
 import { markVisited, getVisited } from "./store.js";
@@ -231,7 +232,17 @@ export const ROOMS = [
     render: roomMultimodal,
   },
   {
-    id: "summary", icon: "🎓", num: "21",
+    id: "context-window", icon: "🪟", num: "21",
+    title: { vi: "Cửa sổ ngữ cảnh", en: "The context window" },
+    question: { vi: "Vì sao AI quên đầu câu chuyện?", en: "Why does AI forget the start?" },
+    blurb: {
+      vi: "AI chỉ nhớ được một lượng token giới hạn cùng lúc. Trò chuyện dài quá, tin cũ rơi ra — và AI quên. Tự tay thấy điều đó.",
+      en: "AI only holds a limited amount of tokens at once. Chat too long and old messages fall out — the AI forgets. See it for yourself.",
+    },
+    render: roomContextWindow,
+  },
+  {
+    id: "summary", icon: "🎓", num: "22",
     title: { vi: "Bạn đã hiểu AI rồi", en: "You get AI now" },
     question: { vi: "Tổng kết hành trình", en: "Journey recap" },
     blurb: {
@@ -283,6 +294,7 @@ const SEARCH_KEYWORDS = {
   finetune: "fine-tuning finetune prompting prompt huấn luyện lại trọng số weights lora dạy thêm adapt",
   agents: "agent agents công cụ tool tool-use react planning kế hoạch nhiều bước autonomous tự động function calling",
   multimodal: "multimodal đa phương thức ảnh chữ image text vision caption clip gpt-4v gemini nhìn",
+  "context-window": "context window cửa sổ ngữ cảnh token nhớ memory quên forget lịch sử history hội thoại conversation giới hạn limit",
   summary: "summary tổng kết quiz huy hiệu badge recap ôn tập",
 };
 
@@ -308,6 +320,7 @@ const THEME = {
   finetune:    ["#f59e0b", "#a855f7", "245,158,11"],
   agents:      ["#10b981", "#6ea8fe", "16,185,129"],
   multimodal:  ["#e879f9", "#38bdf8", "232,121,249"],
+  "context-window": ["#f59e0b", "#22d3ee", "245,158,11"],
   summary:     ["#34d399", "#6ea8fe", "52,211,153"],
 };
 
@@ -367,6 +380,7 @@ const HINTS = {
   finetune: { vi: "👉 So sánh <b>Prompting</b> và <b>Fine-tuning</b> — bấm qua lại để thấy khác biệt.", en: "👉 Compare <b>Prompting</b> vs <b>Fine-tuning</b> — toggle to see the difference." },
   agents: { vi: "👉 Giao một nhiệm vụ để xem agent <b>lên kế hoạch</b> và tự gọi công cụ từng bước.", en: "👉 Give a task to watch the agent <b>plan</b> and call tools step by step." },
   multimodal: { vi: "👉 Chọn một ảnh để xem AI vừa <b>nhìn</b> vừa <b>đọc chữ</b> và mô tả nó.", en: "👉 Pick an image to see the AI <b>see</b> and <b>read</b> it, then describe it." },
+  "context-window": { vi: "👉 Bấm <b>+ Thêm tin nhắn</b> vài lần, rồi bấm <b>Hỏi lại</b> — xem AI có còn nhớ tin đầu không.", en: "👉 Click <b>+ Add message</b> a few times, then <b>Ask again</b> — see if the AI still remembers the first message." },
   summary: { vi: "👉 Cuộn xuống cuối để làm <b>quiz</b> và nhận huy hiệu nhé!", en: "👉 Scroll down to take the <b>quiz</b> and earn your badge!" },
 };
 const hintsShown = new Set();

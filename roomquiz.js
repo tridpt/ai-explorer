@@ -206,6 +206,16 @@ const BANK = {
       correct: 0,
     },
   ],
+  "context-window": [
+    {
+      q: { vi: "Vì sao chatbot đôi khi \"quên\" điều bạn nói lúc đầu?", en: "Why does a chatbot sometimes 'forget' what you said early on?" },
+      opts: {
+        vi: ["Tin nhắn cũ rơi ra khỏi cửa sổ ngữ cảnh có giới hạn", "Vì nó cố tình lờ đi", "Vì internet bị chậm"],
+        en: ["Old messages fall out of its limited context window", "It ignores you on purpose", "The internet is slow"],
+      },
+      correct: 0,
+    },
+  ],
 };
 
 const UI = {

@@ -775,3 +775,32 @@ textarea:focus-visible,
   flex: 0 0 auto;
 }
 .tc-see p { flex: 1; margin: 0; }
+
+/* ---------- Cửa sổ ngữ cảnh (context window) ---------- */
+.cw-chat { display: flex; flex-direction: column; gap: 8px; }
+.cw-msg { display: flex; transition: opacity 0.2s ease; }
+.cw-msg.user { justify-content: flex-end; }
+.cw-msg.bot { justify-content: flex-start; }
+.cw-bubble {
+  display: inline-flex; align-items: baseline; gap: 8px;
+  max-width: 80%;
+  border: 2px solid var(--ink);
+  padding: 8px 11px;
+  font-size: 14px; font-weight: 500;
+  box-shadow: var(--sh-sm);
+}
+.cw-msg.user .cw-bubble { background: var(--accent); color: #fff; }
+.cw-msg.bot .cw-bubble { background: var(--paper); }
+.cw-msg.dropped { opacity: 0.32; }
+.cw-msg.dropped .cw-bubble { box-shadow: none; border-style: dashed; text-decoration: line-through; }
+.cw-tk { font-family: "Space Mono", monospace; font-size: 11px; font-weight: 700; opacity: 0.75; white-space: nowrap; flex: 0 0 auto; }
+.cw-window-line {
+  text-align: center; font-size: 12px; font-weight: 700;
+  color: var(--accent-ink);
+  border-top: 2px dashed var(--accent-ink);
+  padding-top: 6px; margin: 4px 0 2px;
+}
+.cw-answer { border: 2px solid var(--ink); padding: 11px 13px; background: var(--paper); font-weight: 500; }
+.cw-answer:empty { display: none; }
+.cw-answer.ok { background: rgba(0, 179, 74, 0.12); }
+.cw-answer.lost { background: #fff0f0; }
