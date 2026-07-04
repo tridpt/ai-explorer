@@ -102,7 +102,7 @@ export function roomTokenizer(root) {
     out.innerHTML = tokens
       .map((t, i) => {
         const c = COLORS[i % COLORS.length];
-        return `<span class="tok" style="background:${c}22; border:1px solid ${c}66; color:#f4f2fb">${t.replace(/ /g, "·")}</span>`;
+        return `<span class="tok" style="background:${c}33; border:1px solid ${c}; color:var(--ink); font-weight:700">${t.replace(/ /g, "·")}</span>`;
       })
       .join("");
     root.querySelector("#tkChars").textContent = text.length;
