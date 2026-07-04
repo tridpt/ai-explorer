@@ -46,6 +46,12 @@ jobs:
       - name: Run smoke test (21 phòng)
         run: node tests/smoke.mjs
 
+      - name: Test focus-trap ô tìm kiếm (a11y)
+        run: node tests/focus-trap.mjs
+
+      - name: Test PWA (service worker + toast cập nhật)
+        run: node tests/pwa.mjs
+
   deploy:
     needs: test
     environment:

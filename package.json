@@ -7,7 +7,9 @@
   "scripts": {
     "serve": "python -m http.server 8000",
     "check-assets": "node tests/check-assets.mjs",
-    "test": "node tests/smoke.mjs"
+    "test": "node tests/smoke.mjs",
+    "test:focus": "node tests/focus-trap.mjs",
+    "test:pwa": "node tests/pwa.mjs"
   },
   "devDependencies": {
     "playwright": "^1.48.0"
