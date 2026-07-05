@@ -7,6 +7,7 @@
   "scripts": {
     "serve": "python -m http.server 8000",
     "check-assets": "node tests/check-assets.mjs",
+    "test:i18n": "node tests/i18n.mjs",
     "test": "node tests/smoke.mjs",
     "test:focus": "node tests/focus-trap.mjs",
     "test:pwa": "node tests/pwa.mjs"

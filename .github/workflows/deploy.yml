@@ -34,6 +34,9 @@ jobs:
       - name: Check offline cache integrity (sw.js ASSETS)
         run: node tests/check-assets.mjs
 
+      - name: Check bilingual integrity (vi/en)
+        run: node tests/i18n.mjs
+
       - name: Install Playwright (Chromium)
         run: npx playwright install --with-deps chromium
 
