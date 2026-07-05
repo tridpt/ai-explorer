@@ -226,6 +226,16 @@ const BANK = {
       correct: 0,
     },
   ],
+  rlhf: [
+    {
+      q: { vi: "RLHF dạy AI trả lời hợp ý người bằng cách nào?", en: "How does RLHF teach an AI to answer the way people want?" },
+      opts: {
+        vi: ["Con người xếp hạng các câu trả lời, AI học theo sở thích đó", "Nhồi thêm thật nhiều dữ liệu thô", "Tăng tốc độ phần cứng"],
+        en: ["Humans rank answers and the AI learns those preferences", "Cram in more raw data", "Speed up the hardware"],
+      },
+      correct: 0,
+    },
+  ],
 };
 
 const UI = {

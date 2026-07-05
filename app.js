@@ -22,6 +22,7 @@ import { roomAgents } from "./rooms/agents.js";
 import { roomMultimodal } from "./rooms/multimodal.js";
 import { roomContextWindow } from "./rooms/context-window.js";
 import { roomPromptInjection } from "./rooms/prompt-injection.js";
+import { roomRlhf } from "./rooms/rlhf.js";
 import { roomSummary } from "./rooms/summary.js";
 import { sfx, isMuted, setMuted } from "./sound.js";
 import { markVisited, getVisited } from "./store.js";
@@ -253,7 +254,17 @@ export const ROOMS = [
     render: roomPromptInjection,
   },
   {
-    id: "summary", icon: "🎓", num: "23",
+    id: "rlhf", icon: "👍", num: "23",
+    title: { vi: "Dạy AI cư xử cho phải", en: "Teaching AI to behave" },
+    question: { vi: "Sao AI biết trả lời 'dễ nghe'?", en: "How does AI learn to be helpful?" },
+    blurb: {
+      vi: "AI thô ban đầu nói năng lộn xộn. Bạn xếp hạng câu nào hay hơn, một 'mô hình phần thưởng' học theo gu bạn, rồi AI được tinh chỉnh để trả lời như bạn muốn — đó là RLHF.",
+      en: "A raw AI answers messily. You rank which reply is better, a 'reward model' learns your taste, then the AI is tuned to answer the way you want — that's RLHF.",
+    },
+    render: roomRlhf,
+  },
+  {
+    id: "summary", icon: "🎓", num: "24",
     title: { vi: "Bạn đã hiểu AI rồi", en: "You get AI now" },
     question: { vi: "Tổng kết hành trình", en: "Journey recap" },
     blurb: {
@@ -307,6 +318,7 @@ const SEARCH_KEYWORDS = {
   multimodal: "multimodal đa phương thức ảnh chữ image text vision caption clip gpt-4v gemini nhìn",
   "context-window": "context window cửa sổ ngữ cảnh token nhớ memory quên forget lịch sử history hội thoại conversation giới hạn limit",
   "prompt-injection": "prompt injection jailbreak đánh lừa an toàn safety security system prompt chỉ dẫn hệ thống bảo mật tấn công attack bỏ qua ignore lộ bí mật secret",
+  rlhf: "rlhf reinforcement learning human feedback phản hồi con người xếp hạng reward model phần thưởng căn chỉnh alignment huấn luyện chatgpt lịch sự hữu ích preference so sánh",
   summary: "summary tổng kết quiz huy hiệu badge recap ôn tập",
 };
 
@@ -334,6 +346,7 @@ const THEME = {
   multimodal:  ["#e879f9", "#38bdf8", "232,121,249"],
   "context-window": ["#f59e0b", "#22d3ee", "245,158,11"],
   "prompt-injection": ["#ef4444", "#f43f5e", "239,68,68"],
+  rlhf:        ["#10b981", "#fbbf24", "16,185,129"],
   summary:     ["#34d399", "#6ea8fe", "52,211,153"],
 };
 
@@ -395,6 +408,7 @@ const HINTS = {
   multimodal: { vi: "👉 Chọn một ảnh để xem AI vừa <b>nhìn</b> vừa <b>đọc chữ</b> và mô tả nó.", en: "👉 Pick an image to see the AI <b>see</b> and <b>read</b> it, then describe it." },
   "context-window": { vi: "👉 Bấm <b>+ Thêm tin nhắn</b> vài lần, rồi bấm <b>Hỏi lại</b> — xem AI có còn nhớ tin đầu không.", en: "👉 Click <b>+ Add message</b> a few times, then <b>Ask again</b> — see if the AI still remembers the first message." },
   "prompt-injection": { vi: "👉 Chọn một chiêu 😈, <b>tắt</b> lớp phòng thủ rồi Gửi — xem AI lộ bí mật. Sau đó bật lại và thử.", en: "👉 Pick an attack 😈, turn <b>off</b> defenses and Send — watch the AI leak. Then turn it back on and retry." },
+  rlhf: { vi: "👉 Với mỗi cặp câu trả lời, bấm chọn cái bạn thấy tốt hơn — vài vòng là AI học được 'gu' của bạn.", en: "👉 For each pair of replies, click the one you prefer — a few rounds and the AI learns your 'taste'." },
   summary: { vi: "👉 Cuộn xuống cuối để làm <b>quiz</b> và nhận huy hiệu nhé!", en: "👉 Scroll down to take the <b>quiz</b> and earn your badge!" },
 };
 const hintsShown = new Set();
