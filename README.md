@@ -97,12 +97,17 @@ ai-explorer/
 │   ├── neural-net.js   # MLP 2→H→1 huấn luyện trên trình duyệt
 │   ├── overfitting.js  # Học vẹt vs hiểu thật (train vs test)
 │   ├── decision-tree.js# Cây quyết định tương tác
+│   ├── reinforcement.js# Học tăng cường: robot học đường tới đích qua thưởng/phạt
+│   ├── clustering.js   # Học không giám sát: k-means tự gom nhóm
 │   ├── tokenizer.js    # Cắt token + đếm chi phí
 │   ├── embeddings.js   # Bản đồ từ + phép loại suy
 │   ├── attention.js    # Trực quan hóa attention
 │   ├── next-token.js   # Mô hình bigram/trigram sinh chữ
 │   ├── diffusion.js    # Mô phỏng tạo ảnh từ nhiễu
+│   ├── recommendation.js # Hệ gợi ý: thích/bỏ qua → đoán gu (TikTok/Netflix)
 │   ├── bias.js         # Liên tưởng giới tính theo nghề
+│   ├── adversarial.js  # Nhiễu vô hình khiến AI nhìn sai (adversarial)
+│   ├── turing.js       # Người hay AI viết? — rèn con mắt phân biệt
 │   ├── chatbot.js      # Chatbot mini + pipeline trực quan
 │   ├── rag.js          # RAG: tra kho tài liệu rồi trả lời có dẫn nguồn
 │   ├── finetune.js     # Prompting vs Fine-tuning: so sánh + quiz tình huống

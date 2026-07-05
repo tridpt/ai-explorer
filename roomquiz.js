@@ -2,7 +2,7 @@
 // app.js gọi renderMicroQuiz(container, roomId) để chèn khối câu hỏi.
 import { sfx } from "./sound.js";
 import { tx } from "./i18n.js";
-import { markMicroQuiz, getMicroCorrect } from "./store.js";
+import { markMicroQuiz, getMicroSolved } from "./store.js";
 
 // Ngân hàng câu hỏi: mỗi phòng 1–2 câu ngắn. correct = chỉ số đáp án đúng.
 const BANK = {
@@ -244,14 +244,14 @@ export function renderMicroQuiz(container, roomId) {
   container.appendChild(panel);
 
   const list = panel.querySelector(".mq-list");
-  const alreadyDone = getMicroCorrect(roomId);
+  const solved = getMicroSolved(roomId); // tập chỉ số câu đã trả lời đúng
 
   questions.forEach((item, qi) => {
     const block = document.createElement("div");
     block.className = "quiz-q";
     block.innerHTML = `<div class="q-text">${tx(item.q)}</div>`;
     const opts = tx(item.opts);
-    const solvedBefore = qi < alreadyDone; // đã đúng ở lần trước (đơn giản hóa theo số câu)
+    const solvedBefore = solved.has(qi); // đúng chính xác câu qi ở lần trước
     opts.forEach((opt, oi) => {
       const btn = document.createElement("button");
       btn.className = "quiz-opt";

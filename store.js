@@ -62,9 +62,9 @@ export function markMicroQuiz(roomId, qIndex) {
   }
 }
 
-// Số câu nhỏ đã trả lời đúng ở một phòng.
-export function getMicroCorrect(roomId) {
-  return (load().quizAnswered[roomId] || []).length;
+// Tập chỉ số các câu nhỏ đã trả lời đúng ở một phòng (dùng để đánh dấu đúng câu).
+export function getMicroSolved(roomId) {
+  return new Set(load().quizAnswered[roomId] || []);
 }
 
 // Tổng số câu nhỏ đã trả lời đúng trên toàn hành trình.
