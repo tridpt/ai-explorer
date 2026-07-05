@@ -1,6 +1,6 @@
 // Trang chủ — song ngữ
 import { getVisited, getBestScore, getTrack, setTrack, getMicroTotal } from "../store.js";
-import { getLang, tx } from "../i18n.js";
+import { tx } from "../i18n.js";
 import { TRACKS, trackRoomIds } from "../tracks.js";
 
 const S = {

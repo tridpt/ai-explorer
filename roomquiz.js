@@ -223,6 +223,7 @@ const UI = {
   sub: { vi: "Trả lời đúng để cộng vào điểm hành trình của bạn.", en: "Answer correctly to add to your journey score." },
   done: { vi: "🎉 Chuẩn! Đã ghi điểm.", en: "🎉 Correct! Point recorded." },
   already: { vi: "Bạn đã trả lời đúng câu này rồi 👍", en: "You already got this one 👍" },
+  wrong: { vi: "Chưa đúng — đáp án đúng đã được tô sáng.", en: "Not quite — the correct answer is highlighted." },
 };
 
 export function hasMicroQuiz(roomId) {
@@ -272,7 +273,7 @@ export function renderMicroQuiz(container, roomId) {
           btn.classList.add("wrong");
           block.querySelectorAll(".quiz-opt")[item.correct].classList.add("correct");
           sfx.wrong();
-          note.textContent = tx(item.q).length ? tx(UI.sub) : "";
+          note.textContent = tx(UI.wrong);
         }
         if (!block.querySelector(".mq-note")) block.appendChild(note);
       };
