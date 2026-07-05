@@ -21,6 +21,7 @@ import { roomFinetune } from "./rooms/finetune.js";
 import { roomAgents } from "./rooms/agents.js";
 import { roomMultimodal } from "./rooms/multimodal.js";
 import { roomContextWindow } from "./rooms/context-window.js";
+import { roomPromptInjection } from "./rooms/prompt-injection.js";
 import { roomSummary } from "./rooms/summary.js";
 import { sfx, isMuted, setMuted } from "./sound.js";
 import { markVisited, getVisited } from "./store.js";
@@ -242,7 +243,17 @@ export const ROOMS = [
     render: roomContextWindow,
   },
   {
-    id: "summary", icon: "🎓", num: "22",
+    id: "prompt-injection", icon: "🛡️", num: "22",
+    title: { vi: "Đánh lừa trợ lý AI", en: "Hijacking an AI assistant" },
+    question: { vi: "Có thể lừa AI làm trái lệnh không?", en: "Can you make an AI break its rules?" },
+    blurb: {
+      vi: "Đóng vai kẻ tấn công: nhét 'câu lệnh lén' vào tin nhắn để moi bí mật của trợ lý AI — và xem lớp phòng thủ chặn được tới đâu. Đây là prompt injection.",
+      en: "Play the attacker: slip a 'sneaky instruction' into a message to extract an AI assistant's secret — and see how far defenses hold. This is prompt injection.",
+    },
+    render: roomPromptInjection,
+  },
+  {
+    id: "summary", icon: "🎓", num: "23",
     title: { vi: "Bạn đã hiểu AI rồi", en: "You get AI now" },
     question: { vi: "Tổng kết hành trình", en: "Journey recap" },
     blurb: {
@@ -295,6 +306,7 @@ const SEARCH_KEYWORDS = {
   agents: "agent agents công cụ tool tool-use react planning kế hoạch nhiều bước autonomous tự động function calling",
   multimodal: "multimodal đa phương thức ảnh chữ image text vision caption clip gpt-4v gemini nhìn",
   "context-window": "context window cửa sổ ngữ cảnh token nhớ memory quên forget lịch sử history hội thoại conversation giới hạn limit",
+  "prompt-injection": "prompt injection jailbreak đánh lừa an toàn safety security system prompt chỉ dẫn hệ thống bảo mật tấn công attack bỏ qua ignore lộ bí mật secret",
   summary: "summary tổng kết quiz huy hiệu badge recap ôn tập",
 };
 
@@ -321,6 +333,7 @@ const THEME = {
   agents:      ["#10b981", "#6ea8fe", "16,185,129"],
   multimodal:  ["#e879f9", "#38bdf8", "232,121,249"],
   "context-window": ["#f59e0b", "#22d3ee", "245,158,11"],
+  "prompt-injection": ["#ef4444", "#f43f5e", "239,68,68"],
   summary:     ["#34d399", "#6ea8fe", "52,211,153"],
 };
 
@@ -381,6 +394,7 @@ const HINTS = {
   agents: { vi: "👉 Giao một nhiệm vụ để xem agent <b>lên kế hoạch</b> và tự gọi công cụ từng bước.", en: "👉 Give a task to watch the agent <b>plan</b> and call tools step by step." },
   multimodal: { vi: "👉 Chọn một ảnh để xem AI vừa <b>nhìn</b> vừa <b>đọc chữ</b> và mô tả nó.", en: "👉 Pick an image to see the AI <b>see</b> and <b>read</b> it, then describe it." },
   "context-window": { vi: "👉 Bấm <b>+ Thêm tin nhắn</b> vài lần, rồi bấm <b>Hỏi lại</b> — xem AI có còn nhớ tin đầu không.", en: "👉 Click <b>+ Add message</b> a few times, then <b>Ask again</b> — see if the AI still remembers the first message." },
+  "prompt-injection": { vi: "👉 Chọn một chiêu 😈, <b>tắt</b> lớp phòng thủ rồi Gửi — xem AI lộ bí mật. Sau đó bật lại và thử.", en: "👉 Pick an attack 😈, turn <b>off</b> defenses and Send — watch the AI leak. Then turn it back on and retry." },
   summary: { vi: "👉 Cuộn xuống cuối để làm <b>quiz</b> và nhận huy hiệu nhé!", en: "👉 Scroll down to take the <b>quiz</b> and earn your badge!" },
 };
 const hintsShown = new Set();

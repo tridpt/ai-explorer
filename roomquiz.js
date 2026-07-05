@@ -216,6 +216,16 @@ const BANK = {
       correct: 0,
     },
   ],
+  "prompt-injection": [
+    {
+      q: { vi: "Vì sao prompt injection lừa được AI?", en: "Why does prompt injection work on AI?" },
+      opts: {
+        vi: ["AI đọc chỉ dẫn gốc và lời người dùng chung một dòng chữ, khó tách bạch", "AI cố tình làm sai", "Do lỗi phần cứng"],
+        en: ["The AI reads system and user text as one stream, hard to separate", "The AI misbehaves on purpose", "A hardware bug"],
+      },
+      correct: 0,
+    },
+  ],
 };
 
 const UI = {
