@@ -23,6 +23,7 @@ import { roomMultimodal } from "./rooms/multimodal.js";
 import { roomContextWindow } from "./rooms/context-window.js";
 import { roomPromptInjection } from "./rooms/prompt-injection.js";
 import { roomRlhf } from "./rooms/rlhf.js";
+import { roomEnergy } from "./rooms/energy.js";
 import { roomSummary } from "./rooms/summary.js";
 import { sfx, isMuted, setMuted } from "./sound.js";
 import { markVisited, getVisited } from "./store.js";
@@ -264,7 +265,17 @@ export const ROOMS = [
     render: roomRlhf,
   },
   {
-    id: "summary", icon: "🎓", num: "24",
+    id: "energy", icon: "⚡", num: "24",
+    title: { vi: "AI ngốn bao nhiêu điện?", en: "How much power does AI use?" },
+    question: { vi: "Dùng AI tốn năng lượng cỡ nào?", en: "What does using AI cost in energy?" },
+    blurb: {
+      vi: "Mỗi câu hỏi AI đều tốn điện. Tự tay 'chạy' vài tác vụ, xem năng lượng cộng dồn quy ra sạc điện thoại hay đun nước — rồi nhân với hàng triệu người dùng.",
+      en: "Every AI query burns power. 'Run' a few tasks yourself, see the energy add up in phone-charges or kettles — then multiply by millions of users.",
+    },
+    render: roomEnergy,
+  },
+  {
+    id: "summary", icon: "🎓", num: "25",
     title: { vi: "Bạn đã hiểu AI rồi", en: "You get AI now" },
     question: { vi: "Tổng kết hành trình", en: "Journey recap" },
     blurb: {
@@ -319,6 +330,7 @@ const SEARCH_KEYWORDS = {
   "context-window": "context window cửa sổ ngữ cảnh token nhớ memory quên forget lịch sử history hội thoại conversation giới hạn limit",
   "prompt-injection": "prompt injection jailbreak đánh lừa an toàn safety security system prompt chỉ dẫn hệ thống bảo mật tấn công attack bỏ qua ignore lộ bí mật secret",
   rlhf: "rlhf reinforcement learning human feedback phản hồi con người xếp hạng reward model phần thưởng căn chỉnh alignment huấn luyện chatgpt lịch sự hữu ích preference so sánh",
+  energy: "energy điện năng lượng power tốn điện chi phí carbon co2 môi trường environment gpu data center trung tâm dữ liệu quy mô scale watt kwh nước làm mát",
   summary: "summary tổng kết quiz huy hiệu badge recap ôn tập",
 };
 
@@ -347,6 +359,7 @@ const THEME = {
   "context-window": ["#f59e0b", "#22d3ee", "245,158,11"],
   "prompt-injection": ["#ef4444", "#f43f5e", "239,68,68"],
   rlhf:        ["#10b981", "#fbbf24", "16,185,129"],
+  energy:      ["#f59e0b", "#84cc16", "245,158,11"],
   summary:     ["#34d399", "#6ea8fe", "52,211,153"],
 };
 
@@ -409,6 +422,7 @@ const HINTS = {
   "context-window": { vi: "👉 Bấm <b>+ Thêm tin nhắn</b> vài lần, rồi bấm <b>Hỏi lại</b> — xem AI có còn nhớ tin đầu không.", en: "👉 Click <b>+ Add message</b> a few times, then <b>Ask again</b> — see if the AI still remembers the first message." },
   "prompt-injection": { vi: "👉 Chọn một chiêu 😈, <b>tắt</b> lớp phòng thủ rồi Gửi — xem AI lộ bí mật. Sau đó bật lại và thử.", en: "👉 Pick an attack 😈, turn <b>off</b> defenses and Send — watch the AI leak. Then turn it back on and retry." },
   rlhf: { vi: "👉 Với mỗi cặp câu trả lời, bấm chọn cái bạn thấy tốt hơn — vài vòng là AI học được 'gu' của bạn.", en: "👉 For each pair of replies, click the one you prefer — a few rounds and the AI learns your 'taste'." },
+  energy: { vi: "👉 Bấm chạy vài tác vụ AI, rồi kéo thanh <b>quy mô</b> lên hàng triệu người — xem điện cộng dồn thành gì.", en: "👉 Run a few AI tasks, then drag the <b>scale</b> slider up to millions of users — watch the energy add up." },
   summary: { vi: "👉 Cuộn xuống cuối để làm <b>quiz</b> và nhận huy hiệu nhé!", en: "👉 Scroll down to take the <b>quiz</b> and earn your badge!" },
 };
 const hintsShown = new Set();

@@ -9,14 +9,14 @@
 </p>
 
 <p align="center">
-  <img alt="rooms" src="https://img.shields.io/badge/ph%C3%B2ng-24-6ea8fe" />
+  <img alt="rooms" src="https://img.shields.io/badge/ph%C3%B2ng-25-6ea8fe" />
   <img alt="languages" src="https://img.shields.io/badge/ng%C3%B4n%20ng%E1%BB%AF-VN%20%2F%20EN-b07bff" />
   <img alt="pwa" src="https://img.shields.io/badge/PWA-c%C3%A0i%20%C4%91%C6%B0%E1%BB%A3c-34d399" />
   <img alt="backend" src="https://img.shields.io/badge/backend-kh%C3%B4ng%20c%E1%BA%A7n-f59e0b" />
 </p>
 
 Một "bảo tàng AI tương tác" chạy **hoàn toàn trên trình duyệt** — không cần server backend,
-không cần API key. Bạn đi qua 24 "phòng", mỗi phòng giải thích trực quan một khái niệm cốt lõi
+không cần API key. Bạn đi qua 25 "phòng", mỗi phòng giải thích trực quan một khái niệm cốt lõi
 về AI và cho **tự tay nghịch**: dạy AI qua webcam, huấn luyện mạng nơ-ron, xem AI tạo ảnh,
 trò chuyện với chatbot mini, cho AI tra tài liệu (RAG), xem agent tự gọi công cụ... Song ngữ
 Việt–Anh, cài được như app, chạy cả khi offline.
@@ -57,7 +57,8 @@ Việt–Anh, cài được như app, chạy cả khi offline.
 | 21 | 🪟 Cửa sổ ngữ cảnh | Vì sao AI "quên" đầu câu chuyện? (context window) |
 | 22 | 🛡️ Đánh lừa AI bằng lời | Prompt injection — vì sao "câu lệnh lén" lừa được AI |
 | 23 | 👍 Dạy AI cư xử cho phải | RLHF — con người chấm điểm, AI học trả lời hữu ích & tử tế |
-| 24 | 🎓 Tổng kết | Quiz + huy hiệu hoàn thành |
+| 24 | ⚡ AI ngốn bao nhiêu điện? | Chi phí năng lượng của AI — nhỏ mỗi lượt, lớn khi nhân triệu người |
+| 25 | 🎓 Tổng kết | Quiz + huy hiệu hoàn thành |
 
 ## Cách chạy
 
@@ -118,6 +119,7 @@ ai-explorer/
 │   ├── context-window.js # Cửa sổ ngữ cảnh: token cũ rơi ra → AI "quên"
 │   ├── prompt-injection.js # Prompt injection & an toàn: câu lệnh lén lừa AI, bật/tắt phòng thủ
 │   ├── rlhf.js         # RLHF: con người chấm điểm → mô hình thưởng → AI học cư xử
+│   ├── energy.js       # Vì sao AI tốn điện: chạy tác vụ, quy đổi năng lượng, nhân quy mô
 │   └── summary.js      # Tổng kết + quiz + huy hiệu + chia sẻ
 └── data/
     └── embeddings.js   # Vector 2D tính sẵn cho các từ
@@ -125,7 +127,7 @@ ai-explorer/
 
 ## Tính năng
 
-- 24 phòng tương tác, mỗi phòng một tông màu chủ đề.
+- 25 phòng tương tác, mỗi phòng một tông màu chủ đề.
 - Giao diện Neo-brutalism (viền đen dày, bóng cứng, khối màu rực).
 - **Lộ trình học theo cấp độ**: chọn *Người mới* (5 phòng cốt lõi), *Đầy đủ*, hay *Cho lập trình viên* — không bị choáng với hơn 20 phòng.
 - **Quiz nhỏ rải rác** ở cuối mỗi phòng ("kiểm tra hiểu bài"), cộng dồn vào điểm hành trình.

@@ -236,6 +236,16 @@ const BANK = {
       correct: 0,
     },
   ],
+  energy: [
+    {
+      q: { vi: "Vì sao AI tốn nhiều điện đáng kể?", en: "Why does AI use significant electricity?" },
+      opts: {
+        vi: ["Mỗi lượt dùng tốn ít, nhưng nhân với hàng triệu người thì rất lớn", "Vì màn hình sáng hơn", "AI không tốn điện gì cả"],
+        en: ["Each use is small, but times millions of people it's huge", "Because screens get brighter", "AI uses no electricity at all"],
+      },
+      correct: 0,
+    },
+  ],
 };
 
 const UI = {
