@@ -5,6 +5,26 @@ import { tx } from "../i18n.js";
 
 const WORDS = Object.keys(WORD_VECTORS);
 
+// Nhóm nghĩa (để tô vùng màu mờ trên bản đồ). Mỗi cụm một tông màu.
+const CLUSTERS = [
+  {
+    color: "110,168,254", // xanh dương — con người
+    label: { vi: "Con người", en: "People" },
+    words: ["đàn ông", "đàn bà", "vua", "nữ hoàng", "hoàng tử", "công chúa",
+            "cha", "mẹ", "con trai", "con gái", "anh", "chị", "ông", "bà"],
+  },
+  {
+    color: "251,146,60", // cam — động vật
+    label: { vi: "Động vật", en: "Animals" },
+    words: ["chó", "mèo", "hổ", "sư tử", "chim"],
+  },
+  {
+    color: "52,211,153", // xanh lá — món ăn
+    label: { vi: "Món ăn", en: "Foods" },
+    words: ["cơm", "phở", "bánh mì", "bún"],
+  },
+];
+
 // Nhãn tiếng Anh cho các từ (khóa nội bộ vẫn là tiếng Việt)
 const EN = {
   "đàn ông": "man", "đàn bà": "woman", "vua": "king", "nữ hoàng": "queen",
@@ -39,10 +59,10 @@ export function roomEmbeddings(root) {
     <div class="row">
       <div class="panel" style="flex: 1.4;">
         <h4>${tx("🗺️ Bản đồ từ ngữ", "🗺️ Word map")}</h4>
-        <canvas id="embCanvas" width="640" height="460"></canvas>
+        <canvas id="embCanvas" width="720" height="520" style="width:100%;"></canvas>
         <p class="muted mt">${tx(
-          "Để ý: người ở giữa, động vật một góc, món ăn một góc — những thứ giống nhau tự xúm lại.",
-          "Notice: people in the middle, animals in one corner, foods in another — similar things cluster."
+          "Để ý: người ở giữa, động vật một góc, món ăn một góc — những thứ giống nhau tự xúm lại. 👉 Thử <b>kéo một từ</b> thả vào ô phép toán bên phải.",
+          "Notice: people in the middle, animals in one corner, foods in another — similar things cluster. 👉 Try <b>dragging a word</b> onto a slot on the right."
         )}</p>
       </div>
 
@@ -119,9 +139,33 @@ export function roomEmbeddings(root) {
     ctx.restore();
   }
 
+  // Vẽ vùng màu mờ ôm quanh các từ của một cụm (dùng nhiều vòng tròn blur chồng lên).
+  function drawClusterBlob(cl) {
+    const pts = cl.words.map((w) => toPx(WORD_VECTORS[w]));
+    let cx = 0, cy = 0;
+    pts.forEach(([x, y]) => { cx += x; cy += y; });
+    cx /= pts.length; cy /= pts.length;
+    let rad = 0;
+    pts.forEach(([x, y]) => { rad = Math.max(rad, Math.hypot(x - cx, y - cy)); });
+    rad += 42;
+    const g = ctx.createRadialGradient(cx, cy, rad * 0.2, cx, cy, rad);
+    g.addColorStop(0, `rgba(${cl.color},0.20)`);
+    g.addColorStop(1, `rgba(${cl.color},0)`);
+    ctx.fillStyle = g;
+    ctx.beginPath(); ctx.arc(cx, cy, rad, 0, Math.PI * 2); ctx.fill();
+    return { cx, cy, rad };
+  }
+
   function draw() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.strokeStyle = "rgba(255,255,255,0.04)";
+    // Nền gradient tối để bản đồ trông có chiều sâu.
+    const bg = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+    bg.addColorStop(0, "#181828");
+    bg.addColorStop(1, "#0f1420");
+    ctx.fillStyle = bg;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Lưới mờ.
+    ctx.strokeStyle = "rgba(255,255,255,0.035)";
     ctx.lineWidth = 1;
     for (let i = 0; i <= 10; i++) {
       const x = (i / 10) * canvas.width;
@@ -130,18 +174,43 @@ export function roomEmbeddings(root) {
       ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); ctx.stroke();
     }
 
+    // Vùng cụm nghĩa + nhãn cụm.
+    ctx.textAlign = "left";
+    for (const cl of CLUSTERS) {
+      const { cx, cy, rad } = drawClusterBlob(cl);
+      ctx.font = "700 12px Inter, sans-serif";
+      ctx.fillStyle = `rgba(${cl.color},0.85)`;
+      const t = tx(cl.label);
+      const tw = ctx.measureText(t).width;
+      ctx.fillText(t, cx - tw / 2, cy - rad + 16);
+    }
+
     // Các từ tham gia phép loại suy được tô nổi bật.
     const involved = highlight ? new Set([highlight.a, highlight.b, highlight.c, highlight.ans]) : new Set();
 
-    ctx.font = "13px Inter, sans-serif";
     for (const w of WORDS) {
       const [px, py] = toPx(WORD_VECTORS[w]);
       const hot = involved.has(w);
-      ctx.fillStyle = hot ? "#b07bff" : "rgba(110,168,254,0.5)";
-      ctx.beginPath(); ctx.arc(px, py, hot ? 5 : 4, 0, Math.PI * 2); ctx.fill();
-      ctx.fillStyle = hot ? "#fff" : "rgba(232,236,246,0.55)";
-      ctx.font = hot ? "bold 13px Inter, sans-serif" : "13px Inter, sans-serif";
-      ctx.fillText(label(w), px + 7, py + 4);
+      // Quầng sáng dưới điểm.
+      const glow = ctx.createRadialGradient(px, py, 0, px, py, hot ? 16 : 10);
+      glow.addColorStop(0, hot ? "rgba(176,123,255,0.55)" : "rgba(110,168,254,0.32)");
+      glow.addColorStop(1, "rgba(0,0,0,0)");
+      ctx.fillStyle = glow;
+      ctx.beginPath(); ctx.arc(px, py, hot ? 16 : 10, 0, Math.PI * 2); ctx.fill();
+      // Điểm.
+      ctx.fillStyle = hot ? "#c79bff" : "#6ea8fe";
+      ctx.beginPath(); ctx.arc(px, py, hot ? 5.5 : 3.5, 0, Math.PI * 2); ctx.fill();
+      ctx.strokeStyle = "rgba(255,255,255,0.7)"; ctx.lineWidth = hot ? 1.5 : 0.75;
+      ctx.stroke();
+      // Nhãn có nền pill để dễ đọc.
+      ctx.font = hot ? "bold 13px Inter, sans-serif" : "12px Inter, sans-serif";
+      const text = label(w);
+      const tw = ctx.measureText(text).width;
+      const lx = px + 8, ly = py + 4;
+      ctx.fillStyle = hot ? "rgba(176,123,255,0.9)" : "rgba(20,20,32,0.6)";
+      ctx.fillRect(lx - 3, ly - 11, tw + 6, 15);
+      ctx.fillStyle = hot ? "#fff" : "rgba(232,236,246,0.9)";
+      ctx.fillText(text, lx, ly);
     }
 
     if (highlight) {
@@ -211,5 +280,88 @@ export function roomEmbeddings(root) {
       runAnalogy(p.a, p.b, p.c);
     };
     presetsDiv.appendChild(tag);
+  });
+
+  // ---------- Kéo từ trên bản đồ thả vào ô phép toán ----------
+  // Bổ trợ cho dropdown (dropdown vẫn dùng được bằng bàn phím — giữ khả năng tiếp cận).
+  // Dùng Pointer Events nên chạy cả chuột lẫn cảm ứng.
+  const selects = [root.querySelector("#selA"), root.querySelector("#selB"), root.querySelector("#selC")];
+  let drag = null; // { word, x, y } — x,y theo hệ toạ độ NỘI BỘ của canvas
+
+  // Đổi toạ độ con trỏ (client) sang hệ nội bộ canvas (canvas hiển thị bị co theo CSS).
+  function canvasPoint(e) {
+    const rect = canvas.getBoundingClientRect();
+    return [
+      (e.clientX - rect.left) * (canvas.width / rect.width),
+      (e.clientY - rect.top) * (canvas.height / rect.height),
+    ];
+  }
+
+  // Từ nằm gần con trỏ nhất (chỉ nhận nếu đủ gần) để bắt đầu kéo.
+  function wordAt(px, py) {
+    let best = null, bestD = Infinity;
+    for (const w of WORDS) {
+      const [wx, wy] = toPx(WORD_VECTORS[w]);
+      const d = Math.hypot(wx - px, wy - py);
+      if (d < bestD) { bestD = d; best = w; }
+    }
+    return bestD <= 24 ? best : null;
+  }
+
+  canvas.addEventListener("pointerdown", (e) => {
+    const [px, py] = canvasPoint(e);
+    const w = wordAt(px, py);
+    if (!w) return;
+    drag = { word: w, x: px, y: py };
+    canvas.setPointerCapture(e.pointerId);
+    canvas.style.cursor = "grabbing";
+    selects.forEach((s) => s.classList.add("emb-drop"));
+    sfx.tick();
+    e.preventDefault();
+  });
+
+  canvas.addEventListener("pointermove", (e) => {
+    const [px, py] = canvasPoint(e);
+    if (!drag) {
+      canvas.style.cursor = wordAt(px, py) ? "grab" : "default";
+      return;
+    }
+    drag.x = px; drag.y = py;
+    draw();
+    // Nhãn đang kéo bay theo con trỏ.
+    ctx.save();
+    ctx.font = "bold 14px Inter, sans-serif";
+    const text = label(drag.word);
+    const w = ctx.measureText(text).width;
+    ctx.fillStyle = "rgba(176,123,255,0.92)";
+    ctx.fillRect(px + 8, py - 13, w + 14, 23);
+    ctx.fillStyle = "#fff";
+    ctx.fillText(text, px + 15, py + 3);
+    ctx.restore();
+  });
+
+  function endDrag(e) {
+    if (!drag) return;
+    const word = drag.word;
+    drag = null;
+    canvas.style.cursor = "grab";
+    selects.forEach((s) => s.classList.remove("emb-drop"));
+    // Thả trúng ô select nào? (elementFromPoint hoạt động độc lập với pointer capture)
+    const dropped = document.elementFromPoint(e.clientX, e.clientY);
+    const slot = selects.find((s) => s === dropped || s.contains(dropped));
+    if (slot) {
+      slot.value = word;
+      sfx.pop();
+      runAnalogy(selects[0].value, selects[1].value, selects[2].value);
+    } else {
+      draw(); // hủy: xoá nhãn đang bay, vẽ lại sạch
+    }
+  }
+  canvas.addEventListener("pointerup", endDrag);
+  canvas.addEventListener("pointercancel", () => {
+    drag = null;
+    canvas.style.cursor = "default";
+    selects.forEach((s) => s.classList.remove("emb-drop"));
+    draw();
   });
 }
