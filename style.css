@@ -686,6 +686,19 @@ canvas { display: block; max-width: 100%; height: auto; }
 .en-list { margin: 6px 0 0; padding-left: 18px; }
 .en-list li { margin-bottom: 3px; }
 
+/* ---------- Prompt injection: đánh lừa trợ lý AI ---------- */
+.pi-system { border: 2px dashed var(--ink); background: #14140f; color: #f5e9c8; font-family: "Space Mono", monospace; font-size: 13px; line-height: 1.55; padding: 12px 14px; white-space: pre-wrap; }
+.pi-toggle { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; cursor: pointer; }
+.pi-toggle input { width: 18px; height: 18px; flex: 0 0 auto; cursor: pointer; }
+.pi-attack { border-color: var(--bad); background: #fff0f0; }
+.pi-reply { border: 2px solid var(--ink); background: var(--paper); padding: 12px 14px; font-weight: 500; line-height: 1.55; min-height: 20px; }
+.pi-reply:empty { display: none; }
+.pi-reply.pi-safe { background: rgba(0, 179, 74, 0.12); border-color: var(--good); }
+.pi-reply.pi-leak { background: rgba(229, 53, 43, 0.1); border-color: var(--bad); }
+.pi-verdict { margin-top: 10px; padding-top: 8px; border-top: 2px solid var(--ink); font-weight: 800; font-size: 14px; }
+.pi-safe .pi-verdict { color: var(--good-ink); }
+.pi-leak .pi-verdict { color: var(--bad-ink); }
+
 /* ---------- RLHF: chấm cặp câu trả lời ---------- */
 .rlhf-q { font-weight: 700; font-size: 15px; margin-top: 4px; line-height: 1.5; }
 .rlhf-answer { border: 2px solid var(--ink); background: var(--paper); padding: 12px 14px; margin-bottom: 14px; }
