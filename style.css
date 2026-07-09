@@ -676,6 +676,43 @@ canvas { display: block; max-width: 100%; height: auto; }
 .mm-answer { margin-top: 6px; padding-left: 6px; max-height: 0; overflow: hidden; transition: max-height 0.2s ease; }
 .mm-answer.show { max-height: 80px; }
 
+/* ---------- Energy: các nút tác vụ AI ---------- */
+.en-actions { display: flex; flex-direction: column; gap: 10px; align-items: stretch; }
+.en-action { width: 100%; justify-content: space-between; text-align: left; }
+.en-train-wrap { margin-top: 10px; }
+.en-cost { font-family: "Space Mono", monospace; font-size: 12px; font-weight: 700; color: var(--accent-ink); white-space: nowrap; }
+.en-total { font-family: "Space Mono", monospace; font-size: 28px; font-weight: 800; }
+.en-equiv { font-size: 14px; font-weight: 500; }
+.en-list { margin: 6px 0 0; padding-left: 18px; }
+.en-list li { margin-bottom: 3px; }
+
+/* ---------- RLHF: chấm cặp câu trả lời ---------- */
+.rlhf-q { font-weight: 700; font-size: 15px; margin-top: 4px; line-height: 1.5; }
+.rlhf-answer { border: 2px solid var(--ink); background: var(--paper); padding: 12px 14px; margin-bottom: 14px; }
+.rlhf-answer:last-child { margin-bottom: 0; }
+.rlhf-answer p { margin: 0 0 12px; font-size: 14px; font-weight: 500; line-height: 1.55; }
+.rlhf-answer.rlhf-chosen-good { border-color: var(--good); box-shadow: var(--sh-sm); }
+.rlhf-answer.rlhf-chosen-bad { border-color: var(--bad); }
+.rlhf-answer.rlhf-ideal { background: rgba(0, 179, 74, 0.1); }
+.rlhf-bar { height: 14px; border: 2px solid var(--ink); background: var(--paper); overflow: hidden; }
+.rlhf-fill { height: 100%; background: var(--good); transition: width 0.3s ease; }
+.rlhf-done { margin-top: 4px; }
+
+/* ---------- Reasoning: trả lời ngay vs suy nghĩ từng bước ---------- */
+.rs-pick { display: flex; flex-wrap: wrap; gap: 8px; }
+.rs-tab { min-width: 46px; font-weight: 800; }
+.rs-tab.active { background: var(--accent-2); box-shadow: var(--sh-sm); }
+.rs-q { font-size: 16px; font-weight: 600; line-height: 1.55; border: 2px solid var(--ink); background: var(--paper); padding: 12px 14px; }
+.rs-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+.rs-out { min-height: 52px; font-weight: 500; }
+.rs-steps { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 8px; }
+.rs-step { border: 2px solid var(--ink); background: #f3f0ff; padding: 9px 11px; font-size: 14px; line-height: 1.5; animation: bubbleIn 0.25s ease; }
+.rs-answer { border: 2px solid var(--ink); padding: 10px 13px; font-size: 15px; font-weight: 700; }
+.rs-answer.bad { background: var(--bad); color: #fff; }
+.rs-answer.good { background: var(--good); color: #fff; box-shadow: var(--sh-sm); }
+.rs-note { margin: 8px 0 0; }
+.rs-tok { display: inline-block; font-family: "Space Mono", monospace; font-size: 12px; font-weight: 700; background: var(--ink); color: #fff; padding: 2px 8px; margin-top: 6px; }
+
 @media (max-width: 700px) {
   .ft-grid { grid-template-columns: 1fr; }
   .ft-head { display: none; }

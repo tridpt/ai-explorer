@@ -246,6 +246,16 @@ const BANK = {
       correct: 0,
     },
   ],
+  reasoning: [
+    {
+      q: { vi: "Vì sao “suy nghĩ từng bước” giúp AI trả lời đúng hơn?", en: "Why does 'thinking step by step' make AI more accurate?" },
+      opts: {
+        vi: ["Mỗi bước viết ra thành ngữ cảnh cho bước sau, nên lời giải dựng dần thay vì đoán một phát", "Vì nó tra Google giữa chừng", "Vì phần cứng chạy nhanh hơn"],
+        en: ["Each written step becomes context for the next, building the solution instead of one-shot guessing", "It googles midway", "The hardware runs faster"],
+      },
+      correct: 0,
+    },
+  ],
 };
 
 const UI = {

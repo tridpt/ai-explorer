@@ -19,7 +19,7 @@ export const TRACKS = {
     icon: "⌨️",
     label: { vi: "Cho lập trình viên", en: "For developers" },
     desc: { vi: "Tập trung vào thứ đang dùng khi xây app AI: token, embeddings, RAG, fine-tuning, agents…", en: "Focused on what you use to build AI apps: tokens, embeddings, RAG, fine-tuning, agents…" },
-    rooms: ["tokenizer", "embeddings", "attention", "next-token", "rag", "finetune", "agents", "multimodal", "chatbot", "summary"],
+    rooms: ["tokenizer", "embeddings", "attention", "next-token", "rag", "finetune", "agents", "multimodal", "reasoning", "chatbot", "summary"],
   },
 };
 

@@ -89,9 +89,9 @@ export function roomEnergy(root) {
       <div class="panel">
         <h4>${tx(UI.runTitle)}</h4>
         <p class="muted">${tx(UI.runSub)}</p>
-        <div id="enActions" class="mt"></div>
-        <div class="mt">
-          <button class="btn ghost" id="enTrain">${tx(UI.train)}</button>
+        <div id="enActions" class="en-actions mt"></div>
+        <div class="en-train-wrap">
+          <button class="btn ghost en-action" id="enTrain">${tx(UI.train)}</button>
         </div>
       </div>
 
