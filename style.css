@@ -726,6 +726,110 @@ canvas { display: block; max-width: 100%; height: auto; }
 .rs-note { margin: 8px 0 0; }
 .rs-tok { display: inline-block; font-family: "Space Mono", monospace; font-size: 12px; font-weight: 700; background: var(--ink); color: #fff; padding: 2px 8px; margin-top: 6px; }
 
+/* ---------- Next-token: game "Bạn đấu với AI" ---------- */
+.nt-mascot { display: flex; align-items: flex-start; gap: 12px; margin: 8px 0 18px; }
+.nt-bot { font-size: 46px; line-height: 1; flex: 0 0 auto; filter: drop-shadow(3px 3px 0 var(--ink)); }
+.nt-bubble { position: relative; background: var(--paper); border: 3px solid var(--ink); box-shadow: var(--sh-sm); padding: 12px 15px; font-weight: 600; font-size: 15px; line-height: 1.5; border-radius: 4px; }
+.nt-bubble::before { content: ""; position: absolute; left: -12px; top: 16px; border: 7px solid transparent; border-right-color: var(--ink); }
+.nt-bubble::after { content: ""; position: absolute; left: -8px; top: 17px; border: 6px solid transparent; border-right-color: var(--paper); }
+@keyframes botBounce { 0%,100% { transform: translateY(0) } 30% { transform: translateY(-10px) rotate(-6deg) } 60% { transform: translateY(0) rotate(4deg) } }
+@keyframes botHappy { 0%,100% { transform: scale(1) } 40% { transform: scale(1.25) rotate(8deg) } }
+@keyframes botSad { 0%,100% { transform: rotate(0) } 25% { transform: rotate(-8deg) translateY(3px) } 75% { transform: rotate(8deg) translateY(3px) } }
+.bot-bounce { animation: botBounce 0.5s ease; }
+.bot-happy { animation: botHappy 0.5s ease; }
+.bot-sad { animation: botSad 0.5s ease; }
+
+.nt-hud { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; border-bottom: 3px solid var(--ink); padding-bottom: 14px; margin-bottom: 16px; }
+.nt-stat { display: flex; flex-direction: column; align-items: center; min-width: 62px; border: 2px solid var(--ink); padding: 6px 12px; background: var(--paper); }
+.nt-stat span { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.4px; color: var(--text-dim); }
+.nt-stat b { font-family: "Space Mono", monospace; font-size: 22px; }
+.nt-hearts { margin-left: auto; font-size: 22px; letter-spacing: 2px; }
+.nt-heart { transition: transform 0.2s ease; display: inline-block; }
+.nt-heart.lost { transform: scale(0.85); filter: grayscale(1); opacity: 0.6; }
+
+.nt-setup { text-align: center; padding: 10px 0; }
+.nt-diff { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-bottom: 16px; }
+.nt-diff-btn.active { background: var(--accent-2); box-shadow: var(--sh-sm); }
+.nt-play { font-size: 17px; padding: 14px 30px; }
+
+.nt-timer { height: 10px; border: 2px solid var(--ink); background: var(--paper); overflow: hidden; margin-bottom: 14px; }
+.nt-timer-fill { height: 100%; width: 100%; background: var(--good); }
+.nt-timer-fill.low { background: var(--bad); }
+.nt-sentence { font-size: 22px; line-height: 1.7; min-height: 34px; margin-bottom: 6px; }
+.nt-tok { display: inline-block; padding: 1px 4px; }
+.nt-tok-new { background: rgba(var(--accent-rgb), 0.35); border-bottom: 3px solid var(--accent); }
+.nt-q { margin: 4px 0 12px; font-weight: 700; }
+.nt-chips { display: flex; flex-wrap: wrap; gap: 10px; }
+.nt-chip { font-size: 17px; font-weight: 700; padding: 12px 20px; background: var(--paper); border: 3px solid var(--ink); box-shadow: var(--sh-sm); cursor: pointer; transition: transform 0.1s ease, box-shadow 0.1s ease; }
+.nt-chip:hover:not(:disabled) { transform: translate(-2px, -2px); box-shadow: 6px 6px 0 var(--ink); }
+.nt-chip:disabled { cursor: default; }
+.nt-chip.correct { background: var(--good); color: #fff; }
+.nt-chip.wrong { background: var(--bad); color: #fff; }
+@keyframes chipPop { 0% { transform: scale(1) } 50% { transform: scale(1.18) } 100% { transform: scale(1) } }
+.nt-chip.pop { animation: chipPop 0.35s ease; }
+@keyframes ntShake { 0%,100% { transform: translateX(0) } 20% { transform: translateX(-8px) } 40% { transform: translateX(8px) } 60% { transform: translateX(-5px) } 80% { transform: translateX(5px) } }
+.nt-game.shake { animation: ntShake 0.4s ease; }
+
+.nt-reveal { margin-top: 16px; opacity: 0; transition: opacity 0.2s ease; }
+.nt-reveal.show { opacity: 1; }
+.nt-reveal-h { margin: 0 0 8px; }
+.nt-you { display: inline-block; font-size: 11px; font-weight: 800; background: var(--ink); color: #fff; padding: 1px 6px; border-radius: 3px; }
+.bar-fill.nt-hot { outline: 2px solid var(--ink); }
+
+.nt-over { text-align: center; }
+.nt-over-card { border: 3px solid var(--ink); box-shadow: var(--sh); background: var(--accent-2); padding: 22px; }
+.nt-over-title { font-size: 26px; font-weight: 900; text-transform: uppercase; }
+.nt-over-score { font-size: 18px; font-weight: 700; margin: 8px 0 10px; }
+.nt-over-score b, .nt-over-card b { font-family: "Space Mono", monospace; }
+
+@media (max-width: 700px) {
+  .nt-sentence { font-size: 19px; }
+  .nt-chip { font-size: 15px; padding: 10px 16px; }
+  .nt-bot { font-size: 38px; }
+}
+
+/* ---------- Adversarial: game "Lừa được AI thì thắng" ---------- */
+.adv-mascot { display: flex; align-items: flex-start; gap: 12px; margin: 8px 0 18px; }
+.adv-bot { font-size: 44px; line-height: 1; flex: 0 0 auto; filter: drop-shadow(3px 3px 0 var(--ink)); }
+.adv-bubble { position: relative; background: var(--paper); border: 3px solid var(--ink); box-shadow: var(--sh-sm); padding: 12px 15px; font-weight: 600; font-size: 15px; line-height: 1.5; border-radius: 4px; }
+.adv-bubble::before { content: ""; position: absolute; left: -12px; top: 16px; border: 7px solid transparent; border-right-color: var(--ink); }
+.adv-bubble::after { content: ""; position: absolute; left: -8px; top: 17px; border: 6px solid transparent; border-right-color: var(--paper); }
+
+.adv-hud { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; border-bottom: 3px solid var(--ink); padding-bottom: 14px; margin-bottom: 16px; }
+.adv-stat { display: flex; flex-direction: column; align-items: center; min-width: 62px; border: 2px solid var(--ink); padding: 6px 12px; background: var(--paper); }
+.adv-stat span { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.4px; color: var(--text-dim); }
+.adv-stat b { font-family: "Space Mono", monospace; font-size: 22px; }
+.adv-hearts { margin-left: auto; font-size: 22px; letter-spacing: 2px; }
+.adv-heart.lost { transform: scale(0.85); filter: grayscale(1); opacity: 0.6; display: inline-block; }
+
+.adv-setup { text-align: center; padding: 10px 0; }
+.adv-play { font-size: 17px; padding: 14px 30px; }
+.adv-attack { font-size: 16px; padding: 12px 24px; background: var(--bad); border-color: var(--ink); color: #fff; }
+.adv-attack:disabled { opacity: 0.5; }
+
+.adv-timer { height: 10px; border: 2px solid var(--ink); background: var(--paper); overflow: hidden; margin-bottom: 12px; }
+.adv-timer-fill { height: 100%; width: 100%; background: var(--good); }
+.adv-timer-fill.low { background: var(--bad); }
+.adv-mission { font-size: 16px; font-weight: 600; border: 2px solid var(--ink); background: var(--paper); padding: 10px 13px; }
+.adv-fake { color: var(--bad-ink); }
+
+.adv-stealth { height: 14px; border: 2px solid var(--ink); background: var(--paper); overflow: hidden; margin-top: 4px; }
+.adv-stealth-fill { height: 100%; width: 100%; background: var(--good); transition: width 0.1s linear; }
+.adv-stealth-fill.low { background: var(--bad); }
+
+.adv-over { text-align: center; }
+.adv-over-card { border: 3px solid var(--ink); box-shadow: var(--sh); background: var(--accent-2); padding: 22px; }
+.adv-over-title { font-size: 26px; font-weight: 900; text-transform: uppercase; }
+.adv-over-score { font-size: 18px; font-weight: 700; margin: 8px 0 10px; }
+.adv-over-score b { font-family: "Space Mono", monospace; }
+
+/* shake dùng chung cho các phòng game */
+.shake { animation: ntShake 0.4s ease; }
+
+@media (max-width: 700px) {
+  .adv-bot { font-size: 36px; }
+}
+
 @media (max-width: 700px) {
   .ft-grid { grid-template-columns: 1fr; }
   .ft-head { display: none; }

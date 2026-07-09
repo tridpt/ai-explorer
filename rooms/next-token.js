@@ -1,5 +1,8 @@
-// Phòng — Máy đoán chữ (mô phỏng cách LLM sinh văn bản & vì sao "ảo giác"). Song ngữ.
+// Phòng — "BẠN ĐẤU VỚI AI": game đoán từ tiếp theo (mô phỏng cách LLM sinh chữ & vì sao "ảo giác").
+// Kết hợp game-hoá (điểm/streak/mạng/tính giờ) + hiệu ứng đã tay + mascot robot dẫn dắt. Song ngữ.
 import { tx, getLang } from "../i18n.js";
+import { sfx, celebrate } from "../sound.js";
+import { getRoomStat, setRoomStatMax } from "../store.js";
 
 const CORPUS = {
   vi: `
@@ -37,7 +40,6 @@ i love reading books by the window on a rainy day.
 the sun casts warm rays down upon the earth.
 `,
 };
-const START = { vi: ["mặt", "trời"], en: ["the", "sun"] };
 
 function tokenize(text) {
   return text.toLowerCase().replace(/\n/g, " ").replace(/[.,]/g, " . ")
@@ -59,14 +61,15 @@ function buildModel(tokens) {
   return { bi, tri };
 }
 
+// Phân phối xác suất cho từ tiếp theo (bỏ token "." cho gọn game), có áp dụng nhiệt độ.
 function distribution(model, context, temp) {
   const words = context.trim().split(/\s+/);
   const last = words[words.length - 1];
   const prev = words[words.length - 2];
   let table = (prev && model.tri[prev + " " + last]) || model.bi[last];
   if (!table) return [];
-
-  let entries = Object.entries(table);
+  let entries = Object.entries(table).filter(([w]) => w !== ".");
+  if (!entries.length) return [];
   const t = Math.max(0.05, temp);
   const logits = entries.map(([w, c]) => [w, Math.log(c) / t]);
   const max = Math.max(...logits.map((e) => e[1]));
@@ -75,163 +78,360 @@ function distribution(model, context, temp) {
   return exps.map(([w, e]) => [w, e / sum]).sort((a, b) => b[1] - a[1]);
 }
 
-function sample(probs) {
+function sampleFrom(probs) {
   const r = Math.random();
   let acc = 0;
   for (const [w, p] of probs) { acc += p; if (r <= acc) return w; }
   return probs[probs.length - 1]?.[0];
 }
 
+function shuffle(a) {
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = (Math.random() * (i + 1)) | 0;
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+// Độ khó: số ô đáp án, thời gian mỗi lượt (ms), nhiệt độ AI (cao = AI hay đổ xúc xắc).
+const DIFF = {
+  chill:  { chips: 4, time: 9000, temp: 0.5, label: { vi: "😌 Thư giãn", en: "😌 Chill" } },
+  normal: { chips: 5, time: 7000, temp: 0.9, label: { vi: "🙂 Thường",  en: "🙂 Normal" } },
+  chaos:  { chips: 6, time: 5000, temp: 1.6, label: { vi: "🤪 Hỗn loạn", en: "🤪 Chaos" } },
+};
+
+// Lời thoại của mascot (bốc ngẫu nhiên).
+const BOT = {
+  intro: { vi: "Xin chào! Tôi là Bit 🤖. Tôi đoán từ tiếp theo để viết câu. Xem bạn có <b>đọc vị</b> được tôi không nhé!", en: "Hey! I'm Bit 🤖. I write by guessing the next word. Let's see if you can <b>read my mind</b>!" },
+  good: {
+    vi: ["Chuẩn! Bạn nghĩ y như tôi 🤝", "Đúng bài! 🔥", "Cao thủ đây rồi 😎", "Bạn đọc vị tôi ngon ghê!"],
+    en: ["Nailed it! Same as me 🤝", "Spot on! 🔥", "Show-off 😎", "You read me like a book!"],
+  },
+  bad: {
+    vi: ["Hụt rồi! Tôi khoái từ khác cơ 😜", "Sai tí xíu — nhìn thanh xác suất nhé 👀", "Ố ồ, không phải từ đó đâu!", "Tôi bất ngờ hơn bạn tưởng 😏"],
+    en: ["Missed! I liked another word 😜", "Almost — check the bars 👀", "Nope, not that one!", "I'm less predictable than you think 😏"],
+  },
+  dice: {
+    vi: ["🎲 Tôi vừa đổ xúc xắc và chọn từ khác — đó là 'nhiệt độ' cao đấy!", "🎲 Xác suất cao nhất không phải lúc nào tôi cũng chọn — nhiệt độ mà!"],
+    en: ["🎲 I rolled the dice and picked another word — that's high 'temperature'!", "🎲 I don't always pick the top word — blame the temperature!"],
+  },
+  streak: { vi: "🔥 Chuỗi %s! Bạn đang đọc vị cỗ máy đấy!", en: "🔥 Streak %s! You're reading the machine!" },
+  timeout: { vi: "⏰ Hết giờ! Tôi đi tiếp đây.", en: "⏰ Time! I'll move on." },
+};
+
+const UI = {
+  intro: {
+    vi: "AI viết câu bằng cách <strong>đoán từ tiếp theo</strong>, hết từ này tới từ khác. Giờ tới lượt bạn: <strong>đoán xem AI sẽ chọn từ nào</strong> để nối câu. Đoán trúng thì ghi điểm — nhanh và đúng liên tục thì điểm càng cao!",
+    en: "AI writes by <strong>guessing the next word</strong>, over and over. Your turn: <strong>guess which word the AI will pick</strong> to continue the sentence. Guess right to score — fast and consistent means more points!",
+  },
+  diff: { vi: "Độ khó:", en: "Difficulty:" },
+  start: { vi: "▶ Chơi", en: "▶ Play" },
+  again: { vi: "↺ Chơi lại", en: "↺ Play again" },
+  score: { vi: "Điểm", en: "Score" },
+  streak: { vi: "Chuỗi", en: "Streak" },
+  best: { vi: "Kỷ lục", en: "Best" },
+  guessPrompt: { vi: "AI sẽ chọn từ nào tiếp theo?", en: "Which word will the AI pick next?" },
+  aiPicks: { vi: "Xác suất của AI cho từ tiếp theo:", en: "The AI's probabilities for the next word:" },
+  youPicked: { vi: "bạn chọn", en: "you" },
+  over: { vi: "Hết lượt!", en: "Game over!" },
+  overSub: {
+    vi: "Bạn vừa làm đúng việc của một mô hình ngôn ngữ: đoán từ tiếp theo theo xác suất. Nhiệt độ càng cao, AI càng 'bay' và dễ <b>ảo giác</b> — sai mà nghe vẫn trơn tru.",
+    en: "You just did a language model's job: guessing the next word by probability. The higher the temperature, the 'wilder' the AI and the more it <b>hallucinates</b> — wrong yet fluent.",
+  },
+  newRecord: { vi: "🏆 Kỷ lục mới!", en: "🏆 New record!" },
+  finalScore: { vi: "Điểm của bạn", en: "Your score" },
+};
+
 export function roomNextToken(root) {
   const lang = getLang();
   const MODEL = buildModel(tokenize(CORPUS[lang]));
+  const reduce = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
 
-  let startWords = [...START[lang]];
-  let context = [...startWords];
-  let mode = "sample"; // "sample" | "greedy"
-  let lastPick = null;  // từ vừa được chọn (để tô sáng)
+  // Các cặp từ mở đầu câu (lấy 2 từ đầu mỗi dòng corpus) để bắt đầu câu mới.
+  const STARTS = CORPUS[lang].trim().split("\n")
+    .map((line) => tokenize(line).slice(0, 2)).filter((s) => s.length === 2);
+  const VOCAB = [...new Set(tokenize(CORPUS[lang]).filter((w) => w !== "."))];
+
+  let diff = "normal";
+  let score = 0, streak = 0, lives = 3, playing = false;
+  let context = [];
+  let raf = null, roundStart = 0, roundDur = 0, locked = false;
 
   root.innerHTML = `
-    <p class="room-intro">
-      ${tx(
-        "Một mô hình ngôn ngữ (như ChatGPT) viết câu theo cách đơn giản đến bất ngờ: nó <strong>đoán từ tiếp theo</strong>, rồi lại đoán từ tiếp theo nữa, cứ thế. Mỗi lần đoán chỉ là <em>xác suất</em>. Hãy tự tay vận hành cỗ máy đó và xem vì sao đôi khi nó nói sai một cách tự tin.",
-        "A language model (like ChatGPT) writes in a surprisingly simple way: it <strong>guesses the next word</strong>, then the next, and so on. Each guess is just <em>probability</em>. Run the machine yourself and see why it sometimes speaks wrongly with confidence."
-      )}
-    </p>
+    <p class="room-intro">${tx(UI.intro)}</p>
 
-    <div class="panel">
-      <h4>${tx("✍️ Câu mồi (gõ vài từ để AI viết tiếp)", "✍️ Seed (type a few words for the AI to continue)")}</h4>
-      <div class="row" style="align-items:center; gap:10px">
-        <input type="text" id="seed" style="flex:1" value="${startWords.join(" ")}" />
-        <button class="btn ghost" id="seedBtn">${tx("Dùng câu này", "Use this")}</button>
-      </div>
-      <p class="muted mt">${tx("Gợi ý: gõ những từ có trong các câu mẫu để cỗ máy \"biết đường\". Từ lạ hoàn toàn sẽ khiến nó bí.", "Tip: use words seen in the sample sentences so the machine has a path. Totally new words make it stuck.")}</p>
+    <div class="nt-mascot">
+      <div class="nt-bot" id="ntBot">🤖</div>
+      <div class="nt-bubble" id="ntBubble">${tx(BOT.intro)}</div>
     </div>
 
-    <div class="panel">
-      <h4>${tx("🎲 Cỗ máy đoán chữ", "🎲 The word-guessing machine")}</h4>
-      <div id="sentence" style="font-size:20px; line-height:1.8; min-height:32px; margin-bottom:10px;"></div>
-      <p class="muted">${tx("Các ứng viên cho từ tiếp theo (bấm để chọn, hoặc để máy tự chọn):", "Candidates for the next word (click to pick, or let it choose):")}</p>
-      <div id="candidates" class="mt"></div>
-
-      <div class="seg mt" id="modeSeg">
-        <button class="seg-btn active" data-mode="sample">${tx("🎲 Chọn theo xác suất", "🎲 Sample by probability")}</button>
-        <button class="seg-btn" data-mode="greedy">${tx("🥇 Luôn chọn từ cao nhất", "🥇 Always pick the top")}</button>
+    <div class="panel nt-stage">
+      <div class="nt-hud">
+        <div class="nt-stat"><span>${tx(UI.score)}</span><b id="ntScore">0</b></div>
+        <div class="nt-stat"><span>${tx(UI.streak)}</span><b id="ntStreak">0</b></div>
+        <div class="nt-stat"><span>${tx(UI.best)}</span><b id="ntBest">0</b></div>
+        <div class="nt-hearts" id="ntHearts"></div>
       </div>
 
-      <label class="field mt" id="tempField">
-        <span>${tx("Độ sáng tạo (nhiệt độ):", "Creativity (temperature):")} <b id="tempVal">0.7</b> — ${tx("kéo cao để thấy AI \"bay bổng\" và dễ sai hơn", "raise it to see the AI get \"wild\" and more error-prone")}</span>
-        <input type="range" id="temp" min="0.1" max="2.0" step="0.1" value="0.7" />
-      </label>
-
-      <div class="row mt">
-        <button class="btn" id="stepBtn">${tx("▶ Đoán 1 từ", "▶ Guess 1 word")}</button>
-        <button class="btn ghost" id="autoBtn">${tx("⏩ Tự viết cả câu", "⏩ Auto-write")}</button>
-        <button class="btn ghost" id="resetBtn">${tx("↺ Bắt đầu lại", "↺ Restart")}</button>
+      <div id="ntSetup" class="nt-setup">
+        <div class="nt-diff" id="ntDiff"></div>
+        <button class="btn nt-play" id="ntPlay">${tx(UI.start)}</button>
       </div>
-      <p class="muted mt" id="ntStatus"></p>
+
+      <div id="ntGame" class="nt-game" hidden>
+        <div class="nt-timer"><div class="nt-timer-fill" id="ntTimer"></div></div>
+        <div class="nt-sentence" id="ntSentence"></div>
+        <p class="muted nt-q">${tx(UI.guessPrompt)}</p>
+        <div class="nt-chips" id="ntChips"></div>
+        <div class="nt-reveal" id="ntReveal"></div>
+      </div>
+
+      <div id="ntOver" class="nt-over" hidden></div>
     </div>
 
     <div class="takeaway">
       ${tx(
-        "💡 <strong>Điều cốt lõi:</strong> AI không \"biết\" sự thật — nó chỉ chọn từ <em>nghe có vẻ hợp lý</em> theo xác suất. Khi \"nhiệt độ\" cao hoặc khi gặp ngữ cảnh lạ, nó vẫn chọn bừa một từ và ghép thành câu trơn tru. Đó chính là <em>ảo giác (hallucination)</em>: sai nhưng nghe rất thật.",
-        "💡 <strong>Key idea:</strong> AI doesn't \"know\" the truth — it picks words that <em>sound plausible</em> by probability. At high \"temperature\" or in unfamiliar context, it still picks something and stitches a smooth sentence. That's <em>hallucination</em>: wrong but convincing."
+        "💡 <strong>Điều cốt lõi:</strong> AI không \"biết\" sự thật — nó chỉ chọn từ <em>nghe hợp lý</em> theo xác suất, rồi ghép lại thành câu trơn tru. Đó là lý do nó đôi khi sai mà vẫn rất tự tin: <em>ảo giác (hallucination)</em>.",
+        "💡 <strong>Key idea:</strong> AI doesn't \"know\" the truth — it picks words that <em>sound plausible</em> by probability, then stitches a smooth sentence. That's why it can be wrong yet confident: <em>hallucination</em>."
       )}
     </div>
   `;
 
-  const sentenceEl = root.querySelector("#sentence");
-  const candEl = root.querySelector("#candidates");
-  const tempEl = root.querySelector("#temp");
-  const tempVal = root.querySelector("#tempVal");
-  const seedEl = root.querySelector("#seed");
-  const statusEl = root.querySelector("#ntStatus");
-  const tempField = root.querySelector("#tempField");
+  const $ = (s) => root.querySelector(s);
+  const botEl = $("#ntBot"), bubbleEl = $("#ntBubble");
+  const scoreEl = $("#ntScore"), streakEl = $("#ntStreak"), bestEl = $("#ntBest"), heartsEl = $("#ntHearts");
+  const setupEl = $("#ntSetup"), gameEl = $("#ntGame"), overEl = $("#ntOver");
+  const diffEl = $("#ntDiff"), timerEl = $("#ntTimer");
+  const sentenceEl = $("#ntSentence"), chipsEl = $("#ntChips"), revealEl = $("#ntReveal");
 
-  function renderSentence() {
-    sentenceEl.innerHTML = context
-      .map((w, i) => {
-        const isNew = i >= startWords.length && i === context.length - 1;
-        const bg = isNew ? "rgba(251,191,36,0.4)" : "rgba(110,168,254,0.15)";
-        return `<span class="tok" style="background:${bg}">${w}</span>`;
-      })
-      .join(" ");
+  bestEl.textContent = getRoomStat("next-token", "bestScore", 0);
+
+  // ----- Mascot -----
+  function say(msg, mood = "") {
+    bubbleEl.innerHTML = msg;
+    if (!reduce) {
+      botEl.classList.remove("bot-happy", "bot-sad", "bot-bounce");
+      void botEl.offsetWidth;
+      botEl.classList.add(mood === "happy" ? "bot-happy" : mood === "sad" ? "bot-sad" : "bot-bounce");
+    }
+  }
+  const pick = (arr) => arr[(Math.random() * arr.length) | 0];
+
+  // ----- Nút độ khó -----
+  Object.entries(DIFF).forEach(([key, d]) => {
+    const b = document.createElement("button");
+    b.className = "btn ghost nt-diff-btn" + (key === diff ? " active" : "");
+    b.textContent = tx(d.label);
+    b.onclick = () => {
+      diff = key;
+      diffEl.querySelectorAll(".nt-diff-btn").forEach((el) => el.classList.remove("active"));
+      b.classList.add("active");
+      sfx.click();
+    };
+    diffEl.appendChild(b);
+  });
+
+  function renderHearts() {
+    heartsEl.innerHTML = "";
+    for (let i = 0; i < 3; i++) {
+      const h = document.createElement("span");
+      h.className = "nt-heart" + (i >= lives ? " lost" : "");
+      h.textContent = i < lives ? "❤️" : "🤍";
+      heartsEl.appendChild(h);
+    }
   }
 
-  function renderCandidates() {
-    const temp = mode === "greedy" ? 1 : parseFloat(tempEl.value);
-    const probs = distribution(MODEL, context.join(" "), temp).slice(0, 6);
-    candEl.innerHTML = "";
-    if (probs.length === 0) {
-      candEl.innerHTML = `<p class="muted">${tx("🚧 Hết đường đoán — cỗ máy chưa từng thấy ngữ cảnh này (từ cuối quá lạ). Bấm \"Bắt đầu lại\" hoặc đổi câu mồi.", "🚧 Dead end — the machine has never seen this context (last word too rare). Click \"Restart\" or change the seed.")}</p>`;
-      return;
+  function updateHUD() {
+    scoreEl.textContent = score;
+    streakEl.textContent = streak;
+    renderHearts();
+  }
+
+  // Đếm số điểm nhảy dần cho "đã" mắt.
+  function bumpScore(add) {
+    const target = score + add;
+    const from = score;
+    score = target;
+    if (reduce) { scoreEl.textContent = target; return; }
+    const t0 = performance.now();
+    const anim = (t) => {
+      const k = Math.min(1, (t - t0) / 400);
+      scoreEl.textContent = Math.round(from + (target - from) * k);
+      if (k < 1) requestAnimationFrame(anim);
+    };
+    requestAnimationFrame(anim);
+  }
+
+  // ----- Vòng đời game -----
+  function newSentence() {
+    context = [...pick(STARTS)];
+  }
+
+  function renderSentence(highlightLast) {
+    sentenceEl.innerHTML = context.map((w, i) => {
+      const isLast = highlightLast && i === context.length - 1;
+      return `<span class="nt-tok${isLast ? " nt-tok-new" : ""}">${w}</span>`;
+    }).join(" ");
+  }
+
+  function startTimer() {
+    roundStart = performance.now();
+    roundDur = DIFF[diff].time;
+    const step = (t) => {
+      const remain = Math.max(0, roundDur - (t - roundStart));
+      timerEl.style.width = (remain / roundDur * 100) + "%";
+      timerEl.classList.toggle("low", remain < roundDur * 0.33);
+      if (remain <= 0) { onTimeout(); return; }
+      raf = requestAnimationFrame(step);
+    };
+    raf = requestAnimationFrame(step);
+  }
+  function stopTimer() { if (raf) cancelAnimationFrame(raf); raf = null; }
+  const remainSec = () => Math.max(0, (roundDur - (performance.now() - roundStart)) / 1000);
+
+  function newRound() {
+    locked = false;
+    revealEl.innerHTML = "";
+    revealEl.classList.remove("show");
+    // Đảm bảo ngữ cảnh hiện tại có đường đoán; nếu bí thì bắt đầu câu mới.
+    let entries = distribution(MODEL, context.join(" "), DIFF[diff].temp);
+    let guard = 0;
+    while (entries.length < 2 && guard++ < 6) { newSentence(); entries = distribution(MODEL, context.join(" "), DIFF[diff].temp); }
+    renderSentence(true);
+
+    const n = DIFF[diff].chips;
+    const top = entries[0][0];
+    const rest = shuffle(entries.slice(1).map((e) => e[0]));
+    let chips = [top, ...rest.slice(0, n - 1)];
+    while (chips.length < n) {
+      const w = VOCAB[(Math.random() * VOCAB.length) | 0];
+      if (!chips.includes(w)) chips.push(w);
     }
-    const topProb = probs[0][1];
-    probs.forEach(([w, p]) => {
-      const isTop = p === topProb;
-      const isPick = w === lastPick;
+    shuffle(chips);
+
+    chipsEl.innerHTML = "";
+    chips.forEach((w) => {
+      const c = document.createElement("button");
+      c.className = "nt-chip";
+      c.textContent = w;
+      c.onclick = () => onPick(w, c, entries, top);
+      chipsEl.appendChild(c);
+    });
+    startTimer();
+  }
+
+  function reveal(entries, argmax, aiPick, userPick) {
+    revealEl.classList.add("show");
+    revealEl.innerHTML = `<p class="muted nt-reveal-h">${tx(UI.aiPicks)}</p>`;
+    const topP = entries[0][1];
+    entries.slice(0, 5).forEach(([w, p]) => {
+      const tags = [];
+      if (w === argmax) tags.push("🥇");
+      if (w === aiPick && aiPick !== argmax) tags.push("🎲");
+      if (w === userPick) tags.push(`<span class="nt-you">${tx(UI.youPicked)}</span>`);
       const row = document.createElement("div");
       row.className = "bar-row";
-      const barColor = isPick ? "linear-gradient(90deg,#fbbf24,#fb923c)" : "";
+      const hot = w === userPick;
       row.innerHTML = `
-        <div class="bar-label">${w === "." ? tx("[hết câu]", "[end]") : w}${mode === "greedy" && isTop ? " 🥇" : ""}</div>
-        <div class="bar-track"><div class="bar-fill" style="width:${Math.max(6, p * 100)}%${barColor ? ";background:" + barColor : ""}">${Math.round(p * 100)}%</div></div>
-      `;
-      row.style.cursor = "pointer";
-      row.onclick = () => { if (w !== ".") { lastPick = w; context.push(w); update(); } };
-      candEl.appendChild(row);
+        <div class="bar-label">${w} ${tags.join(" ")}</div>
+        <div class="bar-track"><div class="bar-fill${hot ? " nt-hot" : ""}" style="width:${Math.max(6, p / topP * 100)}%">${Math.round(p * 100)}%</div></div>`;
+      revealEl.appendChild(row);
     });
   }
 
-  function update() { renderSentence(); renderCandidates(); }
+  function onPick(word, chipEl, entries, argmax) {
+    if (locked) return;
+    locked = true;
+    stopTimer();
+    const bonus = Math.round(remainSec()) * 10;
+    const aiPick = sampleFrom(entries); // AI thực sự chọn (có thể khác argmax khi nhiệt độ cao)
+    const correct = word === argmax;
 
-  function step() {
-    const temp = mode === "greedy" ? 1 : parseFloat(tempEl.value);
-    const probs = distribution(MODEL, context.join(" "), temp);
-    if (probs.length === 0) { statusEl.textContent = tx("🚧 Bí đường — không có từ nào để đoán tiếp.", "🚧 Stuck — no word to continue."); return false; }
-    // greedy: luôn lấy từ xác suất cao nhất; sample: bốc theo xác suất
-    const w = mode === "greedy" ? probs[0][0] : sample(probs);
-    if (w === "." || !w) { statusEl.textContent = tx("⏹ Máy quyết định kết thúc câu ở đây.", "⏹ The machine chose to end the sentence here."); return false; }
-    lastPick = w;
-    context.push(w);
-    update();
-    return true;
+    chipsEl.querySelectorAll(".nt-chip").forEach((el) => {
+      el.disabled = true;
+      if (el.textContent === argmax) el.classList.add("correct");
+    });
+
+    if (correct) {
+      const gained = 100 + streak * 20 + bonus;
+      streak++;
+      bumpScore(gained);
+      chipEl.classList.add("pop");
+      sfx.success();
+      if (streak > 0 && streak % 3 === 0) {
+        if (!reduce) celebrate();
+        say(tx(BOT.streak).replace("%s", streak), "happy");
+      } else {
+        say(pick(BOT.good[lang]) + ` <b>+${gained}</b>`, "happy");
+      }
+    } else {
+      chipEl.classList.add("wrong");
+      streak = 0;
+      lives--;
+      sfx.wrong();
+      if (!reduce) { gameEl.classList.remove("shake"); void gameEl.offsetWidth; gameEl.classList.add("shake"); }
+      say(aiPick !== argmax ? pick(BOT.dice[lang]) : pick(BOT.bad[lang]), "sad");
+    }
+    updateHUD();
+    reveal(entries, argmax, aiPick, word);
+
+    // Câu tiếp tục bằng từ AI THỰC SỰ chọn (cho thấy vì sao câu "trôi" & ảo giác).
+    context.push(aiPick);
+
+    setTimeout(() => {
+      if (lives <= 0) endGame();
+      else newRound();
+    }, correct ? 1100 : 1700);
   }
 
-  function applyMode() {
-    root.querySelectorAll("#modeSeg .seg-btn").forEach((b) =>
-      b.classList.toggle("active", b.dataset.mode === mode));
-    // greedy không dùng nhiệt độ → làm mờ thanh trượt cho rõ ý
-    tempField.style.opacity = mode === "greedy" ? "0.4" : "1";
-    tempField.style.pointerEvents = mode === "greedy" ? "none" : "";
-    statusEl.textContent = mode === "greedy"
-      ? tx("🥇 Chế độ tất định: cùng câu mồi → luôn ra cùng kết quả (nhưng dễ lặp, cụt).", "🥇 Deterministic: same seed → always same output (but repetitive, dull).")
-      : tx("🎲 Chế độ ngẫu nhiên: cùng câu mồi vẫn ra khác nhau mỗi lần — vì sao AI 'sáng tạo'.", "🎲 Stochastic: same seed varies each run — why AI feels 'creative'.");
-    renderCandidates();
+  function onTimeout() {
+    if (locked) return;
+    locked = true;
+    stopTimer();
+    streak = 0;
+    lives--;
+    sfx.wrong();
+    say(tx(BOT.timeout), "sad");
+    const entries = distribution(MODEL, context.join(" "), DIFF[diff].temp);
+    chipsEl.querySelectorAll(".nt-chip").forEach((el) => {
+      el.disabled = true;
+      if (el.textContent === entries[0]?.[0]) el.classList.add("correct");
+    });
+    updateHUD();
+    if (entries.length) reveal(entries, entries[0][0], sampleFrom(entries), null);
+    if (entries.length) context.push(sampleFrom(entries));
+    setTimeout(() => { if (lives <= 0) endGame(); else newRound(); }, 1600);
   }
 
-  root.querySelectorAll("#modeSeg .seg-btn").forEach((b) => {
-    b.onclick = () => { mode = b.dataset.mode; applyMode(); };
-  });
+  function startGame() {
+    score = 0; streak = 0; lives = 3; playing = true;
+    updateHUD();
+    setupEl.hidden = true; overEl.hidden = true; gameEl.hidden = false;
+    newSentence();
+    newRound();
+  }
 
-  tempEl.oninput = () => { tempVal.textContent = parseFloat(tempEl.value).toFixed(1); renderCandidates(); };
-  root.querySelector("#stepBtn").onclick = step;
-  root.querySelector("#resetBtn").onclick = () => { context = [...startWords]; lastPick = null; statusEl.textContent = ""; update(); };
+  function endGame() {
+    playing = false;
+    stopTimer();
+    gameEl.hidden = true;
+    const record = setRoomStatMax("next-token", "bestScore", score);
+    bestEl.textContent = getRoomStat("next-token", "bestScore", 0);
+    if (record && !reduce) celebrate();
+    say(tx({ vi: `Hết tim rồi! Điểm của bạn: <b>${score}</b>. Chơi lại nhé? 🤖`, en: `Out of hearts! Your score: <b>${score}</b>. Play again? 🤖` }), record ? "happy" : "sad");
+    overEl.hidden = false;
+    overEl.innerHTML = `
+      <div class="nt-over-card">
+        <div class="nt-over-title">${record ? tx(UI.newRecord) : tx(UI.over)}</div>
+        <div class="nt-over-score">${tx(UI.finalScore)}: <b>${score}</b></div>
+        <p class="muted">${tx(UI.overSub)}</p>
+        <button class="btn nt-play" id="ntAgain">${tx(UI.again)}</button>
+      </div>`;
+    overEl.querySelector("#ntAgain").onclick = startGame;
+  }
 
-  root.querySelector("#seedBtn").onclick = () => {
-    const raw = tokenize(seedEl.value);
-    if (!raw.length) return;
-    context = raw;
-    lastPick = null;
-    statusEl.textContent = "";
-    update();
-  };
+  $("#ntPlay").onclick = startGame;
+  updateHUD();
 
-  root.querySelector("#autoBtn").onclick = () => {
-    let n = 0;
-    const timer = setInterval(() => { if (!step() || ++n > 18) clearInterval(timer); }, 280);
-  };
-
-  applyMode();
-  update();
+  window.addEventListener("roomleave", stopTimer, { once: true });
 }

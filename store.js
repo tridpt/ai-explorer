@@ -10,9 +10,10 @@ function load() {
       bestScore: s.bestScore ?? -1,
       quizAnswered: s.quizAnswered || {}, // { roomId: [chỉ số câu đã đúng] }
       track: s.track || null,             // "beginner" | "full" | "dev"
+      roomStats: s.roomStats || {},       // { roomId: { key: number } } — kỷ lục mini-game từng phòng
     };
   } catch {
-    return { visited: [], bestScore: -1, quizAnswered: {}, track: null };
+    return { visited: [], bestScore: -1, quizAnswered: {}, track: null, roomStats: {} };
   }
 }
 
@@ -71,6 +72,26 @@ export function getMicroSolved(roomId) {
 export function getMicroTotal() {
   const q = load().quizAnswered;
   return Object.values(q).reduce((sum, arr) => sum + arr.length, 0);
+}
+
+// ---------- Kỷ lục mini-game theo phòng ----------
+// Đọc một chỉ số (vd điểm cao / streak dài nhất) của một phòng.
+export function getRoomStat(roomId, key, def = 0) {
+  const stats = load().roomStats[roomId] || {};
+  return stats[key] ?? def;
+}
+
+// Ghi chỉ số nếu là kỷ lục mới (lớn hơn). Trả về true nếu phá kỷ lục.
+export function setRoomStatMax(roomId, key, value) {
+  const s = load();
+  const stats = s.roomStats[roomId] || {};
+  if (value > (stats[key] ?? -Infinity)) {
+    stats[key] = value;
+    s.roomStats[roomId] = stats;
+    save(s);
+    return true;
+  }
+  return false;
 }
 
 // ---------- Lộ trình học ----------
