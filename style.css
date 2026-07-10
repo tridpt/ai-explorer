@@ -865,6 +865,10 @@ canvas { display: block; max-width: 100%; height: auto; }
 /* Embeddings game: câu hỏi phép loại suy */
 .em-question { font-size: 23px; font-weight: 800; text-align: center; padding: 12px 8px; }
 
+/* Recommendation game: các mục "đã thích" */
+.rc-liked { display: flex; flex-wrap: wrap; gap: 8px; margin: 6px 0 4px; }
+.rc-pill { display: inline-block; border: 2px solid var(--ink); background: rgba(0,179,74,0.12); padding: 6px 12px; font-weight: 600; font-size: 14px; }
+
 @media (max-width: 700px) {
   .g-bot { font-size: 36px; }
   .adv-bot { font-size: 36px; }
