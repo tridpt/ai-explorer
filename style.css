@@ -826,7 +826,47 @@ canvas { display: block; max-width: 100%; height: auto; }
 /* shake dùng chung cho các phòng game */
 .shake { animation: ntShake 0.4s ease; }
 
+/* ---------- Bộ khung game DÙNG CHUNG (.g-*) cho các phòng flagship ---------- */
+.g-mascot { display: flex; align-items: flex-start; gap: 12px; margin: 8px 0 18px; }
+.g-bot { font-size: 44px; line-height: 1; flex: 0 0 auto; filter: drop-shadow(3px 3px 0 var(--ink)); }
+.g-bubble { position: relative; background: var(--paper); border: 3px solid var(--ink); box-shadow: var(--sh-sm); padding: 12px 15px; font-weight: 600; font-size: 15px; line-height: 1.5; border-radius: 4px; }
+.g-bubble::before { content: ""; position: absolute; left: -12px; top: 16px; border: 7px solid transparent; border-right-color: var(--ink); }
+.g-bubble::after { content: ""; position: absolute; left: -8px; top: 17px; border: 6px solid transparent; border-right-color: var(--paper); }
+.g-hud { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; border-bottom: 3px solid var(--ink); padding-bottom: 14px; margin-bottom: 16px; }
+.g-stat { display: flex; flex-direction: column; align-items: center; min-width: 62px; border: 2px solid var(--ink); padding: 6px 12px; background: var(--paper); }
+.g-stat span { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.4px; color: var(--text-dim); }
+.g-stat b { font-family: "Space Mono", monospace; font-size: 21px; }
+.g-hearts { margin-left: auto; font-size: 22px; letter-spacing: 2px; }
+.g-heart.lost { transform: scale(0.85); filter: grayscale(1); opacity: 0.6; display: inline-block; }
+.g-play { font-size: 17px; padding: 14px 30px; }
+.g-timer { height: 10px; border: 2px solid var(--ink); background: var(--paper); overflow: hidden; margin-bottom: 12px; }
+.g-timer-fill { height: 100%; width: 100%; background: var(--good); }
+.g-timer-fill.low { background: var(--bad); }
+.g-over { text-align: center; }
+.g-over-card { border: 3px solid var(--ink); box-shadow: var(--sh); background: var(--accent-2); padding: 22px; }
+.g-over-title { font-size: 26px; font-weight: 900; text-transform: uppercase; }
+.g-over-score { font-size: 18px; font-weight: 700; margin: 8px 0 10px; }
+.g-over-score b, .g-over-card b { font-family: "Space Mono", monospace; }
+.g-badge { font-size: 40px; margin: 4px 0; }
+
+/* Tokenizer game: ô đoán số */
+.tkg-sentence { font-size: 21px; line-height: 1.6; border: 3px solid var(--ink); background: var(--paper); padding: 14px 16px; margin-bottom: 12px; }
+.tkg-guess { display: flex; align-items: center; gap: 8px; }
+.tkg-step { width: 44px; height: 44px; font-size: 22px; font-weight: 800; border: 3px solid var(--ink); background: var(--paper); box-shadow: var(--sh-sm); cursor: pointer; }
+.tkg-num { width: 80px; text-align: center; font-size: 24px; font-weight: 800; font-family: "Space Mono", monospace; padding: 8px; }
+.tkg-tokens { margin-top: 12px; }
+
+/* Neural-net & RL challenge: nhãn nhỏ */
+.g-goal { display: inline-block; border: 2px solid var(--ink); background: var(--accent-2); padding: 4px 10px; font-weight: 700; font-size: 13px; }
+
+/* Turing game: đoạn văn cần đoán */
+.tu-quote { font-size: 18px; font-weight: 600; line-height: 1.6; border: 3px solid var(--ink); background: var(--paper); padding: 16px; margin: 0 0 4px; }
+
+/* Embeddings game: câu hỏi phép loại suy */
+.em-question { font-size: 23px; font-weight: 800; text-align: center; padding: 12px 8px; }
+
 @media (max-width: 700px) {
+  .g-bot { font-size: 36px; }
   .adv-bot { font-size: 36px; }
 }
 
