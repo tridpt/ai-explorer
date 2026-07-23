@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>AI Explorer — Hiểu AI trong 15 phút</title>
   <meta name="description" content="Hành trình tương tác giúp bạn hiểu AI một cách trực quan: tự tay dạy AI, nhìn vào bên trong mô hình, và khám phá giới hạn của nó." />
+  <meta name="referrer" content="no-referrer" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://gc.zgo.at; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self' https://*.goatcounter.com; media-src 'self' blob:; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'" />
+  <link rel="canonical" href="https://tridpt.github.io/ai-explorer/" />
 
   <!-- Favicon (SVG inline) -->
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%A7%A0%3C/text%3E%3C/svg%3E" />
@@ -34,13 +37,14 @@
 <body>
   <a href="#app" class="skip-link">Bỏ qua tới nội dung</a>
   <header class="topbar">
-    <div class="brand" id="brandHome" role="button" tabindex="0" aria-label="Về trang chủ AI Explorer">
+    <a class="brand" id="brandHome" href="./" aria-label="Về trang chủ AI Explorer">
       <span class="brand-logo" aria-hidden="true">🧠</span>
       <span class="brand-name">AI Explorer</span>
-    </div>
+    </a>
     <nav class="progress" id="progressNav" aria-label="Tiến trình các phòng"></nav>
   </header>
 
+  <div id="routeStatus" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></div>
   <main id="app" class="app" tabindex="-1"></main>
 
   <footer class="footer">

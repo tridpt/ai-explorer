@@ -1,10 +1,11 @@
 // Service Worker — cache để AI Explorer chạy được cả khi offline.
-const CACHE = "ai-explorer-v28";
+const CACHE = "ai-explorer-v29";
 const ASSETS = [
   "./",
   "./index.html",
   "./style.css",
   "./app.js",
+  "./room-loaders.js",
   "./pwa.js",
   "./sound.js",
   "./store.js",
@@ -47,37 +48,67 @@ const ASSETS = [
   "./icons/icon-maskable-512.png",
 ];
 
-self.addEventListener("install", (e) => {
-  // Không tự skipWaiting: để worker mới "chờ" cho tới khi người dùng bấm "Tải lại"
-  // (pwa.js gửi message SKIP_WAITING). Nhờ vậy app không đổi asset giữa chừng.
-  e.waitUntil(caches.open(CACHE).then((c) => c.addAll(ASSETS)));
+self.addEventListener("install", (event) => {
+  // Giữ worker mới ở trạng thái chờ cho tới khi người dùng đồng ý cập nhật.
+  event.waitUntil(caches.open(CACHE).then((cache) => cache.addAll(ASSETS)));
 });
 
-// Cho phép trang yêu cầu worker mới chiếm quyền ngay (khi người dùng đồng ý cập nhật).
-self.addEventListener("message", (e) => {
-  if (e.data === "SKIP_WAITING") self.skipWaiting();
+self.addEventListener("message", (event) => {
+  if (event.data === "SKIP_WAITING") self.skipWaiting();
 });
 
-self.addEventListener("activate", (e) => {
-  e.waitUntil(
-    caches.keys().then((keys) =>
-      Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k)))
-    ).then(() => self.clients.claim())
+self.addEventListener("activate", (event) => {
+  event.waitUntil(
+    caches.keys()
+      .then((keys) => Promise.all(keys.filter((key) => key !== CACHE).map((key) => caches.delete(key))))
+      .then(() => self.clients.claim())
   );
 });
 
-// cache-first cho asset nội bộ, network cho phần còn lại (vd: Google Fonts)
-self.addEventListener("fetch", (e) => {
-  const url = new URL(e.request.url);
-  if (url.origin === location.origin) {
-    e.respondWith(
-      caches.match(e.request).then((hit) =>
-        hit || fetch(e.request).then((res) => {
-          const copy = res.clone();
-          caches.open(CACHE).then((c) => c.put(e.request, copy));
-          return res;
-        }).catch(() => caches.match("./index.html"))
-      )
-    );
+async function navigationResponse(request, event) {
+  try {
+    const response = await fetch(request);
+    if (response.ok) {
+      const copy = response.clone();
+      event.waitUntil(caches.open(CACHE).then((cache) => cache.put(request, copy)));
+    }
+    return response;
+  } catch {
+    return (await caches.match(request))
+      || (await caches.match("./"))
+      || (await caches.match("./index.html"))
+      || Response.error();
   }
+}
+
+async function assetResponse(request, event) {
+  const cached = await caches.match(request);
+  if (cached) return cached;
+
+  try {
+    const response = await fetch(request);
+    // Không cache 404/500 hoặc opaque response; tránh lưu lỗi lâu dài.
+    if (response.ok && response.type === "basic") {
+      const copy = response.clone();
+      event.waitUntil(caches.open(CACHE).then((cache) => cache.put(request, copy)));
+    }
+    return response;
+  } catch {
+    // Asset thiếu phải lỗi đúng loại thay vì trả index.html với MIME sai.
+    return Response.error();
+  }
+}
+
+self.addEventListener("fetch", (event) => {
+  const { request } = event;
+  if (request.method !== "GET") return;
+
+  const url = new URL(request.url);
+  if (url.origin !== self.location.origin) return;
+
+  event.respondWith(
+    request.mode === "navigate"
+      ? navigationResponse(request, event)
+      : assetResponse(request, event)
+  );
 });

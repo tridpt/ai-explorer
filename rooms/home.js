@@ -94,13 +94,12 @@ export function renderHome(app, rooms, navigate) {
     rooms.forEach((room) => {
       const isDone = visited.has(room.id);
       const onPath = inPath.has(room.id);
-      const card = document.createElement("div");
+      const card = document.createElement("button");
+      card.type = "button";
       card.className = "room-card"
         + (isDone ? "" : "")
         + (!showFull && !onPath ? " dimmed" : "")
         + (!showFull && onPath ? " on-path" : "");
-      card.setAttribute("role", "link");
-      card.setAttribute("tabindex", "0");
       card.setAttribute("aria-label", `${tx(room.title)}. ${tx(room.question)}${isDone ? " — " + tx(S.done) : ""}`);
       card.innerHTML = `
         <div class="rc-num" aria-hidden="true">${room.num}</div>
@@ -111,11 +110,7 @@ export function renderHome(app, rooms, navigate) {
         <p>${tx(room.blurb)}</p>
         <div class="rc-q">${tx(room.question)}</div>
       `;
-      const go = () => navigate(room.id);
-      card.addEventListener("click", go);
-      card.addEventListener("keydown", (e) => {
-        if (e.key === "Enter" || e.key === " ") { e.preventDefault(); go(); }
-      });
+      card.addEventListener("click", () => navigate(room.id));
       grid.appendChild(card);
     });
   }

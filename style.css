@@ -1013,3 +1013,35 @@ textarea:focus-visible,
 .cw-answer:empty { display: none; }
 .cw-answer.ok { background: rgba(0, 179, 74, 0.12); }
 .cw-answer.lost { background: #fff0f0; }
+
+
+/* Semantic controls introduced for keyboard and screen-reader accessibility. */
+a.brand { color: inherit; text-decoration: none; }
+button.room-card {
+  width: 100%;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+}
+button.tag,
+button.tok,
+button.attn-cell {
+  color: inherit;
+  font-family: inherit;
+}
+button.attn-cell { padding: 0; }
+.room-loading {
+  min-height: 180px;
+  display: grid;
+  place-items: center;
+  color: var(--text-dim);
+  font-family: "Space Mono", monospace;
+  font-weight: 700;
+}
+.route-error {
+  border: 3px solid var(--bad);
+  background: #fff1f0;
+  padding: 18px;
+  color: var(--bad-ink);
+  font-weight: 700;
+}

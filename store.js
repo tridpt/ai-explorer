@@ -1,24 +1,42 @@
-// Lưu tiến trình người dùng vào localStorage: phòng đã ghé, điểm quiz cao nhất,
-// câu hỏi nhỏ đã trả lời đúng ở mỗi phòng, và lộ trình đang chọn.
+// Lưu tiến trình người dùng vào localStorage với schema có phiên bản để nâng cấp an toàn.
 const KEY = "ai-explorer-progress";
+const CURRENT_VERSION = 1;
+
+function initialState() {
+  return {
+    version: CURRENT_VERSION,
+    visited: [],
+    bestScore: -1,
+    quizAnswered: {},
+    track: null,
+    roomStats: {},
+  };
+}
+
+function normalizeState(raw = {}) {
+  const validTrack = ["beginner", "full", "dev"].includes(raw.track) ? raw.track : null;
+  return {
+    version: CURRENT_VERSION,
+    visited: Array.isArray(raw.visited) ? raw.visited.filter((id) => typeof id === "string") : [],
+    bestScore: Number.isFinite(raw.bestScore) ? raw.bestScore : -1,
+    quizAnswered: raw.quizAnswered && typeof raw.quizAnswered === "object" ? raw.quizAnswered : {},
+    track: validTrack,
+    roomStats: raw.roomStats && typeof raw.roomStats === "object" ? raw.roomStats : {},
+  };
+}
 
 function load() {
   try {
-    const s = JSON.parse(localStorage.getItem(KEY)) || {};
-    return {
-      visited: s.visited || [],
-      bestScore: s.bestScore ?? -1,
-      quizAnswered: s.quizAnswered || {}, // { roomId: [chỉ số câu đã đúng] }
-      track: s.track || null,             // "beginner" | "full" | "dev"
-      roomStats: s.roomStats || {},       // { roomId: { key: number } } — kỷ lục mini-game từng phòng
-    };
+    const raw = JSON.parse(localStorage.getItem(KEY));
+    // Dữ liệu cũ chưa có version được chuẩn hóa sang schema hiện tại mà không mất tiến trình.
+    return normalizeState(raw || initialState());
   } catch {
-    return { visited: [], bestScore: -1, quizAnswered: {}, track: null, roomStats: {} };
+    return initialState();
   }
 }
 
 function save(state) {
-  try { localStorage.setItem(KEY, JSON.stringify(state)); } catch {}
+  try { localStorage.setItem(KEY, JSON.stringify(normalizeState(state))); } catch {}
 }
 
 export function markVisited(id) {
@@ -42,17 +60,15 @@ export function setBestScore(score) {
   if (score > s.bestScore) {
     s.bestScore = score;
     save(s);
-    return true; // kỷ lục mới
+    return true;
   }
   return false;
 }
 
 export function resetProgress() {
-  save({ visited: [], bestScore: -1, quizAnswered: {}, track: null });
+  save(initialState());
 }
 
-// ---------- Quiz nhỏ rải rác ở mỗi phòng ----------
-// Ghi nhận một câu hỏi nhỏ đã trả lời ĐÚNG (lưu theo chỉ số câu trong phòng).
 export function markMicroQuiz(roomId, qIndex) {
   const s = load();
   const arr = s.quizAnswered[roomId] || [];
@@ -63,25 +79,20 @@ export function markMicroQuiz(roomId, qIndex) {
   }
 }
 
-// Tập chỉ số các câu nhỏ đã trả lời đúng ở một phòng (dùng để đánh dấu đúng câu).
 export function getMicroSolved(roomId) {
   return new Set(load().quizAnswered[roomId] || []);
 }
 
-// Tổng số câu nhỏ đã trả lời đúng trên toàn hành trình.
 export function getMicroTotal() {
   const q = load().quizAnswered;
   return Object.values(q).reduce((sum, arr) => sum + arr.length, 0);
 }
 
-// ---------- Kỷ lục mini-game theo phòng ----------
-// Đọc một chỉ số (vd điểm cao / streak dài nhất) của một phòng.
 export function getRoomStat(roomId, key, def = 0) {
   const stats = load().roomStats[roomId] || {};
   return stats[key] ?? def;
 }
 
-// Ghi chỉ số nếu là kỷ lục mới (lớn hơn). Trả về true nếu phá kỷ lục.
 export function setRoomStatMax(roomId, key, value) {
   const s = load();
   const stats = s.roomStats[roomId] || {};
@@ -94,7 +105,6 @@ export function setRoomStatMax(roomId, key, value) {
   return false;
 }
 
-// ---------- Lộ trình học ----------
 export function getTrack() {
   return load().track;
 }

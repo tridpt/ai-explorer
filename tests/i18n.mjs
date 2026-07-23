@@ -1,5 +1,5 @@
 // Kiểm tra tính toàn vẹn song ngữ: MỌI object literal dạng { vi: ..., en: ... }
-// đều phải có ĐỦ cả hai vế và không vế nào để rỗng. App có 22 phòng × 2 ngôn ngữ
+// đều phải có ĐỦ cả hai vế và không vế nào để rỗng. App có 26 phòng × 2 ngôn ngữ
 // nên rất dễ quên điền "en" (hoặc "vi") ở một chuỗi — mắt thường khó soi ra.
 // Test này quét toàn bộ module runtime và bắt lỗi đó, không cần browser/server.
 //

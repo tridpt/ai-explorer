@@ -155,31 +155,23 @@ python gen_icons.py
 
 ## Mở rộng thêm phòng mới
 
-Kiến trúc module hóa: chỉ cần tạo `rooms/ten-phong.js` export một hàm `render(root)`,
-rồi thêm một mục vào mảng `ROOMS` trong `app.js`. Khung sườn (tiêu đề, điều hướng, thanh tiến trình)
-được xử lý tự động.
+Kiến trúc module hóa và lazy-load: tạo `rooms/ten-phong.js` export một hàm `render(root)`,
+thêm loader vào `room-loaders.js`, rồi thêm metadata vào mảng `ROOMS` trong `app.js`.
+Khung sườn, điều hướng, focus management và thanh tiến trình được xử lý tự động; code của
+phòng chỉ được tải và parse khi người dùng mở phòng đó.
 
 ## Kiểm thử
 
-Hai lớp kiểm tra chạy tự động trên GitHub Actions (job `test` trong
-`.github/workflows/deploy.yml`) trước mỗi lần deploy — nếu lỗi, quá trình deploy bị chặn.
+Năm quality gate chạy tự động trên GitHub Actions cho cả pull request và trước mỗi lần
+deploy: kiểm tra cache offline, tính toàn vẹn song ngữ, smoke test 26 phòng, accessibility
+focus và PWA/offline. Nếu một gate lỗi, deploy GitHub Pages bị chặn.
 
-**1. Kiểm tra toàn vẹn cache offline** (`tests/check-assets.mjs`) — nhanh, không cần
-browser/server. Đảm bảo mọi module `.js`, `index.html`, `style.css` và mọi icon khai báo
-trong `manifest.json` đều có mặt trong mảng `ASSETS` của `sw.js`. Nhờ vậy khi thêm file mới
-mà quên cache, CI báo lỗi ngay thay vì offline hỏng âm thầm.
-
-```
-npm run check-assets
-```
-
-**2. Smoke test** (`tests/smoke.mjs`) — mở app bằng Chromium (Playwright), duyệt qua **tất cả
-các phòng** và fail nếu có bất kỳ lỗi console / exception nào. Danh sách phòng được đọc trực
-tiếp từ mảng `ROOMS` trong `app.js`, nên phòng mới thêm sau này được kiểm tra tự động.
-
-```
-npm install
+```bash
+npm ci
 npx playwright install chromium
-npm run serve      # cửa sổ 1: chạy server tại http://localhost:8000
-npm test           # cửa sổ 2: chạy smoke test
+npm run serve       # cửa sổ 1: http://localhost:8000
+npm run test:all    # cửa sổ 2: chạy toàn bộ quality gate
 ```
+
+Các lệnh riêng lẻ vẫn có thể chạy bằng `npm run check-assets`, `npm run test:i18n`,
+`npm test`, `npm run test:focus` và `npm run test:pwa`.

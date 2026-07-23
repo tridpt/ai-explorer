@@ -1,18 +1,21 @@
 {
   "name": "ai-explorer",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Bảo tàng AI tương tác chạy hoàn toàn trên trình duyệt (song ngữ VN/EN).",
   "private": true,
   "type": "module",
   "scripts": {
-    "serve": "python -m http.server 8000",
+    "serve": "http-server -p 8000 -c-1 .",
     "check-assets": "node tests/check-assets.mjs",
     "test:i18n": "node tests/i18n.mjs",
     "test": "node tests/smoke.mjs",
     "test:focus": "node tests/focus-trap.mjs",
-    "test:pwa": "node tests/pwa.mjs"
+    "test:pwa": "node tests/pwa.mjs",
+    "test:all": "npm run check-assets && npm run test:i18n && npm test && npm run test:focus && npm run test:pwa"
   },
   "devDependencies": {
-    "playwright": "^1.48.0"
+    "http-server": "14.1.1",
+    "playwright": "1.61.1",
+    "wait-on": "8.0.4"
   }
 }

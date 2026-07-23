@@ -107,15 +107,21 @@ export function roomAttention(root) {
   const picker = root.querySelector("#sentPicker");
   SENTENCES.forEach((pair, i) => {
     const s = pair[getLang()] || pair.vi;
-    const tag = document.createElement("span");
+    const tag = document.createElement("button");
+    tag.type = "button";
     tag.className = "tag";
     tag.textContent = s.words.join(" ");
+    tag.setAttribute("aria-pressed", i === current ? "true" : "false");
     if (i === current) tag.style.borderColor = "var(--accent)";
     tag.onclick = () => {
-      current = i; selected = null;
+      current = i;
+      selected = null;
       setParams({ s: i });
-      picker.querySelectorAll(".tag").forEach((t) => (t.style.borderColor = ""));
-      tag.style.borderColor = "var(--accent)";
+      picker.querySelectorAll(".tag").forEach((item, itemIndex) => {
+        const active = itemIndex === i;
+        item.style.borderColor = active ? "var(--accent)" : "";
+        item.setAttribute("aria-pressed", active ? "true" : "false");
+      });
       render();
     };
     picker.appendChild(tag);
@@ -124,28 +130,37 @@ export function roomAttention(root) {
   const display = root.querySelector("#sentDisplay");
   const noteEl = root.querySelector("#attnNote");
   const matrixEl = root.querySelector("#attnMatrix");
+  noteEl.setAttribute("role", "status");
+  noteEl.setAttribute("aria-live", "polite");
+  matrixEl.setAttribute("role", "region");
+  matrixEl.setAttribute("aria-label", tx("Bản đồ trọng số attention", "Attention weight map"));
 
-  // Vẽ ma trận attention đầy đủ: hàng = từ đang xử lý, cột = từ được chú ý.
+  // Mỗi ô là button có nhãn đầy đủ, dùng được bằng chuột, bàn phím và screen reader.
   function renderMatrix(s, M) {
     const n = s.words.length;
-    // header + n hàng, mỗi hàng: nhãn + n ô.
     let html = `<div class="attn-row attn-head"><div class="attn-corner"></div>`;
-    s.words.forEach((w) => (html += `<div class="attn-col-label">${w}</div>`));
+    s.words.forEach((word) => (html += `<div class="attn-col-label">${word}</div>`));
     html += `</div>`;
     for (let i = 0; i < n; i++) {
       const isSel = i === selected;
       html += `<div class="attn-row${isSel ? " sel" : ""}"><div class="attn-row-label">${s.words[i]}</div>`;
       for (let j = 0; j < n; j++) {
-        const wgt = M[i][j] || 0;
-        const title = tx(`"${s.words[i]}" chú ý "${s.words[j]}": ${Math.round(wgt * 100)}%`,
-                         `"${s.words[i]}" → "${s.words[j]}": ${Math.round(wgt * 100)}%`);
-        html += `<div class="attn-cell" style="background:${mix(wgt)}" title="${title}" data-i="${i}"></div>`;
+        const weight = M[i][j] || 0;
+        const label = tx(
+          `"${s.words[i]}" chú ý "${s.words[j]}": ${Math.round(weight * 100)}%`,
+          `"${s.words[i]}" attends to "${s.words[j]}": ${Math.round(weight * 100)}%`
+        );
+        html += `<button type="button" class="attn-cell" style="background:${mix(weight)}" title="${label}" aria-label="${label}" data-i="${i}"></button>`;
       }
       html += `</div>`;
     }
     matrixEl.innerHTML = html;
-    matrixEl.querySelectorAll(".attn-cell").forEach((c) => {
-      c.onclick = () => { selected = parseInt(c.dataset.i); setParams({ s: current, w: selected }); render(); };
+    matrixEl.querySelectorAll(".attn-cell").forEach((cell) => {
+      cell.onclick = () => {
+        selected = parseInt(cell.dataset.i, 10);
+        setParams({ s: current, w: selected });
+        render();
+      };
     });
   }
 
@@ -155,24 +170,30 @@ export function roomAttention(root) {
     const M = buildAttention(s);
     renderMatrix(s, M);
     display.innerHTML = "";
-    s.words.forEach((w, j) => {
-      const span = document.createElement("span");
-      span.className = "tok";
-      span.textContent = w;
-      span.style.cursor = "pointer";
+    s.words.forEach((word, j) => {
+      const token = document.createElement("button");
+      token.type = "button";
+      token.className = "tok";
+      token.textContent = word;
+      token.setAttribute("aria-pressed", selected === j ? "true" : "false");
+      token.setAttribute("aria-label", tx(`Xem attention cho từ ${word}`, `Show attention for ${word}`));
       if (selected !== null) {
         const weight = M[selected][j] || 0;
-        span.style.background = mix(weight);
-        if (selected === j) span.style.outline = "2px solid #b07bff";
+        token.style.background = mix(weight);
+        if (selected === j) token.style.outline = "2px solid #b07bff";
       } else {
-        span.style.background = "rgba(255,255,255,0.05)";
+        token.style.background = "rgba(255,255,255,0.05)";
       }
-      span.onclick = () => { selected = j; setParams({ s: current, w: j }); render(); };
-      display.appendChild(span);
+      token.onclick = () => {
+        selected = j;
+        setParams({ s: current, w: j });
+        render();
+      };
+      display.appendChild(token);
     });
     const pronoun = tx("nó / cô", "it / she");
     noteEl.innerHTML = selected === null
-      ? tx(`👆 Bấm vào một từ bất kỳ (thử bấm vào <b>${pronoun}</b>).`, `👆 Click any word (try clicking <b>${pronoun}</b>).`)
+      ? tx(`👆 Chọn một từ bất kỳ (thử từ <b>${pronoun}</b>).`, `👆 Choose any word (try <b>${pronoun}</b>).`)
       : tx(`Khi xử lý từ "<b>${s.words[selected]}</b>", AI chú ý nhiều nhất vào từ sáng nhất. ${s.note}`,
            `When processing "<b>${s.words[selected]}</b>", the AI attends most to the brightest word. ${s.note}`);
   }

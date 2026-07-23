@@ -3,20 +3,18 @@ name: Deploy AI Explorer to GitHub Pages
 on:
   push:
     branches: [main]
+  pull_request:
+    branches: [main]
   workflow_dispatch:
 
 permissions:
   contents: read
-  pages: write
-  id-token: write
 
-# Chỉ chạy một lần deploy tại một thời điểm
 concurrency:
-  group: pages
+  group: pages-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  # Kiểm tra mọi phòng render sạch (không lỗi console) trước khi deploy.
   test:
     runs-on: ubuntu-latest
     steps:
@@ -27,36 +25,30 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "20"
+          cache: npm
 
-      - name: Install dependencies
-        run: npm install
+      - name: Install locked dependencies
+        run: npm ci
 
-      - name: Check offline cache integrity (sw.js ASSETS)
-        run: node tests/check-assets.mjs
-
-      - name: Check bilingual integrity (vi/en)
-        run: node tests/i18n.mjs
-
-      - name: Install Playwright (Chromium)
+      - name: Install Playwright Chromium
         run: npx playwright install --with-deps chromium
 
       - name: Serve app in background
-        run: npx --yes http-server -p 8000 -c-1 . &
+        run: npx http-server -p 8000 -c-1 . &
 
       - name: Wait for server
-        run: npx --yes wait-on http://localhost:8000 --timeout 30000
+        run: npx wait-on http://localhost:8000 --timeout 30000
 
-      - name: Run smoke test (mọi phòng)
-        run: node tests/smoke.mjs
-
-      - name: Test focus-trap ô tìm kiếm (a11y)
-        run: node tests/focus-trap.mjs
-
-      - name: Test PWA (service worker + toast cập nhật)
-        run: node tests/pwa.mjs
+      - name: Run all quality gates
+        run: npm run test:all
 
   deploy:
+    if: github.event_name != 'pull_request'
     needs: test
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}

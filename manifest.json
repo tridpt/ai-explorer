@@ -1,15 +1,23 @@
 {
+  "id": "./",
   "name": "AI Explorer — Hiểu AI trong 15 phút",
   "short_name": "AI Explorer",
   "description": "Hành trình tương tác giúp bạn hiểu AI một cách trực quan và thú vị.",
-  "start_url": "./index.html",
+  "start_url": "./",
   "scope": "./",
   "display": "standalone",
-  "orientation": "portrait-primary",
-  "background_color": "#07060f",
-  "theme_color": "#07060f",
+  "background_color": "#fffbf0",
+  "theme_color": "#ffe14d",
   "lang": "vi",
   "categories": ["education", "productivity"],
+  "shortcuts": [
+    { "name": "Bắt đầu hành trình", "short_name": "Bắt đầu", "url": "./#/teachable" },
+    { "name": "Tiếp tục học", "short_name": "Tiếp tục", "url": "./" },
+    { "name": "Quiz tổng kết", "short_name": "Quiz", "url": "./#/summary" }
+  ],
+  "screenshots": [
+    { "src": "og.png", "sizes": "1200x630", "type": "image/png", "form_factor": "wide", "label": "AI Explorer interactive journey" }
+  ],
   "icons": [
     { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
     { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png" },

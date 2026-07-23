@@ -1,32 +1,37 @@
 // AI Explorer — router & điều hướng "hành trình qua các phòng" (song ngữ VN/EN)
 import { renderHome } from "./rooms/home.js";
-import { roomTeachable } from "./rooms/teachable.js";
-import { roomNeuralNet } from "./rooms/neural-net.js";
-import { roomOverfitting } from "./rooms/overfitting.js";
-import { roomDecisionTree } from "./rooms/decision-tree.js";
-import { roomReinforcement } from "./rooms/reinforcement.js";
-import { roomClustering } from "./rooms/clustering.js";
-import { roomTokenizer } from "./rooms/tokenizer.js";
-import { roomEmbeddings } from "./rooms/embeddings.js";
-import { roomAttention } from "./rooms/attention.js";
-import { roomNextToken } from "./rooms/next-token.js";
-import { roomDiffusion } from "./rooms/diffusion.js";
-import { roomRecommendation } from "./rooms/recommendation.js";
-import { roomBias } from "./rooms/bias.js";
-import { roomAdversarial } from "./rooms/adversarial.js";
-import { roomTuring } from "./rooms/turing.js";
-import { roomChatbot } from "./rooms/chatbot.js";
-import { roomRag } from "./rooms/rag.js";
-import { roomFinetune } from "./rooms/finetune.js";
-import { roomAgents } from "./rooms/agents.js";
-import { roomMultimodal } from "./rooms/multimodal.js";
-import { roomContextWindow } from "./rooms/context-window.js";
-import { roomPromptInjection } from "./rooms/prompt-injection.js";
-import { roomRlhf } from "./rooms/rlhf.js";
-import { roomEnergy } from "./rooms/energy.js";
-import { roomReasoning } from "./rooms/reasoning.js";
-import { roomSummary } from "./rooms/summary.js";
+import { ROOM_LOADERS } from "./room-loaders.js";
 import { sfx, isMuted, setMuted } from "./sound.js";
+
+// Giữ registry metadata đồng bộ với loader nhưng chỉ tải/parse code của phòng khi mở.
+const {
+  teachable: roomTeachable,
+  "neural-net": roomNeuralNet,
+  overfitting: roomOverfitting,
+  "decision-tree": roomDecisionTree,
+  reinforcement: roomReinforcement,
+  clustering: roomClustering,
+  tokenizer: roomTokenizer,
+  embeddings: roomEmbeddings,
+  attention: roomAttention,
+  "next-token": roomNextToken,
+  diffusion: roomDiffusion,
+  recommendation: roomRecommendation,
+  bias: roomBias,
+  adversarial: roomAdversarial,
+  turing: roomTuring,
+  chatbot: roomChatbot,
+  rag: roomRag,
+  finetune: roomFinetune,
+  agents: roomAgents,
+  multimodal: roomMultimodal,
+  "context-window": roomContextWindow,
+  "prompt-injection": roomPromptInjection,
+  rlhf: roomRlhf,
+  energy: roomEnergy,
+  reasoning: roomReasoning,
+  summary: roomSummary,
+} = ROOM_LOADERS;
 import { markVisited, getVisited } from "./store.js";
 import { getLang, setLang, tx } from "./i18n.js";
 import { initAnalytics, trackView } from "./analytics.js";
@@ -588,6 +593,8 @@ async function shareRoom(room) {
 function toast(msg) {
   const t = document.createElement("div");
   t.className = "toast";
+  t.setAttribute("role", "status");
+  t.setAttribute("aria-live", "polite");
   t.textContent = msg;
   document.body.appendChild(t);
   setTimeout(() => t.classList.add("hide"), 2200);
@@ -630,7 +637,9 @@ function buildToolbar() {
 
 const app = document.getElementById("app");
 const progressNav = document.getElementById("progressNav");
+const routeStatus = document.getElementById("routeStatus");
 const visited = getVisited();
+let routeGeneration = 0;
 
 function currentRoute() {
   return parseHash().id;
@@ -645,7 +654,6 @@ function renderProgress(activeId) {
     dot.textContent = i + 1;
     const done = visited.has(room.id);
     const state = room.id === activeId ? tx("đang mở", "current") : done ? tx("đã xem", "visited") : tx("chưa xem", "not visited");
-    // Nhãn cho trình đọc màn hình: số + tên phòng + trạng thái.
     dot.setAttribute("aria-label", `${tx("Phòng", "Room")} ${i + 1}: ${tx(room.title)} — ${state}`);
     dot.title = tx(room.title);
     if (room.id === activeId) { dot.classList.add("active"); dot.setAttribute("aria-current", "page"); }
@@ -655,29 +663,80 @@ function renderProgress(activeId) {
   });
 }
 
+function updateStaticCopy() {
+  document.querySelector(".skip-link").textContent = tx("Bỏ qua tới nội dung", "Skip to content");
+  document.getElementById("brandHome").setAttribute("aria-label", tx("Về trang chủ AI Explorer", "Go to AI Explorer home"));
+  progressNav.setAttribute("aria-label", tx("Tiến trình các phòng", "Room progress"));
+  document.querySelector(".footer span").textContent = tx(
+    "Một hành trình tương tác để hiểu AI · Chạy hoàn toàn trên trình duyệt của bạn",
+    "An interactive journey to understand AI · Runs entirely in your browser"
+  );
+}
+
+function updatePageMetadata(room) {
+  const homeTitle = tx("AI Explorer — Hiểu AI trong 15 phút", "AI Explorer — Understand AI in 15 minutes");
+  const title = room ? `AI Explorer — ${tx(room.title)}` : homeTitle;
+  const description = room
+    ? tx(room.blurb)
+    : tx(
+        "Hành trình tương tác giúp bạn hiểu AI một cách trực quan: tự tay dạy AI, nhìn vào bên trong mô hình, và khám phá giới hạn của nó.",
+        "An interactive journey to understand AI visually: teach it yourself, look inside models, and explore their limits."
+      );
+  document.title = title;
+  document.querySelector('meta[name="description"]')?.setAttribute("content", description);
+  document.querySelector('meta[property="og:title"]')?.setAttribute("content", title);
+  document.querySelector('meta[property="og:description"]')?.setAttribute("content", description);
+  document.querySelector('meta[name="twitter:title"]')?.setAttribute("content", title);
+  document.querySelector('meta[name="twitter:description"]')?.setAttribute("content", description);
+}
+
+function finishRoute(room, moveFocus) {
+  updatePageMetadata(room);
+  updateStaticCopy();
+  app.setAttribute("aria-busy", "false");
+  routeStatus.textContent = "";
+  requestAnimationFrame(() => {
+    routeStatus.textContent = room
+      ? tx(`Đã mở phòng ${tx(room.title)}`, `Opened room ${tx(room.title)}`)
+      : tx("Đã mở trang chủ AI Explorer", "Opened AI Explorer home");
+    if (moveFocus) {
+      const heading = app.querySelector("h1, h2");
+      if (heading) {
+        heading.tabIndex = -1;
+        heading.focus({ preventScroll: true });
+      } else {
+        app.focus({ preventScroll: true });
+      }
+    }
+  });
+}
+
 export function navigate(id) {
   location.hash = id === "home" ? "" : `#/${id}`;
 }
 
-function route() {
+async function route({ moveFocus = false } = {}) {
+  const generation = ++routeGeneration;
   const id = currentRoute();
-  window.dispatchEvent(new CustomEvent("roomleave")); // dọn dẹp timer phòng cũ
+  window.dispatchEvent(new CustomEvent("roomleave"));
   app.innerHTML = "";
-  window.scrollTo({ top: 0, behavior: "smooth" });
+  app.setAttribute("aria-busy", "true");
+  window.scrollTo({ top: 0, behavior: "auto" });
   applyTheme(id === "home" ? "home" : id);
-  const room0 = ROOMS.find((r) => r.id === id);
+  const room0 = ROOMS.find((room) => room.id === id);
   trackView(id === "home" ? "/" : "/" + id, room0 ? tx(room0.title) : "AI Explorer");
   app.classList.remove("enter");
-  void app.offsetWidth; // restart animation
+  void app.offsetWidth;
   app.classList.add("enter");
 
   if (id === "home") {
     renderProgress(null);
     renderHome(app, ROOMS, navigate);
+    finishRoute(null, moveFocus);
     return;
   }
 
-  const idx = ROOMS.findIndex((r) => r.id === id);
+  const idx = ROOMS.findIndex((room) => room.id === id);
   if (idx === -1) {
     navigate("home");
     return;
@@ -688,11 +747,10 @@ function route() {
   markVisited(room.id);
   renderProgress(room.id);
 
-  // Khung sườn chung cho mọi phòng
   const head = document.createElement("div");
   head.className = "room-head";
   head.innerHTML = `
-    <div class="rh-icon">${room.icon}</div>
+    <div class="rh-icon" aria-hidden="true">${room.icon}</div>
     <div class="rh-text">
       <div class="rh-q">${tx(room.question)}</div>
       <h2>${tx(room.title)}</h2>
@@ -702,42 +760,51 @@ function route() {
   head.querySelector("#shareRoomBtn").onclick = () => shareRoom(room);
 
   const body = document.createElement("div");
+  body.innerHTML = `<div class="room-loading" role="status">${tx("Đang tải phòng…", "Loading room…")}</div>`;
   app.appendChild(body);
-  room.render(body);
-  // Quiz nhỏ "kiểm tra hiểu bài" ở cuối phòng (trừ trang tổng kết vốn đã có quiz lớn).
-  if (room.id !== "summary" && hasMicroQuiz(room.id)) renderMicroQuiz(body, room.id);
-  showHint(room.id);
 
-  // Nút điều hướng trước / sau
+  try {
+    const renderRoom = await room.render();
+    if (generation !== routeGeneration || currentRoute() !== id) return;
+    body.innerHTML = "";
+    renderRoom(body);
+    if (room.id !== "summary" && hasMicroQuiz(room.id)) renderMicroQuiz(body, room.id);
+    showHint(room.id);
+  } catch (error) {
+    if (generation !== routeGeneration) return;
+    console.error(`Không thể tải phòng ${room.id}:`, error);
+    body.innerHTML = `<div class="route-error" role="alert">${tx("Không thể tải phòng này. Hãy tải lại trang để thử lại.", "This room could not be loaded. Reload the page to try again.")}</div>`;
+  }
+
   const navBtns = document.createElement("div");
   navBtns.className = "nav-buttons";
   const prev = ROOMS[idx - 1];
   const next = ROOMS[idx + 1];
   navBtns.innerHTML = `
-    <button class="btn ghost" ${prev ? "" : "disabled"} id="prevBtn">
+    <button class="btn ghost" id="prevBtn">
       ← ${prev ? tx(prev.title) : tx(UI.start)}
     </button>
     <button class="btn" ${next ? "" : "disabled"} id="nextBtn">
       ${next ? tx(UI.nextRoom) + " " + tx(next.title) + " →" : tx(UI.journeyEnd)}
     </button>`;
   app.appendChild(navBtns);
-  if (prev) document.getElementById("prevBtn").onclick = () => navigate(prev.id);
-  else document.getElementById("prevBtn").onclick = () => navigate("home");
+  document.getElementById("prevBtn").onclick = () => navigate(prev ? prev.id : "home");
   if (next) document.getElementById("nextBtn").onclick = () => navigate(next.id);
+  finishRoute(room, moveFocus);
 }
 
 const brandEl = document.getElementById("brandHome");
-brandEl.addEventListener("click", () => navigate("home"));
-brandEl.addEventListener("keydown", (e) => {
-  if (e.key === "Enter" || e.key === " ") { e.preventDefault(); navigate("home"); }
+brandEl.addEventListener("click", (event) => {
+  event.preventDefault();
+  navigate("home");
 });
-window.addEventListener("hashchange", route);
+window.addEventListener("hashchange", () => route({ moveFocus: true }));
 
-// Đổi ngôn ngữ → dựng lại thanh công cụ + render lại phòng hiện tại
+// Đổi ngôn ngữ → dựng lại thanh công cụ + render lại phòng hiện tại, không cướp focus.
 window.addEventListener("langchange", () => {
   document.querySelector(".toolbar")?.remove();
   buildToolbar();
-  route();
+  route({ moveFocus: false });
 });
 
 // Điều hướng bằng phím mũi tên (hợp cho trình chiếu)
@@ -748,7 +815,7 @@ window.addEventListener("keydown", (e) => {
     openSearch();
     return;
   }
-  if (["INPUT", "TEXTAREA", "SELECT"].includes(document.activeElement?.tagName)) return;
+  if (["INPUT", "TEXTAREA", "SELECT", "BUTTON", "A"].includes(document.activeElement?.tagName)) return;
   const id = currentRoute();
   const idx = ROOMS.findIndex((r) => r.id === id);
   if (e.key === "ArrowRight") {
