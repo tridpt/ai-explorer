@@ -62,7 +62,7 @@ export function roomDiffusion(root) {
       <div id="dfGame" hidden>
         <div class="row" style="align-items:center">
           <div class="center" style="flex:0 0 auto">
-            <canvas id="dfCanvas" width="${SIZE}" height="${SIZE}" style="background:#000; border:3px solid var(--ink);"></canvas>
+            <canvas id="dfCanvas" width="${SIZE}" height="${SIZE}" role="img" aria-label="${tx("Khung hình đang rõ dần từ nhiễu pixel về một emoji đích", "A frame clearing from pixel noise toward a target emoji")}" style="background:#000; border:3px solid var(--ink);"></canvas>
             <div class="muted mt" style="font-size:12px">${tx(UI.clarity)}: <b id="dfClarity">0%</b></div>
           </div>
           <div style="flex:1; min-width:220px">

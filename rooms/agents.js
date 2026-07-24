@@ -82,13 +82,19 @@ export function roomAgents(root) {
 
   const tasksDiv = root.querySelector("#agTasks");
   TASKS.forEach((t, i) => {
-    const tag = document.createElement("span");
+    const tag = document.createElement("button");
+    tag.type = "button";
     tag.className = "tag";
     tag.textContent = tx(t.goal).length > 46 ? tx(t.goal).slice(0, 46) + "…" : tx(t.goal);
+    tag.setAttribute("aria-label", tx(t.goal));
+    tag.setAttribute("aria-pressed", i === startTask ? "true" : "false");
     tag.onclick = () => {
       current = i;
       setParams({ task: i });
-      tasksDiv.querySelectorAll(".tag").forEach((x) => (x.style.borderColor = ""));
+      tasksDiv.querySelectorAll(".tag").forEach((x, xi) => {
+        x.style.borderColor = "";
+        x.setAttribute("aria-pressed", xi === i ? "true" : "false");
+      });
       tag.style.borderColor = "var(--accent)";
       clearTrace();
       sfx.pop();

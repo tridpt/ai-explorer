@@ -72,7 +72,7 @@ export function roomClustering(root) {
 
       <div id="clGame" hidden>
         <div class="g-timer"><div class="g-timer-fill" id="clTimer"></div></div>
-        <div class="center"><canvas id="clCanvas" width="440" height="360" style="border:3px solid var(--ink); background:#14140f;"></canvas></div>
+        <div class="center"><canvas id="clCanvas" width="440" height="360" role="img" aria-label="${tx("Các điểm dữ liệu 2D được k-means gom thành nhóm màu", "2D data points grouped into colored clusters by k-means")}" style="border:3px solid var(--ink); background:#14140f;"></canvas></div>
         <p class="muted mt" style="font-weight:700">${tx(UI.prompt)}</p>
         <div class="nt-chips" id="clChips"></div>
         <div id="clFb" class="mt"></div>

@@ -189,7 +189,8 @@ export function roomChatbot(root) {
 
   const sg = root.querySelector("#chatSuggest");
   (SUGGEST[getLang()] || SUGGEST.vi).forEach((q) => {
-    const tag = document.createElement("span");
+    const tag = document.createElement("button");
+    tag.type = "button";
     tag.className = "tag";
     tag.textContent = q;
     tag.onclick = () => send(q);

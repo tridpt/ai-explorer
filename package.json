@@ -11,9 +11,11 @@
     "test": "node tests/smoke.mjs",
     "test:focus": "node tests/focus-trap.mjs",
     "test:pwa": "node tests/pwa.mjs",
-    "test:all": "npm run check-assets && npm run test:i18n && npm test && npm run test:focus && npm run test:pwa"
+    "test:a11y": "node tests/a11y.mjs",
+    "test:all": "npm run check-assets && npm run test:i18n && npm test && npm run test:focus && npm run test:pwa && npm run test:a11y"
   },
   "devDependencies": {
+    "@axe-core/playwright": "4.10.2",
     "http-server": "14.1.1",
     "playwright": "1.61.1",
     "wait-on": "8.0.4"

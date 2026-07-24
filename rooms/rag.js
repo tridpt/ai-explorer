@@ -132,7 +132,8 @@ export function roomRag(root) {
 
   const samplesEl = root.querySelector("#ragSamples");
   (SAMPLE_Q[getLang()] || SAMPLE_Q.vi).forEach((s) => {
-    const tag = document.createElement("span");
+    const tag = document.createElement("button");
+    tag.type = "button";
     tag.className = "tag";
     tag.textContent = s;
     tag.onclick = () => { input.value = s; setParams({ q: s }); ask(s); sfx.pop(); };

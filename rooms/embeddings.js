@@ -83,7 +83,7 @@ export function roomEmbeddings(root) {
         <div class="g-hearts" id="emHearts"></div>
       </div>
 
-      <canvas id="embCanvas" width="720" height="440" style="width:100%; border:3px solid var(--ink);"></canvas>
+      <canvas id="embCanvas" width="720" height="440" role="img" aria-label="${tx("Bản đồ 2D các từ; từ gần nghĩa nằm gần nhau", "2D word map; similar words sit close together")}" style="width:100%; border:3px solid var(--ink);"></canvas>
 
       <div id="emSetup" style="text-align:center; padding:12px 0;">
         <button class="btn g-play" id="emPlay">${tx(UI.start)}</button>

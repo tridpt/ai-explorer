@@ -85,8 +85,8 @@ body::before { content: none; }
   transition: transform 0.1s ease;
 }
 .progress-dot:hover { transform: translate(-1px, -1px); box-shadow: 2px 2px 0 var(--ink); }
-.progress-dot.active { background: var(--accent); color: #fff; box-shadow: var(--sh-sm); }
-.progress-dot.done { background: var(--good); color: #fff; }
+.progress-dot.active { background: var(--accent); color: var(--ink); box-shadow: var(--sh-sm); }
+.progress-dot.done { background: var(--good-ink); color: #fff; }
 
 /* toolbar */
 .toolbar { display: flex; gap: 8px; margin-left: 6px; }
@@ -177,13 +177,14 @@ body::before { content: none; }
   text-transform: uppercase;
   letter-spacing: 0.3px;
   padding: 13px 24px;
-  color: #fff;
+  /* Chữ đậm màu ink đạt tương phản trên MỌI tông accent (kể cả vàng/xanh lá sáng),
+     thay cho chữ trắng vốn trượt WCAG trên các accent sáng. */
+  color: var(--ink);
   background: var(--accent);
   box-shadow: var(--sh);
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.55);
+  text-shadow: none;
   transition: transform 0.1s ease, box-shadow 0.1s ease;
 }
-.btn.ghost { text-shadow: none; }
 .btn:hover { transform: translate(-2px, -2px); box-shadow: 8px 8px 0 var(--ink); }
 .btn:active { transform: translate(3px, 3px); box-shadow: 2px 2px 0 var(--ink); }
 .btn.ghost { background: var(--paper); color: var(--ink); }

@@ -138,14 +138,19 @@ export function roomPromptInjection(root) {
   const replyEl = root.querySelector("#piReply");
 
   msgs.forEach((m, i) => {
-    const tag = document.createElement("span");
+    const tag = document.createElement("button");
+    tag.type = "button";
     tag.className = "tag" + (m.attack ? " pi-attack" : "");
     tag.textContent = (m.attack ? "😈 " : "🙂 ") + tx(m.label);
+    tag.setAttribute("aria-pressed", i === current ? "true" : "false");
     tag.onclick = () => {
       current = i;
       input.value = m.text;
       setParams({ m: i, def: defense ? null : "0" });
-      msgsEl.querySelectorAll(".tag").forEach((x) => (x.style.borderColor = ""));
+      msgsEl.querySelectorAll(".tag").forEach((x, xi) => {
+        x.style.borderColor = "";
+        x.setAttribute("aria-pressed", xi === i ? "true" : "false");
+      });
       tag.style.borderColor = "var(--accent)";
       sfx.pop();
     };

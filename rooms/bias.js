@@ -54,7 +54,8 @@ export function roomBias(root) {
 
   const picker = root.querySelector("#jobPicker");
   PROFESSIONS.forEach((p) => {
-    const tag = document.createElement("span");
+    const tag = document.createElement("button");
+    tag.type = "button";
     tag.className = "tag";
     tag.textContent = tx(p.job);
     tag.onclick = () => show(p);

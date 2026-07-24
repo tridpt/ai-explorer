@@ -46,7 +46,7 @@ export function roomDecisionTree(root) {
 
     <div class="panel">
       <h4>${tx("🗺️ Toàn cảnh cây (đường bạn đã đi sẽ sáng lên)", "🗺️ Full tree (your path lights up)")}</h4>
-      <canvas id="treeCanvas" width="640" height="300"></canvas>
+      <canvas id="treeCanvas" width="640" height="300" role="img" aria-label="${tx("Sơ đồ cây quyết định; đường bạn đã đi được làm sáng", "Decision tree diagram; your chosen path is highlighted")}"></canvas>
     </div>
 
     <div class="panel">
@@ -244,7 +244,8 @@ export function roomDecisionTree(root) {
   }
 
   FEATURES.forEach((f) => {
-    const tag = document.createElement("span");
+    const tag = document.createElement("button");
+    tag.type = "button";
     tag.className = "tag";
     tag.dataset.k = f.key;
     tag.textContent = (f.key === bestKey ? "⭐ " : "") + tx(f.label);

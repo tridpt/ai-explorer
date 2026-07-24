@@ -56,8 +56,8 @@ export function roomNeuralNet(root) {
   const reduce = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
   root.innerHTML = `
     <p class="room-intro">${tx(
-      "Bên trong AI là nhiều <strong>nơ-ron</strong>, mỗi cái làm một phép tính tí hon; ghép lại chúng học được hình phức tạp. <strong>Thử thách:</strong> giúp AI tách điểm <span style=\"color:#fb923c\">cam (trong vòng tròn)</span> khỏi <span style=\"color:#6ea8fe\">xanh (ngoài)</span> — đạt <b>95% chính xác</b> càng nhanh càng tốt!",
-      "Inside an AI are many <strong>neurons</strong>, each doing a tiny calculation; combined they learn complex shapes. <strong>Challenge:</strong> help the AI separate <span style=\"color:#fb923c\">orange (inside the circle)</span> from <span style=\"color:#6ea8fe\">blue (outside)</span> — reach <b>95% accuracy</b> as fast as you can!"
+      "Bên trong AI là nhiều <strong>nơ-ron</strong>, mỗi cái làm một phép tính tí hon; ghép lại chúng học được hình phức tạp. <strong>Thử thách:</strong> giúp AI tách điểm <span style=\"color:#c2410c;font-weight:700\">cam (trong vòng tròn)</span> khỏi <span style=\"color:#1d4ed8;font-weight:700\">xanh (ngoài)</span> — đạt <b>95% chính xác</b> càng nhanh càng tốt!",
+      "Inside an AI are many <strong>neurons</strong>, each doing a tiny calculation; combined they learn complex shapes. <strong>Challenge:</strong> help the AI separate <span style=\"color:#c2410c;font-weight:700\">orange (inside the circle)</span> from <span style=\"color:#1d4ed8;font-weight:700\">blue (outside)</span> — reach <b>95% accuracy</b> as fast as you can!"
     )}</p>
 
     <div class="g-mascot"><div class="g-bot" id="nnBot">🤖</div><div class="g-bubble" id="nnBubble">${tx(BOT.intro)}</div></div>
@@ -72,7 +72,7 @@ export function roomNeuralNet(root) {
       <div class="row">
         <div class="panel center" style="flex:1.2; margin:0;">
           <h4 style="text-align:left">${tx("🕸️ AI đang học (vùng màu = dự đoán)", "🕸️ The AI learns (colored area = its guess)")}</h4>
-          <canvas id="nnCanvas" width="420" height="420"></canvas>
+          <canvas id="nnCanvas" width="420" height="420" role="img" aria-label="${tx("Bản đồ dự đoán của mạng nơ-ron; vùng màu là dự đoán của AI", "Neural network prediction map; colored areas show the AI's guess")}"></canvas>
         </div>
         <div class="panel" style="margin:0;">
           <h4>${tx("🎛️ Chuẩn bị", "🎛️ Setup")}</h4>

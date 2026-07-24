@@ -141,12 +141,18 @@ export function roomMultimodal(root) {
 
   const picker = root.querySelector("#mmPicker");
   SCENES.forEach((s, i) => {
-    const tag = document.createElement("span");
+    const tag = document.createElement("button");
+    tag.type = "button";
     tag.className = "tag";
     tag.textContent = s.emoji;
     tag.style.fontSize = "22px";
+    tag.setAttribute("aria-label", tx(s.caption));
+    tag.setAttribute("aria-pressed", i === startIdx ? "true" : "false");
     tag.onclick = () => {
-      picker.querySelectorAll(".tag").forEach((t) => (t.style.borderColor = ""));
+      picker.querySelectorAll(".tag").forEach((t, ti) => {
+        t.style.borderColor = "";
+        t.setAttribute("aria-pressed", ti === i ? "true" : "false");
+      });
       tag.style.borderColor = "var(--accent)";
       setParams({ scene: i });
       show(i);

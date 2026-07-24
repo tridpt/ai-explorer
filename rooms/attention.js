@@ -147,8 +147,8 @@ export function roomAttention(root) {
       for (let j = 0; j < n; j++) {
         const weight = M[i][j] || 0;
         const label = tx(
-          `"${s.words[i]}" chú ý "${s.words[j]}": ${Math.round(weight * 100)}%`,
-          `"${s.words[i]}" attends to "${s.words[j]}": ${Math.round(weight * 100)}%`
+          `${s.words[i]} → ${s.words[j]}: ${Math.round(weight * 100)}%`,
+          `${s.words[i]} → ${s.words[j]}: ${Math.round(weight * 100)}%`
         );
         html += `<button type="button" class="attn-cell" style="background:${mix(weight)}" title="${label}" aria-label="${label}" data-i="${i}"></button>`;
       }

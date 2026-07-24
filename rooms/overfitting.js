@@ -66,7 +66,7 @@ export function roomOverfitting(root) {
     <div class="row">
       <div class="panel" style="flex:1.2;">
         <h4>${tx("🧠 Ranh giới AI học được", "🧠 The boundary the AI learned")}</h4>
-        <canvas id="ofCanvas" width="420" height="420"></canvas>
+        <canvas id="ofCanvas" width="420" height="420" role="img" aria-label="${tx("Đồ thị ranh giới AI học được, kèm điểm dữ liệu huấn luyện và kiểm tra", "Plot of the boundary the AI learned, with training and test data points")}"></canvas>
         <p class="muted mt">${tx(
           "⬤ chấm viền trắng = dữ liệu học · ⬤ nhỏ mờ = bài kiểm tra (AI chưa thấy lúc học)",
           "⬤ white-ringed dots = training data · ⬤ small faded = test data (unseen during training)"

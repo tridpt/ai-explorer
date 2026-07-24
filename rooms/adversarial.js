@@ -95,12 +95,12 @@ export function roomAdversarial(root) {
           <div class="center" style="flex:1.1">
             <div class="adv-imgs">
               <div>
-                <canvas id="advCanvas" width="${SIZE}" height="${SIZE}" style="margin:0 auto"></canvas>
+                <canvas id="advCanvas" width="${SIZE}" height="${SIZE}" role="img" aria-label="${tx("Ảnh AI nhìn thấy, đã cộng thêm nhiễu", "The image the AI sees, with added noise")}" style="margin:0 auto"></canvas>
                 <div class="muted" style="font-size:12px">${tx(UI.seen)}</div>
               </div>
-              <div class="adv-plus">+</div>
+              <div class="adv-plus" aria-hidden="true">+</div>
               <div>
-                <canvas id="advNoiseCanvas" width="${SIZE}" height="${SIZE}" style="margin:0 auto"></canvas>
+                <canvas id="advNoiseCanvas" width="${SIZE}" height="${SIZE}" role="img" aria-label="${tx("Lớp nhiễu đối kháng được cộng vào ảnh", "The adversarial noise layer added to the image")}" style="margin:0 auto"></canvas>
                 <div class="muted" style="font-size:12px">${tx(UI.noiseLayer)}</div>
               </div>
             </div>

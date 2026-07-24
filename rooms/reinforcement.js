@@ -55,7 +55,7 @@ export function roomReinforcement(root) {
       <div class="row">
         <div class="panel center" style="flex:1.1; margin:0;">
           <h4 style="text-align:left">${tx("🗺️ Thế giới của robot", "🗺️ The robot's world")}</h4>
-          <canvas id="rlCanvas" width="480" height="400" style="margin:0 auto;"></canvas>
+          <canvas id="rlCanvas" width="480" height="400" role="img" aria-label="${tx("Lưới thế giới của robot; ô xanh là ô được đánh giá cao, mũi tên là nước đi tốt nhất", "The robot's grid world; green tiles are valued, arrows show the best move")}" style="margin:0 auto;"></canvas>
           <p class="muted mt" style="font-size:12px">${tx("Xanh = ô robot thấy \"đáng giá\" · mũi tên = nước đi tốt nhất.", "Green = tiles it finds \"valuable\" · arrows = its best move.")}</p>
         </div>
         <div class="panel" style="margin:0;">
