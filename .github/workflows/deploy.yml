@@ -42,9 +42,45 @@ jobs:
       - name: Run all quality gates
         run: npm run test:all
 
+  # Ngân sách Lighthouse: chặn hồi quy SEO/accessibility (error), theo dõi hiệu năng (warn).
+  lighthouse:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+
+      - name: Install locked dependencies
+        run: npm ci
+
+      - name: Prerender SEO pages + sitemap
+        run: node build-seo.mjs
+
+      - name: Serve app in background
+        run: npx http-server -p 8000 -c-1 . &
+
+      - name: Wait for server
+        run: npx wait-on http://localhost:8000 --timeout 30000
+
+      - name: Run Lighthouse CI
+        uses: treosh/lighthouse-ci-action@v12
+        with:
+          urls: |
+            http://localhost:8000/
+            http://localhost:8000/#/attention
+            http://localhost:8000/vi/attention/
+          configPath: ./lighthouserc.json
+          uploadArtifacts: true
+          temporaryPublicStorage: true
+
   deploy:
     if: github.event_name != 'pull_request'
-    needs: test
+    needs: [test, lighthouse]
     permissions:
       contents: read
       pages: write

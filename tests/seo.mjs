@@ -45,8 +45,10 @@ for (const meta of ROOM_META) {
     check(sitemap.includes(`<loc>https://tridpt.github.io/ai-explorer/${lang}/${meta.id}/</loc>`), `sitemap thiếu ${lang}/${meta.id}`);
   }
 }
+check(sitemap.includes("<loc>https://tridpt.github.io/ai-explorer/privacy.html</loc>"), "sitemap thiếu trang privacy");
 const locCount = (sitemap.match(/<loc>/g) || []).length;
-const expected = 1 + LANGS.length + ROOM_META.length * LANGS.length;
+// home + privacy + 2 trang ngôn ngữ + (26 phòng × 2 ngôn ngữ)
+const expected = 2 + LANGS.length + ROOM_META.length * LANGS.length;
 check(locCount === expected, `sitemap có ${locCount} URL, cần ${expected}`);
 
 console.log("\n=== KẾT QUẢ (seo prerender) ===");

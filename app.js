@@ -384,6 +384,8 @@ function updateStaticCopy() {
     "Một hành trình tương tác để hiểu AI · Chạy hoàn toàn trên trình duyệt của bạn",
     "An interactive journey to understand AI · Runs entirely in your browser"
   );
+  const footerLink = document.querySelector(".footer-link");
+  if (footerLink) footerLink.textContent = tx("Quyền riêng tư", "Privacy");
 }
 
 function updatePageMetadata(room) {

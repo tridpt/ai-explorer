@@ -120,7 +120,13 @@ body::before { content: none; }
   color: var(--ink);
   border-top: 3px solid var(--ink);
   background: #ffe14d;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  align-items: center;
+  justify-content: center;
 }
+.footer-link { color: var(--ink); font-weight: 700; text-decoration: underline; text-decoration-thickness: 2px; }
 
 /* ---------- Home / Hero ---------- */
 .hero { padding: 56px 0 34px; }

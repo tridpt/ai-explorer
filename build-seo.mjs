@@ -117,7 +117,7 @@ function page(meta, lang) {
 }
 
 function buildSitemap() {
-  const urls = [`${SITE}/`];
+  const urls = [`${SITE}/`, `${SITE}/privacy.html`];
   for (const lang of LANGS) urls.push(`${SITE}/${lang}/`);
   for (const meta of ROOM_META) {
     for (const lang of LANGS) urls.push(`${SITE}/${lang}/${meta.id}/`);
