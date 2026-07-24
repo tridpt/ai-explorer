@@ -135,8 +135,8 @@ const UI = {
   youPicked: { vi: "bạn chọn", en: "you" },
   over: { vi: "Hết lượt!", en: "Game over!" },
   overSub: {
-    vi: "Bạn vừa làm đúng việc của một mô hình ngôn ngữ: đoán từ tiếp theo theo xác suất. Nhiệt độ càng cao, AI càng 'bay' và dễ <b>ảo giác</b> — sai mà nghe vẫn trơn tru.",
-    en: "You just did a language model's job: guessing the next word by probability. The higher the temperature, the 'wilder' the AI and the more it <b>hallucinates</b> — wrong yet fluent.",
+    vi: "Bạn vừa chơi với mô hình <b>trigram theo từ</b> trên một corpus nhỏ. LLM thật dự đoán token từ ngữ cảnh phong phú hơn nhiều. Nhiệt độ cao làm mẫu đa dạng hơn và đôi khi tăng lỗi, nhưng không phải nguyên nhân duy nhất của ảo giác.",
+    en: "You just used a <b>word-level trigram</b> over a tiny corpus. Real LLMs predict tokens from much richer context. Higher temperature increases sampling diversity and can increase errors, but it is not the sole cause of hallucination.",
   },
   newRecord: { vi: "🏆 Kỷ lục mới!", en: "🏆 New record!" },
   finalScore: { vi: "Điểm của bạn", en: "Your score" },
@@ -191,8 +191,8 @@ export function roomNextToken(root) {
 
     <div class="takeaway">
       ${tx(
-        "💡 <strong>Điều cốt lõi:</strong> AI không \"biết\" sự thật — nó chỉ chọn từ <em>nghe hợp lý</em> theo xác suất, rồi ghép lại thành câu trơn tru. Đó là lý do nó đôi khi sai mà vẫn rất tự tin: <em>ảo giác (hallucination)</em>.",
-        "💡 <strong>Key idea:</strong> AI doesn't \"know\" the truth — it picks words that <em>sound plausible</em> by probability, then stitches a smooth sentence. That's why it can be wrong yet confident: <em>hallucination</em>."
+        "💡 <strong>Điều cốt lõi:</strong> Mô hình ngôn ngữ sinh token theo phân phối xác suất; điều đó tạo độ trôi chảy nhưng không tự bảo đảm tính đúng. Ảo giác không chỉ do sampling hay nhiệt độ: dữ liệu, mục tiêu huấn luyện, ngữ cảnh và việc thiếu kiểm chứng đều có thể góp phần. Game này chỉ là trigram theo từ.",
+        "💡 <strong>Key idea:</strong> Language models generate tokens from probability distributions; this enables fluency but does not ensure factuality. Hallucinations are not caused only by sampling or temperature—data, objectives, context, and missing verification can all contribute. This game is only a word-level trigram."
       )}
     </div>
   `;

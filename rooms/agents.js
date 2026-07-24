@@ -50,8 +50,8 @@ export function roomAgents(root) {
   root.innerHTML = `
     <p class="room-intro">
       ${tx(
-        "Một chatbot thường chỉ trả lời bằng chữ nó đã biết. Nhưng <strong>AI agent</strong> thì khác: khi gặp việc khó, nó tự <em>lên kế hoạch nhiều bước</em>, biết mình <em>chưa đủ thông tin</em>, rồi <strong>gọi công cụ</strong> (tra thời tiết, dùng máy tính, xem lịch…) và dựa vào kết quả để đi bước tiếp. Bấm chạy thử một nhiệm vụ để xem nó tư duy.",
-        "A plain chatbot only answers from what it knows. An <strong>AI agent</strong> is different: for hard tasks it <em>plans multiple steps</em>, realizes it <em>lacks info</em>, then <strong>calls tools</strong> (check weather, use a calculator, read a calendar…) and uses the results to take the next step. Run a task to watch it reason."
+        "Một <strong>AI agent</strong> ghép model với một vòng lặp điều phối và các công cụ được cấp quyền. Nó có thể lập kế hoạch, gọi tool rồi đọc kết quả, nhưng cũng có thể chọn sai tool hoặc hành động dựa trên dữ liệu lỗi. Bấm chạy để xem một <strong>trace viết sẵn</strong>; phòng này không gọi thời tiết, máy tính hay lịch thật.",
+        "An <strong>AI agent</strong> combines a model with an orchestration loop and permitted tools. It may plan, call a tool, and inspect results, but can also choose the wrong tool or act on faulty data. Run the <strong>scripted trace</strong> below; this room calls no real weather, calculator, or calendar service."
       )}
     </p>
 
@@ -72,8 +72,8 @@ export function roomAgents(root) {
 
     <div class="takeaway">
       ${tx(
-        "💡 <strong>Điều cốt lõi:</strong> Agent = mô hình ngôn ngữ + vòng lặp <em>\"suy nghĩ → hành động → quan sát\"</em> + quyền dùng công cụ. Nhờ vậy AI vượt khỏi giới hạn \"chỉ biết chữ\": nó lấy được dữ liệu thật, tính toán chính xác và thực hiện việc nhiều bước. Đây là nền của các trợ lý AI hiện đại.",
-        "💡 <strong>Key idea:</strong> An agent = a language model + a <em>\"think → act → observe\"</em> loop + access to tools. That lets AI break past \"text-only\": it fetches real data, computes precisely, and completes multi-step work. This underpins modern AI assistants."
+        "💡 <strong>Điều cốt lõi:</strong> Agent ghép model, vòng lặp điều phối và quyền dùng công cụ. Khả năng hành động có thể giúp giải việc nhiều bước, nhưng tool có thể lỗi, dữ liệu có thể cũ và model có thể chọn sai hành động. Demo này chỉ phát một trace viết sẵn; hệ thật cần quyền hạn hẹp, kiểm tra kết quả và giám sát.",
+        "💡 <strong>Key idea:</strong> Agents combine a model, an orchestration loop, and tool permissions. Action can help with multi-step tasks, but tools can fail, data can be stale, and models can choose the wrong action. This demo only plays a scripted trace; real systems need narrow permissions, result checks, and oversight."
       )}
     </div>
   `;

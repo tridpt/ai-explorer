@@ -46,8 +46,8 @@ export function roomRag(root) {
   root.innerHTML = `
     <p class="room-intro">
       ${tx(
-        "Một chatbot thường chỉ biết những gì có trong dữ liệu huấn luyện — nó <strong>không biết tài liệu riêng của bạn</strong> (sổ tay công ty, ghi chú cá nhân…). <strong>RAG</strong> (tra cứu rồi trả lời) khắc phục điều đó: trước khi trả lời, AI <em>tìm những mảnh tài liệu liên quan nhất</em>, rồi dựa vào đó để soạn câu trả lời. Hãy thử hỏi kho tài liệu bên dưới.",
-        "A chatbot usually only knows what was in its training data — it <strong>doesn't know your private documents</strong> (company handbook, personal notes…). <strong>RAG</strong> (retrieval-augmented generation) fixes this: before answering, the AI <em>retrieves the most relevant document chunks</em>, then answers based on them. Try querying the mini knowledge base below."
+        "Một chatbot không tự có quyền truy cập tài liệu riêng của bạn. <strong>RAG</strong> (retrieval-augmented generation) thêm một bước: hệ thống <em>truy xuất các đoạn có vẻ liên quan</em> rồi đưa chúng vào ngữ cảnh để model soạn câu trả lời. Truy xuất và câu trả lời vẫn có thể sai, nên nguồn giúp người đọc kiểm tra lại. Demo dưới đây dùng chấm điểm từ khóa.",
+        "A chatbot does not automatically have access to your private documents. <strong>RAG</strong> adds a step: the system <em>retrieves passages that appear relevant</em> and places them in context for a model to answer. Retrieval and generation can still fail, so citations help readers verify. This demo uses keyword scoring."
       )}
     </p>
 
@@ -75,8 +75,8 @@ export function roomRag(root) {
 
     <div class="takeaway">
       ${tx(
-        "💡 <strong>Điều cốt lõi:</strong> RAG không \"nhồi\" toàn bộ tài liệu vào AI, cũng không huấn luyện lại nó. Nó chỉ <em>tìm đúng vài đoạn liên quan</em> rồi đưa kèm câu hỏi cho AI đọc. Nhờ vậy chatbot trả lời được về tài liệu mới, dẫn được nguồn, và ít \"bịa\" hơn — đây là cách hầu hết trợ lý hỏi–đáp tài liệu hoạt động.",
-        "💡 <strong>Key idea:</strong> RAG doesn't stuff whole documents into the AI, nor retrain it. It just <em>finds a few relevant passages</em> and hands them to the AI alongside your question. That lets a chatbot answer about fresh documents, cite sources, and hallucinate less — how most document Q&A assistants work."
+        "💡 <strong>Điều cốt lõi:</strong> RAG truy xuất một số đoạn rồi đưa chúng vào ngữ cảnh; nó không nhất thiết huấn luyện lại model. Cách này có thể cải thiện grounding và cho phép dẫn nguồn, nhưng retrieval có thể bỏ sót/chọn nhầm và model vẫn có thể tạo câu không được nguồn hỗ trợ. Dẫn nguồn giúp kiểm tra, không bảo đảm đúng.",
+        "💡 <strong>Key idea:</strong> RAG retrieves passages and places them in context; it does not necessarily retrain the model. This can improve grounding and enable citations, but retrieval can miss or select wrong evidence, and generation can still be unsupported. Citations aid verification; they do not guarantee correctness."
       )}
     </div>
   `;
@@ -108,8 +108,8 @@ export function roomRag(root) {
     if (!top.length) {
       retrievedEl.innerHTML = tx("Không tìm thấy mảnh nào khớp.", "No matching chunk found.");
       answerEl.innerHTML = tx(
-        "🤖 Xin lỗi, tài liệu hiện có không nói về điều này. (AI không bịa vì không có căn cứ.)",
-        "🤖 Sorry, the available documents don't cover this. (The AI won't make things up without grounding.)"
+        "🤖 Tài liệu hiện có không khớp câu hỏi này. Một hệ RAG nên từ chối hoặc yêu cầu thêm nguồn, nhưng model thật vẫn có thể tạo câu không có căn cứ nếu guardrail yếu.",
+        "🤖 The available documents do not match this question. A RAG system should abstain or request more evidence, but a real model may still generate unsupported text if guardrails are weak."
       );
       return;
     }

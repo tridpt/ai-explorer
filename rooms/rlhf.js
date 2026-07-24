@@ -87,8 +87,8 @@ const UI = {
   promptLabel: { vi: "Người dùng hỏi", en: "User asks" },
   pick: { vi: "👍 Chọn câu này", en: "👍 Pick this one" },
   next: { vi: "Câu hỏi tiếp →", en: "Next question →" },
-  rewardTitle: { vi: "🎯 Mô hình thưởng đang học gu của bạn", en: "🎯 The reward model is learning your taste" },
-  rewardEmpty: { vi: "Hãy chấm vài câu để mô hình thưởng hình thành…", en: "Rank a few answers to shape the reward model…" },
+  rewardTitle: { vi: "🎯 Minh họa tín hiệu preference", en: "🎯 Preference-signal illustration" },
+  rewardEmpty: { vi: "Hãy chấm vài câu để xem cách tổng hợp lựa chọn…", en: "Rank a few answers to see choices aggregated…" },
   aligned: { vi: "hợp gu con người", en: "human-aligned" },
   raw: { vi: "kiểu mô hình thô", en: "raw-model style" },
   matchGood: { vi: "✓ Bạn chọn câu hữu ích/tử tế — giống đa số người chấm.", en: "✓ You picked the helpful/kind answer — like most human raters." },
@@ -129,8 +129,8 @@ export function roomRlhf(root) {
 
     <div class="takeaway">
       ${tx(
-        "💡 <strong>Điều cốt lõi:</strong> Mô hình gốc chỉ học <em>đoán chữ</em> từ Internet — nó không tự biết thế nào là 'trả lời hay'. RLHF thêm một bước: con người chấm điểm, tạo ra <em>mô hình thưởng</em>, rồi AI được tinh chỉnh để tối đa hóa phần thưởng đó. Đây là lý do các trợ lý như ChatGPT nghe 'lễ phép và hữu ích' — nhưng cũng nghĩa là chúng phản ánh <em>giá trị của những người đi chấm</em>.",
-        "💡 <strong>Key idea:</strong> A base model only learns to <em>predict text</em> from the Internet — it doesn't inherently know what a 'good answer' is. RLHF adds a step: humans rate answers, forming a <em>reward model</em>, then the AI is fine-tuned to maximize that reward. This is why assistants like ChatGPT sound 'polite and helpful' — but it also means they reflect <em>the values of whoever did the rating</em>."
+        "💡 <strong>Điều cốt lõi:</strong> RLHF là một họ quy trình: thu thập preference từ nhiều người, học tín hiệu thưởng rồi hậu huấn luyện model; sản phẩm thực thường còn kết hợp supervised fine-tuning và các bước an toàn khác. Demo này chỉ cộng điểm theo đáp án gắn nhãn sẵn — không huấn luyện reward model hay policy — và cũng nhắc rằng kết quả phản ánh lựa chọn của người chấm.",
+        "💡 <strong>Key idea:</strong> RLHF is a family of workflows: aggregate preferences from many people, learn a reward signal, then post-train a model; real products often combine this with supervised fine-tuning and other safety stages. This demo only tallies pre-labeled choices—it trains no reward model or policy—and reminds us that outcomes reflect raters' choices."
       )}
     </div>
   `;

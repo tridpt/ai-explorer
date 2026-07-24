@@ -23,20 +23,20 @@ const TRAIN_WH = 1_000_000_000; // ~1 GWh — minh họa cho "một lần nhưng
 
 const UI = {
   intro: {
-    vi: "AI không chạy bằng phép màu — mỗi câu trả lời là hàng loạt phép tính trong trung tâm dữ liệu, và phép tính thì <strong>ngốn điện</strong>. Một lượt hỏi lẻ rất nhỏ, nhưng nhân với <em>hàng triệu người mỗi ngày</em> thì thành con số lớn. Hãy tự tay 'chạy' vài tác vụ và xem điện tiêu tốn quy ra thứ quen thuộc.",
-    en: "AI doesn't run on magic — each answer is a flood of calculations in a data center, and calculations <strong>burn electricity</strong>. A single query is tiny, but multiplied by <em>millions of people a day</em> it adds up fast. Run a few tasks yourself and see the energy in everyday terms.",
+    vi: "AI dùng điện cho tính toán, bộ nhớ, truyền dữ liệu và làm mát. <strong>Không có một con số cố định cho mỗi tác vụ</strong>: mức dùng thay đổi mạnh theo model, độ dài, phần cứng, batching và data center. Các số bên dưới chỉ là <em>giả định minh họa</em> để khám phá tác động của quy mô.",
+    en: "AI uses electricity for compute, memory, data movement, and cooling. <strong>There is no fixed per-task number</strong>: usage varies widely with model, length, hardware, batching, and data center. The figures below are <em>illustrative assumptions</em> for exploring scale.",
   },
-  runTitle: { vi: "⚡ Chạy thử vài tác vụ AI", en: "⚡ Run some AI tasks" },
-  runSub: { vi: "Bấm để 'chạy' — năng lượng sẽ cộng dồn bên phải.", en: "Click to 'run' — energy adds up on the right." },
-  meterTitle: { vi: "🔌 Điện đã tiêu tốn", en: "🔌 Energy consumed" },
+  runTitle: { vi: "⚡ Thử các giả định tác vụ", en: "⚡ Try task assumptions" },
+  runSub: { vi: "Bấm để cộng giá trị minh họa — đây không phải phép đo.", en: "Click to add an illustrative value—these are not measurements." },
+  meterTitle: { vi: "🔌 Tổng theo giả định", en: "🔌 Illustrative total" },
   scaleLabel: { vi: "Nhân với số người dùng cùng làm việc đó:", en: "Multiply by people doing the same:" },
   reset: { vi: "↺ Đặt lại", en: "↺ Reset" },
-  train: { vi: "🏭 Huấn luyện MỘT mô hình lớn (một lần)", en: "🏭 Train ONE large model (one-off)" },
+  train: { vi: "🏭 Giả định huấn luyện: 1 GWh", en: "🏭 Training assumption: 1 GWh" },
   trainNote: {
-    vi: "Đó là chi phí <em>một lần</em> để tạo ra mô hình — tương đương hàng trăm nghìn lượt hỏi. Nhưng sau khi huấn luyện xong, nó phục vụ hàng tỉ lượt, nên chia đều ra mỗi lượt lại nhỏ.",
-    en: "That's a <em>one-time</em> cost to create the model — like hundreds of thousands of queries. But once trained it serves billions of uses, so spread per-query it's small again.",
+    vi: "Với giả định câu trả lời 3 Wh trong demo, 1 GWh tương đương khoảng 333 triệu lượt — không phải một tỷ lệ chung cho mọi model. Huấn luyện và suy luận thật phải được đo theo từng hệ thống.",
+    en: "At this demo's 3 Wh per reply assumption, 1 GWh equals about 333 million replies—not a universal ratio. Real training and inference must be measured per system.",
   },
-  empty: { vi: "Chưa chạy gì cả — bấm một tác vụ bên trái.", en: "Nothing run yet — click a task on the left." },
+  empty: { vi: "Chưa chọn giả định nào.", en: "No assumption selected yet." },
 };
 
 // Quy đổi Wh sang thứ đời thường. Trả về mảng chuỗi đã dịch.
@@ -111,8 +111,8 @@ export function roomEnergy(root) {
 
     <div class="takeaway">
       ${tx(
-        "💡 <strong>Điều cốt lõi:</strong> Mỗi lượt hỏi AI tốn điện <em>rất ít</em> — vấn đề nằm ở <strong>quy mô</strong>: nhân với hàng tỉ lượt mỗi ngày, cộng thêm chi phí huấn luyện khổng lồ, tổng năng lượng (và nước làm mát, khí thải) trở nên đáng kể. Tạo ảnh tốn hơn viết chữ nhiều lần. Đó là lý do hiệu quả tính toán và điện sạch là bài toán lớn của ngành AI — và là điều đáng cân nhắc khi ta chọn dùng AI cho việc gì.",
-        "💡 <strong>Key idea:</strong> Each AI query uses <em>very little</em> energy — the issue is <strong>scale</strong>: multiplied by billions of uses a day, plus the huge one-off training cost, the total energy (and cooling water, emissions) becomes significant. Images cost many times more than text. That's why compute efficiency and clean power are big challenges for AI — and worth weighing when you choose what to use AI for."
+        "💡 <strong>Điều cốt lõi:</strong> Tác động năng lượng = mức dùng mỗi tác vụ × quy mô, cộng hạ tầng và huấn luyện. Nhưng mức mỗi tác vụ có thể chênh nhiều bậc theo model, độ dài, batching, phần cứng, PUE và nguồn điện; vì vậy các nút ở trên là kịch bản giả định, không phải bảng định mức. Hãy dùng báo cáo IEA bên dưới cho bức tranh hệ thống.",
+        "💡 <strong>Key idea:</strong> Energy impact combines per-task use, scale, infrastructure, and training. Per-task use can vary by orders of magnitude with model, length, batching, hardware, PUE, and power source; the buttons above are scenarios, not fixed rates. Use the IEA source below for a system-level picture."
       )}
     </div>
   `;

@@ -70,8 +70,8 @@ export function roomMultimodal(root) {
   root.innerHTML = `
     <p class="room-intro">
       ${tx(
-        "Con người nhìn một bức ảnh và mô tả bằng lời ngay được — vì trong đầu ta, <strong>hình ảnh và ngôn ngữ nối với nhau</strong>. AI <em>đa phương thức</em> (multimodal) cũng vậy: nó học cách đặt cả ảnh lẫn chữ lên <strong>cùng một bản đồ ý nghĩa</strong>, nên có thể mô tả ảnh, trả lời câu hỏi về ảnh, hay tìm ảnh từ một câu chữ.",
-        "You look at a photo and describe it instantly — because in your mind, <strong>images and language connect</strong>. A <em>multimodal</em> AI does the same: it learns to place both images and text on <strong>one shared meaning map</strong>, so it can caption images, answer questions about them, or find images from text."
+        "Một số model đa phương thức học biểu diễn ảnh và chữ có thể so sánh trong <strong>không gian chung</strong>; các kiến trúc khác kết nối encoder và model ngôn ngữ theo cách khác. Nhờ vậy chúng có thể làm caption, hỏi–đáp ảnh hoặc tìm ảnh. Trong demo này, emoji, nhãn, confidence và câu trả lời đều được viết sẵn.",
+        "Some multimodal models learn image and text representations that can be compared in a <strong>shared space</strong>; other architectures connect encoders and language models differently. This enables captioning, visual Q&A, or retrieval. In this demo, emoji scenes, labels, confidence scores, and answers are all scripted."
       )}
     </p>
 
@@ -93,8 +93,8 @@ export function roomMultimodal(root) {
 
     <div class="takeaway">
       ${tx(
-        "💡 <strong>Điều cốt lõi:</strong> AI đa phương thức không xử lý ảnh và chữ như hai thế giới tách biệt. Nó biến cả hai thành cùng một loại vector, đặt chung một không gian — nên \"ảnh con chó\" và chữ \"con chó\" nằm gần nhau. Đó là nền tảng của các trợ lý xem được ảnh, đọc được biểu đồ, hay tạo ảnh từ mô tả.",
-        "💡 <strong>Key idea:</strong> Multimodal AI doesn't treat images and text as separate worlds. It turns both into the same kind of vector in one shared space — so \"a photo of a dog\" and the word \"dog\" sit close together. That's the basis of assistants that can view images, read charts, or make images from descriptions."
+        "💡 <strong>Điều cốt lõi:</strong> Multimodal model xử lý nhiều loại dữ liệu và học cách kết nối chúng. Kiến trúc kiểu CLIP dùng biểu diễn ảnh–chữ có thể so sánh trong không gian chung; hệ khác có thể nối vision encoder với language model theo cách khác. Vì vậy không nên coi mọi hệ là 'cùng một loại vector'. Output của demo này là dữ liệu viết sẵn.",
+        "💡 <strong>Key idea:</strong> Multimodal models process and connect multiple data types. CLIP-like architectures learn comparable image–text representations in a shared space; other systems connect vision encoders and language models differently. Not every system uses 'the same vector type.' This demo's outputs are scripted."
       )}
     </div>
   `;

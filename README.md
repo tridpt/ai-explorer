@@ -143,6 +143,7 @@ ai-explorer/
 - Ghi nhớ tiến trình & điểm cao nhất qua localStorage.
 - Tối ưu cho cả điện thoại.
 - **PWA**: cài được như app, chạy offline (service worker cache toàn bộ asset). Khi có bản mới, app hiện thông báo **"Đã có bản mới — Tải lại"** thay vì kẹt ở bản cũ.
+- **Minh bạch nội dung**: mỗi phòng ghi rõ phạm vi mô phỏng, ngày rà soát và nguồn gốc/tài liệu đọc thêm; quiz giải thích đáp án sau khi chọn.
 - Tôn trọng tùy chọn "giảm chuyển động" của hệ điều hành (accessibility).
 - Mục "Tìm hiểu thêm" với các nguồn học AI trực quan uy tín.
 

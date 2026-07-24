@@ -37,6 +37,7 @@ import { getLang, setLang, tx } from "./i18n.js";
 import { initAnalytics, trackView } from "./analytics.js";
 import { parseHash, buildShareUrl } from "./roomstate.js";
 import { renderMicroQuiz, hasMicroQuiz } from "./roomquiz.js";
+import { renderTrustPanel } from "./roomtrust.js";
 
 // Thứ tự các phòng = mạch kể chuyện của hành trình. title/question/blurb song ngữ.
 export const ROOMS = [
@@ -115,8 +116,8 @@ export const ROOMS = [
     title: { vi: "Bản đồ ý nghĩa", en: "The map of meaning" },
     question: { vi: "AI hiểu nghĩa của từ ra sao?", en: "How does AI grasp word meaning?" },
     blurb: {
-      vi: "Khám phá cách AI biến từ ngữ thành các điểm trên bản đồ, nơi 'vua − đàn ông + đàn bà = nữ hoàng'.",
-      en: "See how AI turns words into points on a map, where 'king − man + woman = queen'.",
+      vi: "Khám phá cách embedding biểu diễn từ bằng vector — và vì sao một số phép loại suy xuất hiện nhưng không phải lúc nào cũng đúng.",
+      en: "Explore how embeddings represent words as vectors—and why some analogies emerge without being universal rules.",
     },
     render: roomEmbeddings,
   },
@@ -125,8 +126,8 @@ export const ROOMS = [
     title: { vi: "AI đọc câu của bạn", en: "AI reads your sentence" },
     question: { vi: "Nó đọc một câu kiểu gì?", en: "How does it read a sentence?" },
     blurb: {
-      vi: "Xem khi AI gặp một từ, nó đang 'nhìn' vào những từ nào khác để hiểu nghĩa — cơ chế attention.",
-      en: "See which other words an AI 'looks at' to understand a given word — the attention mechanism.",
+      vi: "Xem mô phỏng một attention head trộn thông tin giữa token — và hiểu vì sao trọng số không tự chứng minh AI đã 'hiểu'.",
+      en: "See a simulation of one attention head mixing token information—and why weights alone do not prove 'understanding'.",
     },
     render: roomAttention,
   },
@@ -135,8 +136,8 @@ export const ROOMS = [
     title: { vi: "Máy đoán chữ", en: "The word-guessing machine" },
     question: { vi: "Vì sao AI đôi khi đoán bừa?", en: "Why does AI sometimes make things up?" },
     blurb: {
-      vi: "AI viết câu bằng cách liên tục đoán từ tiếp theo theo xác suất. Tự tay chứng kiến vì sao nó 'ảo giác'.",
-      en: "AI writes by repeatedly guessing the next word by probability. See first-hand why it 'hallucinates'.",
+      vi: "Chơi với trigram dự đoán từ tiếp theo, rồi phân biệt mô phỏng nhỏ này với LLM và các nguyên nhân ảo giác thực tế.",
+      en: "Play with next-word trigram prediction, then distinguish this toy model from LLMs and real hallucination causes.",
     },
     render: roomNextToken,
   },
@@ -145,8 +146,8 @@ export const ROOMS = [
     title: { vi: "AI tạo ảnh thế nào", en: "How AI makes images" },
     question: { vi: "Làm sao AI vẽ ra tranh?", en: "How does AI paint a picture?" },
     blurb: {
-      vi: "Từ một mớ nhiễu hỗn loạn, AI khử nhiễu từng bước cho tới khi hiện ra hình bạn yêu cầu — diffusion.",
-      en: "From pure random noise, AI denoises step by step until your requested image appears — diffusion.",
+      vi: "Dùng hiệu ứng pixel để hình dung ý tưởng khử nhiễu nhiều bước, đồng thời phân biệt nó với diffusion model thật.",
+      en: "Use a pixel effect to visualize multi-step denoising while distinguishing it from a real diffusion model.",
     },
     render: roomDiffusion,
   },
@@ -205,8 +206,8 @@ export const ROOMS = [
     title: { vi: "AI tra cứu tài liệu", en: "AI that looks things up" },
     question: { vi: "Sao chatbot đọc được tài liệu riêng?", en: "How does a chatbot read your docs?" },
     blurb: {
-      vi: "RAG: trước khi trả lời, AI đi 'tìm' đoạn tài liệu liên quan rồi mới dựa vào đó mà nói — bớt bịa, có dẫn nguồn.",
-      en: "RAG: before answering, the AI 'retrieves' relevant passages and grounds its reply on them — less making-up, with sources.",
+      vi: "RAG đưa đoạn truy xuất vào ngữ cảnh và hỗ trợ dẫn nguồn — nhưng retrieval lẫn câu trả lời vẫn cần được kiểm tra.",
+      en: "RAG adds retrieved passages to context and supports citations—but retrieval and answers still need verification.",
     },
     render: roomRag,
   },
@@ -225,8 +226,8 @@ export const ROOMS = [
     title: { vi: "AI biết dùng công cụ", en: "AI that uses tools" },
     question: { vi: "AI tự làm việc nhiều bước kiểu gì?", en: "How does AI do multi-step work?" },
     blurb: {
-      vi: "AI agent không chỉ trả lời — nó lên kế hoạch, gọi công cụ (máy tính, tìm kiếm…), xem kết quả rồi đi tiếp cho tới khi xong.",
-      en: "An AI agent doesn't just answer — it plans, calls tools (calculator, search…), reads results, and loops until done.",
+      vi: "Xem trace viết sẵn của vòng lặp agent gọi công cụ, cùng những rủi ro về tool lỗi, quyền hạn và dữ liệu cũ.",
+      en: "Inspect a scripted tool-using agent loop and its risks: tool failures, permissions, and stale data.",
     },
     render: roomAgents,
   },
@@ -235,8 +236,8 @@ export const ROOMS = [
     title: { vi: "AI hiểu cả ảnh lẫn chữ", en: "AI that sees and reads" },
     question: { vi: "Làm sao AI 'nhìn' được ảnh?", en: "How does AI 'see' an image?" },
     blurb: {
-      vi: "Multimodal: AI đưa ảnh và chữ về cùng một 'không gian ý nghĩa', nên nó mô tả được ảnh và trả lời câu hỏi về ảnh.",
-      en: "Multimodal: AI maps images and text into one 'meaning space', so it can describe images and answer questions about them.",
+      vi: "Khám phá vài cách hệ đa phương thức kết nối ảnh và chữ; output trong demo là dữ liệu viết sẵn, không phải vision model thật.",
+      en: "Explore ways multimodal systems connect image and text; demo outputs are scripted, not real vision inference.",
     },
     render: roomMultimodal,
   },
@@ -265,8 +266,8 @@ export const ROOMS = [
     title: { vi: "Dạy AI cư xử cho phải", en: "Teaching AI to behave" },
     question: { vi: "Sao AI biết trả lời 'dễ nghe'?", en: "How does AI learn to be helpful?" },
     blurb: {
-      vi: "AI thô ban đầu nói năng lộn xộn. Bạn xếp hạng câu nào hay hơn, một 'mô hình phần thưởng' học theo gu bạn, rồi AI được tinh chỉnh để trả lời như bạn muốn — đó là RLHF.",
-      en: "A raw AI answers messily. You rank which reply is better, a 'reward model' learns your taste, then the AI is tuned to answer the way you want — that's RLHF.",
+      vi: "Xếp hạng vài câu trả lời để minh họa preference data; demo không huấn luyện reward model hay policy thật.",
+      en: "Rank responses to illustrate preference data; the demo trains no real reward model or policy.",
     },
     render: roomRlhf,
   },
@@ -275,8 +276,8 @@ export const ROOMS = [
     title: { vi: "AI ngốn bao nhiêu điện?", en: "How much power does AI use?" },
     question: { vi: "Dùng AI tốn năng lượng cỡ nào?", en: "What does using AI cost in energy?" },
     blurb: {
-      vi: "Mỗi câu hỏi AI đều tốn điện. Tự tay 'chạy' vài tác vụ, xem năng lượng cộng dồn quy ra sạc điện thoại hay đun nước — rồi nhân với hàng triệu người dùng.",
-      en: "Every AI query burns power. 'Run' a few tasks yourself, see the energy add up in phone-charges or kettles — then multiply by millions of users.",
+      vi: "Thử các giả định năng lượng để thấy tác động của quy mô; số Wh minh họa không phải phép đo hay định mức chung.",
+      en: "Explore energy assumptions to see scale effects; the illustrative Wh values are not measurements or universal rates.",
     },
     render: roomEnergy,
   },
@@ -285,8 +286,8 @@ export const ROOMS = [
     title: { vi: "AI biết suy nghĩ từng bước", en: "AI that thinks step by step" },
     question: { vi: "Vì sao 'nghĩ' giúp AI trả lời đúng hơn?", en: "Why does 'thinking' make AI more accurate?" },
     blurb: {
-      vi: "Bắt AI trả lời ngay thì hay sai; cho nó viết ra suy nghĩ từng bước thì đúng hơn hẳn. Tự tay so sánh — đây là chain-of-thought của các model 'biết suy nghĩ'.",
-      en: "Forced to answer instantly, AI often slips; let it write its reasoning step by step and it gets it right. Compare them yourself — this is the chain-of-thought behind 'thinking' models.",
+      vi: "So sánh hai đầu ra viết sẵn để hiểu ngân sách suy luận: nhiều bước có thể giúp một số bài nhưng không bảo đảm đúng.",
+      en: "Compare two scripted outputs to understand inference budget: more steps can help some tasks but do not guarantee correctness.",
     },
     render: roomReasoning,
   },
@@ -768,6 +769,7 @@ async function route({ moveFocus = false } = {}) {
     if (generation !== routeGeneration || currentRoute() !== id) return;
     body.innerHTML = "";
     renderRoom(body);
+    renderTrustPanel(body, room.id);
     if (room.id !== "summary" && hasMicroQuiz(room.id)) renderMicroQuiz(body, room.id);
     showHint(room.id);
   } catch (error) {

@@ -72,8 +72,8 @@ const PROBLEMS = [
 
 const UI = {
   intro: {
-    vi: "Bên trong, AI viết câu bằng cách đoán từ tiếp theo (xem phòng “Máy đoán chữ”). Nếu bắt nó <strong>trả lời ngay</strong>, nó thường buột ra đáp án nghe hợp lý mà <em>sai</em>. Nhưng nếu cho nó <strong>viết ra suy nghĩ từng bước</strong> trước khi kết luận, nó lý luận được và đúng hơn hẳn. Đây chính là <strong>chain-of-thought</strong> — và là ý tưởng cốt lõi của các model “biết suy nghĩ” (như o1, DeepSeek-R1). Hãy tự so sánh.",
-    en: "Under the hood, AI writes by guessing the next word (see the “Word-guessing machine” room). Forced to <strong>answer instantly</strong>, it often blurts a plausible-sounding but <em>wrong</em> answer. But let it <strong>write out its thinking step by step</strong> first, and it reasons its way to the right answer. This is <strong>chain-of-thought</strong> — the core idea behind “thinking” models (like o1, DeepSeek-R1). Compare them yourself.",
+    vi: "Hai đầu ra trong phòng này được <strong>viết sẵn</strong> để so sánh trả lời một bước với nhiều bước. Trong model thật, thêm bước suy luận có thể cải thiện <em>một số</em> bài toán, nhưng không bảo đảm đúng và chuỗi giải thích có thể không phản ánh trung thực cơ chế bên trong. Hãy xem demo như minh họa về ngân sách tính toán, không phải phép đo độ chính xác.",
+    en: "Both outputs in this room are <strong>scripted</strong> to compare one-step and multi-step answering. In real models, extra inference steps can help on <em>some</em> tasks, but they do not guarantee correctness and generated rationales may not faithfully reveal internal mechanisms. Treat this as a compute-budget illustration, not an accuracy measurement.",
   },
   pickTitle: { vi: "🧩 Chọn một bài “bẫy”", en: "🧩 Pick a tricky problem" },
   qTitle: { vi: "Câu hỏi", en: "The question" },
@@ -130,8 +130,8 @@ export function roomReasoning(root) {
 
     <div class="takeaway">
       ${tx(
-        "💡 <strong>Điều cốt lõi:</strong> AI không “thông minh hơn” khi suy nghĩ từng bước — nó chỉ có <strong>thêm không gian để tính</strong>. Mỗi bước viết ra trở thành ngữ cảnh cho bước sau, nên lời giải dựng dần thay vì đoán một phát. Cái giá là <strong>chậm hơn và tốn nhiều token hơn</strong>, nên ta chỉ cần “nghĩ kỹ” cho bài khó. Đó chính là điều các model reasoning làm tự động: nghĩ thầm thật dài trước khi chốt câu trả lời.",
-        "💡 <strong>Key idea:</strong> An AI isn't “smarter” when it thinks step by step — it just gets <strong>more room to compute</strong>. Each written step becomes context for the next, so the solution builds up instead of being guessed in one shot. The cost is being <strong>slower and using far more tokens</strong>, so we only need to “think hard” on tough problems. That's exactly what reasoning models do automatically: think privately at length before committing to an answer."
+        "💡 <strong>Điều cốt lõi:</strong> Dành thêm bước/token cho suy luận có thể cải thiện một số tác vụ vì model có thêm ngân sách tính toán. Đổi lại là độ trễ và chi phí cao hơn; kết quả vẫn có thể sai, và phần giải thích model viết ra không nhất thiết là bản ghi trung thực của quá trình bên trong. Hai nhánh trong demo này đều được viết sẵn.",
+        "💡 <strong>Key idea:</strong> Spending more inference steps or tokens can improve some tasks by giving a model more compute budget. The trade-offs are latency and cost; results can still be wrong, and generated explanations need not faithfully record internal processing. Both branches in this demo are scripted."
       )}
     </div>
   `;

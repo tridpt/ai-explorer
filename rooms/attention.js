@@ -67,8 +67,8 @@ export function roomAttention(root) {
   root.innerHTML = `
     <p class="room-intro">
       ${tx(
-        "Khi đọc câu \"con mèo đuổi con chuột vì <b>nó</b> đói\", bạn hiểu ngay \"nó\" là con mèo. Nhưng làm sao AI biết? Nó dùng cơ chế <strong>attention</strong>: với mỗi từ, AI tự hỏi \"để hiểu từ này, tôi nên <em>chú ý</em> vào những từ nào khác?\". Hãy bấm vào một từ để xem.",
-        "Reading \"the cat chased the mouse because <b>it</b> was hungry\", you instantly know \"it\" is the cat. But how does AI know? It uses <strong>attention</strong>: for each word, the AI asks \"to understand this word, which other words should I <em>attend to</em>?\". Click a word to see."
+        "Câu này minh họa một tình huống mà thông tin về đại từ phụ thuộc các từ khác. <strong>Attention</strong> là cơ chế trộn thông tin giữa token theo trọng số. Ma trận bên dưới được viết sẵn để cho thấy một attention head <em>có thể</em> phân bổ trọng số thế nào — không phải đầu ra của model thật.",
+        "This sentence illustrates a pronoun whose interpretation depends on other words. <strong>Attention</strong> mixes token information using weights. The matrix below is hand-authored to show how one attention head <em>might</em> distribute weights—it is not output from a real model."
       )}
     </p>
 
@@ -92,8 +92,8 @@ export function roomAttention(root) {
 
     <div class="takeaway">
       ${tx(
-        "💡 <strong>Điều cốt lõi:</strong> AI không đọc tuần tự từng chữ một cách máy móc. Với mỗi từ, nó <em>cân nhắc trọng số</em> tất cả các từ khác trong câu để nắm ngữ cảnh. Nhờ vậy nó biết \"nó\", \"cô ấy\" đang trỏ về ai — đây chính là trái tim của các mô hình ngôn ngữ hiện đại (Transformer).",
-        "💡 <strong>Key idea:</strong> AI doesn't read word by word mechanically. For each word it <em>weighs</em> all the other words in the sentence to grasp context. That's how it knows what \"it\" or \"she\" refers to — the very heart of modern language models (Transformers)."
+        "💡 <strong>Điều cốt lõi:</strong> Transformer dùng attention để <em>trộn thông tin</em> giữa các token theo trọng số qua nhiều head và layer. Trọng số có thể gợi ý token nào đang tương tác, nhưng không tự chứng minh model đã hiểu đúng đại từ hay giải thích nhân quả cho dự đoán.",
+        "💡 <strong>Key idea:</strong> Transformers use attention to <em>mix information</em> among tokens through weights across many heads and layers. Those weights can suggest token interactions, but they do not by themselves prove correct understanding or causally explain a prediction."
       )}
     </div>
   `;

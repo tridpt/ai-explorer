@@ -28,13 +28,13 @@ const BOT = {
 };
 
 const UI = {
-  intro: { vi: "AI tạo ảnh bằng <strong>diffusion</strong>: bắt đầu từ nhiễu ngẫu nhiên rồi <em>khử nhiễu từng bước</em> đến khi hiện ra hình. <strong>Thử thách:</strong> ảnh đang hiện dần — đoán prompt <strong>càng sớm càng nhiều điểm</strong>!", en: "AI makes images via <strong>diffusion</strong>: start from random noise and <em>denoise step by step</em> until an image appears. <strong>Challenge:</strong> the image is emerging — guess the prompt <strong>the earlier, the more points</strong>!" },
+  intro: { vi: "Diffusion model thật học một quá trình <strong>khử nhiễu nhiều bước</strong> có điều kiện theo prompt. Trò chơi này không chạy model: nó chỉ hòa trộn nhiễu pixel với một emoji đích để minh họa trực quan. <strong>Thử thách:</strong> đoán hình càng sớm càng nhiều điểm!", en: "Real diffusion models learn a <strong>multi-step denoising process</strong> conditioned on a prompt. This game runs no model: it only blends pixel noise toward a target emoji as a visualization. <strong>Challenge:</strong> guess earlier for more points!" },
   score: { vi: "Điểm", en: "Score" }, streak: { vi: "Chuỗi", en: "Streak" }, best: { vi: "Kỷ lục", en: "Best" },
   start: { vi: "▶ Chơi", en: "▶ Play" }, again: { vi: "↺ Chơi lại", en: "↺ Play again" },
-  prompt: { vi: "AI đang vẽ gì?", en: "What is the AI drawing?" },
+  prompt: { vi: "Emoji đích là gì?", en: "What is the target emoji?" },
   clarity: { vi: "Độ rõ", en: "Clarity" },
   over: { vi: "Hết lượt!", en: "Game over!" },
-  overSub: { vi: "AI tạo ảnh không \"vẽ\" như người — nó học cách <b>biến nhiễu thành ảnh</b> qua nhiều bước nhỏ. Prompt của bạn chỉ là la bàn hướng quá trình khử nhiễu về bức ảnh mong muốn.", en: "Image AI doesn't \"paint\" like a human — it learned to <b>turn noise into images</b> through many small steps. Your prompt is just a compass steering the denoising." },
+  overSub: { vi: "Hiệu ứng trong game là phép hòa trộn pixel, không phải quá trình suy luận của diffusion model. Nguồn bên dưới mô tả thuật toán thật.", en: "The game effect is pixel blending, not diffusion-model inference. See the source below for the real algorithm." },
   newRecord: { vi: "🏆 Kỷ lục mới!", en: "🏆 New record!" }, finalScore: { vi: "Điểm của bạn", en: "Your score" },
 };
 
@@ -76,8 +76,8 @@ export function roomDiffusion(root) {
     </div>
 
     <div class="takeaway">${tx(
-      "💡 <strong>Điều cốt lõi:</strong> AI tạo ảnh học cách <em>biến nhiễu thành ảnh</em> qua nhiều bước khử nhiễu. Ở bước đầu ảnh còn mơ hồ — đoán được sớm nghĩa là bạn nhận ra mẫu hình cũng nhanh như AI vậy.",
-      "💡 <strong>Key idea:</strong> Image AI learns to <em>turn noise into images</em> through many denoising steps. Early on it's vague — guessing early means you spot patterns as fast as the AI does."
+      "💡 <strong>Điều cốt lõi:</strong> Diffusion model thật học một quá trình khử nhiễu xác suất qua nhiều bước, thường có điều kiện theo prompt. Canvas ở đây chỉ làm ảnh emoji rõ dần bằng phép hòa trộn pixel, nên điểm số đo khả năng đoán emoji — không đo cách AI hay con người nhận mẫu.",
+      "💡 <strong>Key idea:</strong> Real diffusion models learn a probabilistic multi-step denoising process, often conditioned on prompts. This canvas only reveals an emoji through pixel blending, so the score measures emoji guessing—not how an AI or human recognizes patterns."
     )}</div>
   `;
 

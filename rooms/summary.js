@@ -2,20 +2,21 @@
 import { sfx, celebrate } from "../sound.js";
 import { setBestScore, getMicroTotal } from "../store.js";
 import { tx } from "../i18n.js";
+import { QUIZ_EXPLANATIONS } from "../roomtrust.js";
 
 const POINTS = [
-  { icon: "📸", title: { vi: "AI học từ ví dụ", en: "AI learns from examples" }, text: { vi: "Không ai lập trình từng quy tắc. Bạn cho AI xem dữ liệu, nó tự rút ra mẫu hình.", en: "No one codes each rule. You show it data and it extracts patterns." } },
-  { icon: "🕸️", title: { vi: "Nó là nhiều nơ-ron đơn giản", en: "It's many simple neurons" }, text: { vi: "Mỗi nơ-ron rất ngốc, nhưng ghép hàng triệu cái lại thì học được những thứ phức tạp.", en: "Each neuron is dumb, but millions combined learn complex things." } },
-  { icon: "🤖", title: { vi: "Có khi nó học qua thử–sai", en: "Sometimes it learns by trial" }, text: { vi: "Học tăng cường: AI tự thử, được thưởng khi làm tốt, và dần tìm ra cách tối ưu — không cần đáp án.", en: "Reinforcement learning: it tries, gets rewarded for good moves, and finds the optimal way — no answer key." } },
-  { icon: "🧲", title: { vi: "Có khi nó tự tìm nhóm", en: "Sometimes it groups by itself" }, text: { vi: "Học không giám sát: không cần nhãn, AI tự phát hiện cấu trúc và gom dữ liệu giống nhau lại.", en: "Unsupervised learning: with no labels, AI finds structure and groups similar data itself." } },
-  { icon: "🗺️", title: { vi: "Từ ngữ là tọa độ", en: "Words are coordinates" }, text: { vi: "AI biến chữ thành điểm trên bản đồ ý nghĩa, nên nó tính được cả 'vua − đàn ông + đàn bà'.", en: "AI turns words into points on a meaning map, so it can compute 'king − man + woman'." } },
-  { icon: "👁️", title: { vi: "Nó chú ý có chọn lọc", en: "It attends selectively" }, text: { vi: "Với mỗi từ, AI cân nhắc cả câu để hiểu ngữ cảnh — đó là cơ chế attention.", en: "For each word, AI weighs the whole sentence to grasp context — that's attention." } },
-  { icon: "🎲", title: { vi: "Nó đoán theo xác suất", en: "It guesses by probability" }, text: { vi: "AI không 'biết' sự thật, nó chọn từ nghe hợp lý. Vì thế nó có thể sai mà vẫn rất tự tin.", en: "AI doesn't 'know' the truth, it picks plausible words. So it can be wrong yet confident." } },
-  { icon: "⚖️", title: { vi: "Nó phản chiếu dữ liệu", en: "It mirrors the data" }, text: { vi: "AI học cả định kiến của con người. Dữ liệu lệch thì AI cũng lệch.", en: "AI learns human biases too. Skewed data means a skewed AI." } },
-  { icon: "🔧", title: { vi: "Nó tra được tài liệu riêng", en: "It can look things up" }, text: { vi: "RAG: trước khi trả lời, AI tìm những mảnh tài liệu liên quan rồi dựa vào đó — nên bớt bịa và dẫn được nguồn.", en: "RAG: before answering, AI retrieves relevant passages and grounds on them — less making things up, with sources." } },
-  { icon: "🧩", title: { vi: "Có hai cách dạy thêm", en: "Two ways to teach it more" }, text: { vi: "Prompting (ra lệnh bằng chữ) nhanh và rẻ; fine-tuning (huấn luyện lại) mạnh nhưng tốn kém. Chọn đúng theo nhu cầu.", en: "Prompting (instruct with text) is fast and cheap; fine-tuning (retraining) is powerful but costly. Pick per need." } },
-  { icon: "🤝", title: { vi: "Nó biết dùng công cụ", en: "It can use tools" }, text: { vi: "Agent lên kế hoạch nhiều bước và tự gọi công cụ (máy tính, tra cứu…) — vượt khỏi giới hạn 'chỉ biết chữ'.", en: "An agent plans multi-step work and calls tools (calculator, lookup…) — beyond 'text only'." } },
-  { icon: "🖼️", title: { vi: "Nó hiểu cả ảnh lẫn chữ", en: "It sees and reads" }, text: { vi: "Multimodal: ảnh và chữ nằm chung một bản đồ ý nghĩa, nên AI mô tả được ảnh và trả lời câu hỏi về ảnh.", en: "Multimodal: images and text share one meaning map, so AI can caption images and answer questions about them." } },
+  { icon: "📸", title: { vi: "AI học từ ví dụ", en: "AI learns from examples" }, text: { vi: "Dữ liệu cung cấp ví dụ; thuật toán, nhãn và cách đánh giá vẫn do con người thiết kế.", en: "Data provides examples; people still design algorithms, labels, and evaluation." } },
+  { icon: "🕸️", title: { vi: "Mạng học mẫu phi tuyến", en: "Networks learn nonlinear patterns" }, text: { vi: "Nhiều lớp biến đổi đơn giản có thể ghép thành hàm phức tạp; năng lực phụ thuộc kiến trúc, dữ liệu và huấn luyện.", en: "Layers of simple transformations can compose complex functions; capability depends on architecture, data, and training." } },
+  { icon: "🤖", title: { vi: "Có khi nó học qua thử–sai", en: "Sometimes it learns by trial" }, text: { vi: "Học tăng cường tối ưu tín hiệu thưởng qua tương tác; thiết kế reward và môi trường quyết định hành vi học được.", en: "Reinforcement learning optimizes reward through interaction; reward and environment design shape behavior." } },
+  { icon: "🧲", title: { vi: "Có khi nó tìm cấu trúc", en: "Sometimes it finds structure" }, text: { vi: "Clustering gom điểm theo thước đo giống nhau, nhưng con người vẫn chọn đặc trưng, khoảng cách và số cụm.", en: "Clustering groups points by a similarity measure, while humans choose features, distance, and cluster count." } },
+  { icon: "🗺️", title: { vi: "Ý nghĩa có thể thành vector", en: "Meaning can be represented as vectors" }, text: { vi: "Một số quan hệ hiện thành hướng/khoảng cách trong embedding; phép loại suy phụ thuộc model và dữ liệu.", en: "Some relations appear as embedding directions or distances; analogies depend on model and data." } },
+  { icon: "👁️", title: { vi: "Attention trộn thông tin", en: "Attention mixes information" }, text: { vi: "Token trao đổi thông tin theo trọng số qua nhiều head/layer; trọng số không tự là lời giải thích nhân quả.", en: "Tokens exchange weighted information across heads and layers; weights alone are not causal explanations." } },
+  { icon: "🎲", title: { vi: "Nó dự đoán theo xác suất", en: "It predicts probabilistically" }, text: { vi: "Sự trôi chảy từ dự đoán token không bảo đảm tính đúng; đầu ra quan trọng vẫn cần kiểm chứng.", en: "Fluency from token prediction does not ensure factuality; important outputs still need verification." } },
+  { icon: "⚖️", title: { vi: "Nó phản chiếu hệ thống dữ liệu", en: "It reflects its data system" }, text: { vi: "Thiên kiến có thể đến từ dữ liệu, nhãn, mục tiêu và bối cảnh triển khai — cần đo theo tác vụ cụ thể.", en: "Bias can arise from data, labels, objectives, and deployment context—and must be measured per task." } },
+  { icon: "🔧", title: { vi: "Nó có thể tra tài liệu", en: "It can retrieve documents" }, text: { vi: "RAG đưa đoạn truy xuất vào ngữ cảnh và hỗ trợ dẫn nguồn, nhưng retrieval/generation vẫn có thể sai.", en: "RAG adds retrieved passages to context and enables citations, while retrieval and generation can still fail." } },
+  { icon: "🧩", title: { vi: "Có nhiều cách điều chỉnh", en: "There are multiple adaptation methods" }, text: { vi: "Prompting đổi đầu vào; fine-tuning đổi tham số. Chi phí và chất lượng phụ thuộc model, dữ liệu và mục tiêu.", en: "Prompting changes input; fine-tuning changes parameters. Cost and quality depend on model, data, and goals." } },
+  { icon: "🤝", title: { vi: "Nó có thể dùng công cụ", en: "It can use tools" }, text: { vi: "Agent nối model với tool và vòng lặp; quyền hành động đòi hỏi kiểm tra, giới hạn và giám sát.", en: "Agents connect models to tools and loops; action permissions require checks, limits, and oversight." } },
+  { icon: "🖼️", title: { vi: "Nó kết nối ảnh và chữ", en: "It connects images and text" }, text: { vi: "Hệ đa phương thức kết nối modality bằng nhiều kiến trúc khác nhau; output vẫn phụ thuộc dữ liệu và đánh giá.", en: "Multimodal systems connect modalities through varied architectures; outputs still depend on data and evaluation." } },
 ];
 
 const QUIZ = [
@@ -51,6 +52,12 @@ const QUIZ = [
     opts: { vi: ["Nó lên kế hoạch nhiều bước và tự gọi công cụ", "Nó chỉ trả lời nhanh hơn", "Nó chỉ biết dịch"], en: ["It plans multi-step and calls tools itself", "It just replies faster", "It only translates"] }, correct: 0 },
   { q: { vi: "Mô hình 'multimodal' đặc biệt ở chỗ nào?", en: "What's special about a 'multimodal' model?" },
     opts: { vi: ["Hiểu nhiều loại dữ liệu (ảnh + chữ) trong cùng một không gian nghĩa", "Chỉ xử lý được chữ", "Chỉ chạy trên điện thoại"], en: ["It understands images + text in one shared meaning space", "It handles text only", "It only runs on phones"] }, correct: 0 },
+];
+
+const QUIZ_ROOM_IDS = [
+  "teachable", "neural-net", "embeddings", "attention", "next-token", "bias",
+  "diffusion", "tokenizer", "decision-tree", "reinforcement", "clustering",
+  "adversarial", "rag", "finetune", "agents", "multimodal",
 ];
 
 export function roomSummary(root) {
@@ -128,8 +135,9 @@ export function roomSummary(root) {
       btn.className = "quiz-opt";
       btn.textContent = opt;
       btn.onclick = () => {
-        block.querySelectorAll(".quiz-opt").forEach((b) => (b.disabled = true));
-        if (oi === item.correct) {
+        block.querySelectorAll(".quiz-opt").forEach((button) => (button.disabled = true));
+        const correct = oi === item.correct;
+        if (correct) {
           btn.classList.add("correct");
           score++;
           sfx.success();
@@ -138,6 +146,12 @@ export function roomSummary(root) {
           block.querySelectorAll(".quiz-opt")[item.correct].classList.add("correct");
           sfx.wrong();
         }
+        const explanation = QUIZ_EXPLANATIONS[QUIZ_ROOM_IDS[qi]];
+        const note = document.createElement("div");
+        note.className = "mq-note muted mt";
+        note.setAttribute("role", "status");
+        note.textContent = `${correct ? tx("Đúng.", "Correct.") : tx("Chưa đúng.", "Not quite.")} ${explanation ? tx(explanation) : ""}`.trim();
+        block.appendChild(note);
         answered++;
         if (answered === QUIZ.length) finish();
       };

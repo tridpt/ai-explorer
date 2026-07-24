@@ -1045,3 +1045,15 @@ button.attn-cell { padding: 0; }
   color: var(--bad-ink);
   font-weight: 700;
 }
+
+
+/* Content provenance panel shared by every educational room. */
+.content-trust {
+  margin-top: 24px;
+  border-left: 8px solid var(--accent);
+  background: #fffdf6;
+}
+.content-trust > p:not(.muted) { line-height: 1.6; font-weight: 600; }
+.trust-source-title { display: block; margin-top: 16px; }
+.trust-sources { margin-top: 6px; }
+.trust-sources li { padding: 8px 0; }

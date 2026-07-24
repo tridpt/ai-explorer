@@ -3,6 +3,7 @@
 import { sfx } from "./sound.js";
 import { tx } from "./i18n.js";
 import { markMicroQuiz, getMicroSolved } from "./store.js";
+import { QUIZ_EXPLANATIONS } from "./roomtrust.js";
 
 // Ngân hàng câu hỏi: mỗi phòng 1–2 câu ngắn. correct = chỉ số đáp án đúng.
 const BANK = {
@@ -291,7 +292,8 @@ export function renderMicroQuiz(container, roomId) {
     block.className = "quiz-q";
     block.innerHTML = `<div class="q-text">${tx(item.q)}</div>`;
     const opts = tx(item.opts);
-    const solvedBefore = solved.has(qi); // đúng chính xác câu qi ở lần trước
+    const explanation = QUIZ_EXPLANATIONS[roomId];
+    const solvedBefore = solved.has(qi);
     opts.forEach((opt, oi) => {
       const btn = document.createElement("button");
       btn.className = "quiz-opt";
@@ -301,24 +303,32 @@ export function renderMicroQuiz(container, roomId) {
         if (oi === item.correct) btn.classList.add("correct");
       }
       btn.onclick = () => {
-        block.querySelectorAll(".quiz-opt").forEach((b) => (b.disabled = true));
+        block.querySelectorAll(".quiz-opt").forEach((button) => (button.disabled = true));
         const note = block.querySelector(".mq-note") || document.createElement("div");
         note.className = "mq-note muted mt";
+        note.setAttribute("role", "status");
+        note.setAttribute("aria-live", "polite");
         if (oi === item.correct) {
           btn.classList.add("correct");
           markMicroQuiz(roomId, qi);
           sfx.success();
-          note.textContent = tx(UI.done);
+          note.textContent = `${tx(UI.done)} ${explanation ? tx(explanation) : ""}`.trim();
         } else {
           btn.classList.add("wrong");
           block.querySelectorAll(".quiz-opt")[item.correct].classList.add("correct");
           sfx.wrong();
-          note.textContent = tx(UI.wrong);
+          note.textContent = `${tx(UI.wrong)} ${explanation ? tx(explanation) : ""}`.trim();
         }
         if (!block.querySelector(".mq-note")) block.appendChild(note);
       };
       block.appendChild(btn);
     });
+    if (solvedBefore) {
+      const note = document.createElement("div");
+      note.className = "mq-note muted mt";
+      note.textContent = `${tx(UI.already)} ${explanation ? tx(explanation) : ""}`.trim();
+      block.appendChild(note);
+    }
     list.appendChild(block);
   });
 }

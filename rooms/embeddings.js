@@ -29,12 +29,12 @@ const BOT = {
 };
 
 const UI = {
-  intro: { vi: "AI biến mỗi từ thành một <strong>điểm toạ độ</strong>; những từ gần nghĩa nằm gần nhau, và <em>khoảng cách cũng mang ý nghĩa</em>. <strong>Thử thách:</strong> nhìn phép toán <b>a − b + c</b> và đoán từ thứ tư AI sẽ tính ra!", en: "AI turns each word into a <strong>coordinate point</strong>; similar words sit close, and <em>distance carries meaning</em>. <strong>Challenge:</strong> read the sum <b>a − b + c</b> and guess the fourth word the AI computes!" },
+  intro: { vi: "Embedding biểu diễn từ bằng <strong>vector nhiều chiều</strong>; một số quan hệ có thể hiện thành hướng và khoảng cách. <strong>Thử thách đồ chơi:</strong> trên bản đồ 2D đã sắp sẵn này, hãy đoán kết quả <b>a − b + c</b>!", en: "Embeddings represent words as <strong>high-dimensional vectors</strong>; some relations can appear as directions and distances. <strong>Toy challenge:</strong> on this curated 2D map, predict <b>a − b + c</b>!" },
   score: { vi: "Điểm", en: "Score" }, streak: { vi: "Chuỗi", en: "Streak" }, best: { vi: "Kỷ lục", en: "Best" },
   start: { vi: "▶ Chơi", en: "▶ Play" }, again: { vi: "↺ Chơi lại", en: "↺ Play again" },
-  prompt: { vi: "AI tính ra từ nào?", en: "Which word does the AI compute?" },
+  prompt: { vi: "Bản đồ cho ra từ nào?", en: "Which word does the map produce?" },
   over: { vi: "Hết lượt!", en: "Game over!" },
-  overSub: { vi: "AI \"hiểu\" nghĩa bằng cách đặt mọi từ lên bản đồ toạ độ. Vì <em>vua</em> hơn <em>đàn ông</em> đúng bằng lượng <em>nữ hoàng</em> hơn <em>đàn bà</em>, nó tính được loại suy mà không cần từ điển.", en: "AI \"understands\" meaning by placing words on a coordinate map. Because <em>king</em> differs from <em>man</em> as <em>queen</em> differs from <em>woman</em>, it computes analogies with no dictionary." },
+  overSub: { vi: "Bạn vừa thử loại suy trên một bản đồ 2D được tuyển chọn. Những quan hệ tương tự có thể xuất hiện trong embedding thật, nhưng phụ thuộc model và dữ liệu — không phải phép toán nghĩa luôn đúng.", en: "You tried analogies on a curated 2D map. Similar relations can emerge in real embeddings, but they depend on model and data—not a universal arithmetic of meaning." },
   newRecord: { vi: "🏆 Kỷ lục mới!", en: "🏆 New record!" }, finalScore: { vi: "Điểm của bạn", en: "Your score" },
 };
 
@@ -100,8 +100,8 @@ export function roomEmbeddings(root) {
     </div>
 
     <div class="takeaway">${tx(
-      "💡 <strong>Điều cốt lõi:</strong> AI đặt mọi từ lên bản đồ toạ độ; khoảng cách và hướng giữa các từ mang ý nghĩa, nên nó làm được <em>vua − đàn ông + đàn bà = nữ hoàng</em> mà không tra từ điển.",
-      "💡 <strong>Key idea:</strong> AI places every word on a coordinate map; distance and direction carry meaning, so it computes <em>king − man + woman = queen</em> with no dictionary."
+      "💡 <strong>Điều cốt lõi:</strong> Embedding mã hóa các mẫu quan hệ thành vector nhiều chiều. Một số phép loại suy như <em>vua − đàn ông + đàn bà ≈ nữ hoàng</em> có thể xuất hiện, nhưng phụ thuộc model, corpus và cách đánh giá — bản đồ 2D này được tuyển chọn để minh họa.",
+      "💡 <strong>Key idea:</strong> Embeddings encode relational patterns in high-dimensional vectors. Analogies such as <em>king − man + woman ≈ queen</em> can emerge, but depend on model, corpus, and evaluation—this 2D map is curated for illustration."
     )}</div>
   `;
 

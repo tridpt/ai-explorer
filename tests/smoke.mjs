@@ -71,6 +71,12 @@ for (const id of rooms) {
   await page.evaluate((r) => { location.hash = "#/" + r; }, id);
   // Chờ khung phòng render (tiêu đề .room-head) rồi thêm nhịp cho canvas/animation.
   await page.waitForSelector(".room-head, .hero", { timeout: 5000 }).catch(() => {});
+  await page.waitForSelector(".content-trust", { timeout: 5000 }).catch(() =>
+    failures.push(`[${currentRoom}] thiếu panel phạm vi mô phỏng/nguồn`)
+  );
+  const sourceCount = await page.locator(".content-trust .trust-sources a").count();
+  if (sourceCount < 1) failures.push(`[${currentRoom}] panel không có nguồn tham khảo`);
+  // Chờ thêm một nhịp cho canvas/animation và lỗi bất đồng bộ.
   await page.waitForTimeout(500);
   const errs = failures.length - before;
   console.log(`${errs === 0 ? "OK " : "ERR"}  ${id}${errs ? `  (${errs} lỗi)` : ""}`);
