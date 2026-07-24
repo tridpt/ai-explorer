@@ -14,3 +14,7 @@ Thumbs.db
 # Node / test
 node_modules/
 .edge-smoke/
+
+# Prerender SEO output (sinh lại bằng `npm run build:seo`, và trong CI trước khi deploy)
+/vi/
+/en/

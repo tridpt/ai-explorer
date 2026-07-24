@@ -157,9 +157,24 @@ python gen_icons.py
 ## Mở rộng thêm phòng mới
 
 Kiến trúc module hóa và lazy-load: tạo `rooms/ten-phong.js` export một hàm `render(root)`,
-thêm loader vào `room-loaders.js`, rồi thêm metadata vào mảng `ROOMS` trong `app.js`.
+thêm loader vào `room-loaders.js`, rồi thêm metadata vào mảng `ROOM_META` trong `rooms-meta.js`.
 Khung sườn, điều hướng, focus management và thanh tiến trình được xử lý tự động; code của
-phòng chỉ được tải và parse khi người dùng mở phòng đó.
+phòng chỉ được tải và parse khi người dùng mở phòng đó. `rooms-meta.js` là nguồn dữ liệu
+duy nhất, dùng chung cho app (client) và trình prerender SEO (Node).
+
+## SEO / prerender
+
+Vì app render bằng JS phía client, `build-seo.mjs` sinh trang HTML tĩnh song ngữ cho mỗi
+phòng (`vi/<id>/`, `en/<id>/`) kèm `title`/`description`/`canonical`/`hreflang`/Open Graph/
+JSON-LD (`LearningResource`), cộng `sitemap.xml` đầy đủ. Trang tĩnh chứa nội dung thật cho
+crawler rồi tự chuyển người dùng vào bản tương tác (SPA hash). Trang chủ có JSON-LD `Course`.
+
+```bash
+npm run build:seo   # sinh vi/, en/, sitemap.xml (tự chạy trong CI trước khi deploy)
+```
+
+Các thư mục `vi/` và `en/` được sinh tự động (đã .gitignore) và tạo lại trong GitHub Actions
+trước mỗi lần deploy.
 
 ## Kiểm thử
 

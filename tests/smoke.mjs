@@ -14,11 +14,10 @@ import { dirname, join } from "node:path";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const BASE = process.env.SMOKE_BASE || "http://localhost:8000";
 
-// Trích các id phòng từ mảng ROOMS trong app.js.
+// Trích các id phòng từ mảng ROOM_META trong rooms-meta.js (nguồn dữ liệu phòng).
 function readRoomIds() {
-  const src = readFileSync(join(__dirname, "..", "app.js"), "utf8");
-  // Chỉ lấy phần khai báo ROOMS để tránh bắt nhầm "id" ở nơi khác.
-  const start = src.indexOf("export const ROOMS");
+  const src = readFileSync(join(__dirname, "..", "rooms-meta.js"), "utf8");
+  const start = src.indexOf("export const ROOM_META");
   const end = src.indexOf("];", start);
   const block = src.slice(start, end);
   const ids = [...block.matchAll(/id:\s*"([^"]+)"/g)].map((m) => m[1]);
